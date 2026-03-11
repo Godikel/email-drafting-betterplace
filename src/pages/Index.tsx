@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { EmailSidebar, templates } from "@/components/email-builder/EmailSidebar";
 import { EmailEditor } from "@/components/email-builder/EmailEditor";
 import { EmailPreview, generateEmailHtml } from "@/components/email-builder/EmailPreview";
+import { VisualEmailEditor } from "@/components/email-builder/VisualEmailEditor";
 import { EmailActionBar } from "@/components/email-builder/EmailActionBar";
 import { toast } from "sonner";
 import type { EmailState, ContentBlockType } from "@/types/email";
@@ -206,14 +207,11 @@ const Index = () => {
           </header>
 
           <main className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 overflow-auto">
-            <div className="min-w-0 overflow-auto max-h-[calc(100vh-5rem)]">
-              {email.rawHtml ? (
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-foreground">Raw HTML Mode</h2>
-                  <p className="text-sm text-muted-foreground">
-                    An HTML file is loaded. Fill in subject & recipients, then preview or send.
-                  </p>
-                  <div className="space-y-4">
+            {email.template === "ai-roadmap-editable" ? (
+              /* ── Visual Editor Mode: full-width WYSIWYG ── */
+              <>
+                <div className="min-w-0 overflow-auto max-h-[calc(100vh-5rem)]">
+                  <div className="space-y-4 mb-6">
                     <div className="space-y-1.5">
                       <label htmlFor="subject" className="text-sm font-medium">Subject</label>
                       <input
@@ -235,40 +233,85 @@ const Index = () => {
                       />
                     </div>
                   </div>
+                  <VisualEmailEditor
+                    blocks={email.blocks}
+                    onBlockMetaChange={handleBlockMetaChange}
+                    onBlockRemove={handleBlockRemove}
+                    onBlockReorder={handleBlockReorder}
+                  />
                 </div>
-              ) : (
-                <EmailEditor
-                  email={email}
-                  onChange={handleChange}
-                  onBlockChange={handleBlockChange}
-                  onBlockMetaChange={handleBlockMetaChange}
-                  onBlockRemove={handleBlockRemove}
-                  onBlockAdd={handleBlockAdd}
-                  onBlockReorder={handleBlockReorder}
-                  dragState={dragState}
-                  onDragStart={handleDragStart}
-                  onDragOver={handleDragOver}
-                  onDragEnd={handleDragEnd}
-                />
-              )}
-            </div>
-            <div className="min-w-0">
-              {email.rawHtml ? (
-                <div>
-                  <h3 className="text-sm font-semibold text-foreground mb-3">Live Preview</h3>
-                  <div className="rounded-lg border bg-card shadow-card overflow-hidden">
-                    <iframe
-                      title="Raw HTML Preview"
-                      srcDoc={email.rawHtml}
-                      className="w-full min-h-[600px] border-0"
-                      sandbox="allow-same-origin"
+                <div className="min-w-0">
+                  <EmailPreview email={email} logoUrl={EMAIL_LOGO_URL} />
+                </div>
+              </>
+            ) : (
+              /* ── Standard Editor + Preview ── */
+              <>
+                <div className="min-w-0 overflow-auto max-h-[calc(100vh-5rem)]">
+                  {email.rawHtml ? (
+                    <div className="space-y-4">
+                      <h2 className="text-lg font-semibold text-foreground">Raw HTML Mode</h2>
+                      <p className="text-sm text-muted-foreground">
+                        An HTML file is loaded. Fill in subject & recipients, then preview or send.
+                      </p>
+                      <div className="space-y-4">
+                        <div className="space-y-1.5">
+                          <label htmlFor="subject" className="text-sm font-medium">Subject</label>
+                          <input
+                            id="subject"
+                            placeholder="Enter email subject…"
+                            value={email.subject}
+                            onChange={(e) => handleChange({ subject: e.target.value })}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label htmlFor="recipients" className="text-sm font-medium">Recipients</label>
+                          <input
+                            id="recipients"
+                            placeholder="e.g. team@company.com, user@example.com"
+                            value={email.recipients}
+                            onChange={(e) => handleChange({ recipients: e.target.value })}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <EmailEditor
+                      email={email}
+                      onChange={handleChange}
+                      onBlockChange={handleBlockChange}
+                      onBlockMetaChange={handleBlockMetaChange}
+                      onBlockRemove={handleBlockRemove}
+                      onBlockAdd={handleBlockAdd}
+                      onBlockReorder={handleBlockReorder}
+                      dragState={dragState}
+                      onDragStart={handleDragStart}
+                      onDragOver={handleDragOver}
+                      onDragEnd={handleDragEnd}
                     />
-                  </div>
+                  )}
                 </div>
-              ) : (
-                <EmailPreview email={email} logoUrl={EMAIL_LOGO_URL} />
-              )}
-            </div>
+                <div className="min-w-0">
+                  {email.rawHtml ? (
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground mb-3">Live Preview</h3>
+                      <div className="rounded-lg border bg-card shadow-card overflow-hidden">
+                        <iframe
+                          title="Raw HTML Preview"
+                          srcDoc={email.rawHtml}
+                          className="w-full min-h-[600px] border-0"
+                          sandbox="allow-same-origin"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <EmailPreview email={email} logoUrl={EMAIL_LOGO_URL} />
+                  )}
+                </div>
+              </>
+            )}
           </main>
         </div>
       </div>

@@ -1,5 +1,6 @@
-import { Mail, FileText, PlusCircle, Sparkles } from "lucide-react";
+import { Mail, FileText, PlusCircle, Sparkles, Pencil } from "lucide-react";
 import { iffcoTokioTemplate } from "@/templates/iffcoTokioTemplate";
+import { iffcoTokioEditableTemplate } from "@/templates/iffcoTokioEditableTemplate";
 import type { EmailState } from "@/types/email";
 import {
   Sidebar,
@@ -22,6 +23,7 @@ const initialState: EmailState = {
 export const templates: Record<string, EmailState> = {
   blank: initialState,
   aiRoadmap: iffcoTokioTemplate,
+  aiRoadmapEditable: iffcoTokioEditableTemplate,
 };
 
 const navItems = [
@@ -77,7 +79,16 @@ export function EmailSidebar({ active, onNavigate, onTemplateLoad }: EmailSideba
                   className="text-sidebar-foreground hover:bg-muted"
                 >
                   <Sparkles className="mr-2 h-4 w-4" />
-                  <span>AI Roadmap Email</span>
+                  <span>AI Roadmap (Original)</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => onTemplateLoad?.("aiRoadmapEditable")}
+                  className="text-sidebar-foreground hover:bg-muted"
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  <span>AI Roadmap (Visual Edit)</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
