@@ -316,10 +316,10 @@ export function generateEmailHtml(email: EmailState, logoUrl: string): string {
 
 interface EmailPreviewProps {
   email: EmailState;
+  logoUrl: string;
 }
 
-export function EmailPreview({ email }: EmailPreviewProps) {
-  const logoUrl = useLogoDataUrl();
+export function EmailPreview({ email, logoUrl }: EmailPreviewProps) {
   const html = generateEmailHtml(email, logoUrl);
 
   return (
