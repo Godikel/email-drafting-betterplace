@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { EmailSidebar, templates } from "@/components/email-builder/EmailSidebar";
 import { EmailEditor } from "@/components/email-builder/EmailEditor";
@@ -12,6 +12,7 @@ const initialState: EmailState = {
   recipients: "",
   template: "blank",
   blocks: [],
+  rawHtml: undefined,
 };
 
 const EMAIL_LOGO_URL = "https://radiant-reply-room.lovable.app/images/skillbetter-logo.png";
@@ -23,6 +24,30 @@ const Index = () => {
   const [email, setEmail] = useState<EmailState>(initialState);
   const [isSending, setIsSending] = useState(false);
   const [dragState, setDragState] = useState<{ dragging: string | null; over: string | null }>({ dragging: null, over: null });
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleHtmlUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.name.endsWith(".html") && !file.name.endsWith(".htm")) {
+      toast.error("Please upload an HTML file.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const html = ev.target?.result as string;
+      setEmail((prev) => ({ ...prev, rawHtml: html, blocks: [] }));
+      toast.success(`Loaded "${file.name}" as raw HTML`);
+    };
+    reader.readAsText(file);
+    // Reset input so the same file can be re-uploaded
+    e.target.value = "";
+  }, []);
+
+  const handleClearRawHtml = useCallback(() => {
+    setEmail((prev) => ({ ...prev, rawHtml: undefined }));
+    toast.info("Switched back to block editor");
+  }, []);
 
   const handleChange = useCallback((update: Partial<EmailState>) => {
     setEmail((prev) => ({ ...prev, ...update }));
@@ -95,7 +120,10 @@ const Index = () => {
     }
   }, []);
 
-  const buildEmailHtml = useCallback(() => generateEmailHtml(email, EMAIL_LOGO_URL), [email]);
+  const buildEmailHtml = useCallback(() => {
+    if (email.rawHtml) return email.rawHtml;
+    return generateEmailHtml(email, EMAIL_LOGO_URL);
+  }, [email]);
 
   const handlePreview = () => {
     const html = buildEmailHtml();
@@ -155,27 +183,87 @@ const Index = () => {
               <SidebarTrigger />
               <h1 className="text-base font-semibold text-foreground">Email Builder</h1>
             </div>
-            <EmailActionBar onPreview={handlePreview} onSave={handleSave} onSend={handleSend} isSending={isSending} />
+            <EmailActionBar
+              onPreview={handlePreview}
+              onSave={handleSave}
+              onSend={handleSend}
+              isSending={isSending}
+              onUploadHtml={() => fileInputRef.current?.click()}
+              hasRawHtml={!!email.rawHtml}
+              onClearRawHtml={handleClearRawHtml}
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".html,.htm"
+              className="hidden"
+              onChange={handleHtmlUpload}
+            />
           </header>
 
           <main className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 overflow-auto">
             <div className="min-w-0 overflow-auto max-h-[calc(100vh-5rem)]">
-              <EmailEditor
-                email={email}
-                onChange={handleChange}
-                onBlockChange={handleBlockChange}
-                onBlockMetaChange={handleBlockMetaChange}
-                onBlockRemove={handleBlockRemove}
-                onBlockAdd={handleBlockAdd}
-                onBlockReorder={handleBlockReorder}
-                dragState={dragState}
-                onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
-                onDragEnd={handleDragEnd}
-              />
+              {email.rawHtml ? (
+                <div className="space-y-4">
+                  <h2 className="text-lg font-semibold text-foreground">Raw HTML Mode</h2>
+                  <p className="text-sm text-muted-foreground">
+                    An HTML file is loaded. Fill in subject & recipients, then preview or send.
+                  </p>
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
+                      <label htmlFor="subject" className="text-sm font-medium">Subject</label>
+                      <input
+                        id="subject"
+                        placeholder="Enter email subject…"
+                        value={email.subject}
+                        onChange={(e) => handleChange({ subject: e.target.value })}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="recipients" className="text-sm font-medium">Recipients</label>
+                      <input
+                        id="recipients"
+                        placeholder="e.g. team@company.com, user@example.com"
+                        value={email.recipients}
+                        onChange={(e) => handleChange({ recipients: e.target.value })}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <EmailEditor
+                  email={email}
+                  onChange={handleChange}
+                  onBlockChange={handleBlockChange}
+                  onBlockMetaChange={handleBlockMetaChange}
+                  onBlockRemove={handleBlockRemove}
+                  onBlockAdd={handleBlockAdd}
+                  onBlockReorder={handleBlockReorder}
+                  dragState={dragState}
+                  onDragStart={handleDragStart}
+                  onDragOver={handleDragOver}
+                  onDragEnd={handleDragEnd}
+                />
+              )}
             </div>
             <div className="min-w-0">
-              <EmailPreview email={email} logoUrl={EMAIL_LOGO_URL} />
+              {email.rawHtml ? (
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-3">Live Preview</h3>
+                  <div className="rounded-lg border bg-card shadow-card overflow-hidden">
+                    <iframe
+                      title="Raw HTML Preview"
+                      srcDoc={email.rawHtml}
+                      className="w-full min-h-[600px] border-0"
+                      sandbox="allow-same-origin"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <EmailPreview email={email} logoUrl={EMAIL_LOGO_URL} />
+              )}
             </div>
           </main>
         </div>

@@ -25,4 +25,5 @@ export interface EmailState {
   recipients: string;
   template: string;
   blocks: ContentBlock[];
+  rawHtml?: string;
 }
