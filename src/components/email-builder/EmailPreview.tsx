@@ -253,8 +253,14 @@ function renderFooter(m: Record<string, any>, logoUrl: string): string {
 }
 
 function renderBlockHtml(block: ContentBlock, logoUrl: string): string {
-  const m = encodeMeta(parseMeta(block));
+  const rawMeta = parseMeta(block);
+  const customStyles = rawMeta._styles ? stylesToInline(rawMeta._styles) : "";
+  const m = encodeMeta(rawMeta);
   const content = block.content || "";
+  const wrapWithStyles = (html: string) => {
+    if (!customStyles) return html;
+    return `<div style="${customStyles}">${html}</div>`;
+  };
 
   switch (block.type) {
     case "topbar":
