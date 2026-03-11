@@ -120,7 +120,8 @@ const Index = () => {
 
     setIsSending(true);
     try {
-      const html = generateEmailHtml(email);
+      const absoluteLogoUrl = new URL(skillbetterLogo, window.location.origin).toString();
+      const html = generateEmailHtml(email, absoluteLogoUrl);
       await fetch(
         "https://script.google.com/macros/s/AKfycbzrlKhp_vdMTE8vkupLjB5TWZ5B67qKdTg86N7f6LdN0scAzT0CcknB72EPF7kOosEy/exec",
         {
