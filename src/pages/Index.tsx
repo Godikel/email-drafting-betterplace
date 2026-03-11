@@ -47,6 +47,14 @@ const Index = () => {
     }));
   }, []);
 
+  const handleTemplateLoad = useCallback((templateName: string) => {
+    const tpl = templates[templateName];
+    if (tpl) {
+      setEmail({ ...tpl });
+      toast.success(`Loaded "${templateName}" template`);
+    }
+  }, []);
+
   const handlePreview = () => {
     const html = generateEmailHtml(email);
     const win = window.open("", "_blank");
