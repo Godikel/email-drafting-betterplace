@@ -415,7 +415,7 @@ function VisualStrategyBox({ meta, onMetaChange }: { meta: Record<string, any>; 
             <Editable value={meta.subtitle} onChange={(v) => onMetaChange({ ...meta, subtitle: v })} as="h4" style={{ fontSize: 14, fontWeight: 700, color: "#0c2752" }} />
           </div>
         )}
-        <Editable value={meta.body || ""} onChange={(v) => onMetaChange({ ...meta, body: v })} tag="p" multiline style={{ fontSize: 13, color: "#3d4f60", lineHeight: 1.78 }} />
+        <Editable value={meta.body || ""} onChange={(v) => onMetaChange({ ...meta, body: v })} as="p" multiline style={{ fontSize: 13, color: "#3d4f60", lineHeight: 1.78 }} />
       </div>
     </div>
   );
