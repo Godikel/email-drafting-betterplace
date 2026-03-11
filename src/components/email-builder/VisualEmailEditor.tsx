@@ -157,7 +157,8 @@ function BlockWrapper({
         </button>
       </div>
       <div style={customStyle}>
-      {children}
+        {children}
+      </div>
     </div>
   );
 }
