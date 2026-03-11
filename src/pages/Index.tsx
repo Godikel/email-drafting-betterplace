@@ -6,7 +6,6 @@ import { EmailPreview, generateEmailHtml } from "@/components/email-builder/Emai
 import { EmailActionBar } from "@/components/email-builder/EmailActionBar";
 import { toast } from "sonner";
 import type { EmailState, ContentBlockType } from "@/types/email";
-import skillbetterLogo from "@/assets/skillbetter-logo.png";
 
 const initialState: EmailState = {
   subject: "",
@@ -14,6 +13,8 @@ const initialState: EmailState = {
   template: "blank",
   blocks: [],
 };
+
+const EMAIL_LOGO_URL = "https://id-preview--2581eb34-fe6b-415e-88af-86e442116d87.lovable.app/assets/skillbetter-Cv_rj9ZC.png";
 
 let blockIdCounter = 0;
 
@@ -94,9 +95,10 @@ const Index = () => {
     }
   }, []);
 
+  const buildEmailHtml = useCallback(() => generateEmailHtml(email, EMAIL_LOGO_URL), [email]);
+
   const handlePreview = () => {
-    const absoluteLogoUrl = new URL(skillbetterLogo, window.location.origin).toString();
-    const html = generateEmailHtml(email, absoluteLogoUrl);
+    const html = buildEmailHtml();
     const win = window.open("", "_blank");
     if (win) {
       win.document.write(html);
@@ -120,8 +122,7 @@ const Index = () => {
 
     setIsSending(true);
     try {
-      const absoluteLogoUrl = new URL(skillbetterLogo, window.location.origin).toString();
-      const html = generateEmailHtml(email, absoluteLogoUrl);
+      const html = buildEmailHtml();
       await fetch(
         "https://script.google.com/macros/s/AKfycbzrlKhp_vdMTE8vkupLjB5TWZ5B67qKdTg86N7f6LdN0scAzT0CcknB72EPF7kOosEy/exec",
         {
