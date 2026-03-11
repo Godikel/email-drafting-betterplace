@@ -1,5 +1,7 @@
 import type { EmailState, ContentBlock } from "@/types/email";
 
+const LOGO_URL = "/images/skillbetter-logo.png";
+
 function parseMeta(block: ContentBlock): Record<string, any> {
   try {
     return block.meta ? JSON.parse(block.meta) : {};
@@ -8,56 +10,87 @@ function parseMeta(block: ContentBlock): Record<string, any> {
   }
 }
 
-function renderTopbar(meta: Record<string, any>): string {
+/** Convert ALL emoji/non-ASCII characters to HTML numeric entities */
+function e(str?: string): string {
+  if (!str) return "";
+  return Array.from(str)
+    .map((char) => {
+      const code = char.codePointAt(0);
+      if (code && code > 127) {
+        return `&#x${code.toString(16).toUpperCase()};`;
+      }
+      return char;
+    })
+    .join("");
+}
+
+/** Apply emoji encoding to all string values in meta recursively */
+function encodeMeta(meta: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {};
+  for (const [key, value] of Object.entries(meta)) {
+    if (typeof value === "string") {
+      result[key] = e(value);
+    } else if (Array.isArray(value)) {
+      result[key] = value.map((item) => {
+        if (typeof item === "string") return e(item);
+        if (typeof item === "object" && item !== null) return encodeMeta(item);
+        return item;
+      });
+    } else if (typeof value === "object" && value !== null) {
+      result[key] = encodeMeta(value);
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
+function logoImg(height: number): string {
+  return `<img src="${LOGO_URL}" alt="skillBetter" style="height:${height}px;width:auto;display:block;" />`;
+}
+
+function renderTopbar(m: Record<string, any>): string {
   return `
   <div style="background:#ffffff;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8ecf0;">
     <div style="display:flex;align-items:center;gap:10px;">
-      <div style="display:flex;align-items:center;gap:7px;">
-        <div style="width:32px;height:32px;background:linear-gradient(135deg,#1a3c6e,#2563eb);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-          <span style="color:#fff;font-size:14px;font-weight:800;">sB</span>
-        </div>
-        <div>
-          <span style="font-size:15px;font-weight:700;color:#1a3c6e;display:block;">${meta.brandName || "skillBetter"}</span>
-          <span style="font-size:9px;color:#7a8a9a;letter-spacing:0.4px;display:block;">${meta.byline || "by BetterPlace"}</span>
-        </div>
-      </div>
+      ${logoImg(36)}
       <div style="width:1px;height:26px;background:#d0d8e0;"></div>
       <div style="background:#f0f4f8;border:1px solid #dde3ea;border-radius:5px;padding:4px 10px;font-size:10px;font-weight:700;color:#1a3c6e;letter-spacing:0.5px;text-align:center;">
-        &#x1F91D; ${meta.partnerName || "PARTNER"}<br/><span style="font-size:9px;font-weight:400;color:#7a8a9a;">${meta.partnerSub || ""}</span>
+        &#x1F91D; ${m.partnerName || "PARTNER"}<br/><span style="font-size:9px;font-weight:400;color:#7a8a9a;">${m.partnerSub || ""}</span>
       </div>
     </div>
-    <span style="font-size:11px;font-weight:600;color:#1a6fa8;letter-spacing:0.3px;">${meta.label || "Update"}</span>
+    <span style="font-size:11px;font-weight:600;color:#1a6fa8;letter-spacing:0.3px;">${m.label || "Update"}</span>
   </div>`;
 }
 
-function renderHero(meta: Record<string, any>): string {
+function renderHero(m: Record<string, any>): string {
   return `
   <div style="background:linear-gradient(155deg,#0c2752 0%,#1a4a8a 55%,#1568a8 100%);padding:50px 40px;position:relative;overflow:hidden;">
     <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(77,184,200,0.16);border:1px solid rgba(77,184,200,0.38);color:#7de8f4;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:20px;">
-      ${emojiToEntity(meta.pillEmoji)} ${meta.pill || "UPDATE"}
+      ${m.pillEmoji || ""} ${m.pill || "UPDATE"}
     </div>
     <h1 style="font-size:34px;font-weight:800;color:#ffffff;line-height:1.22;margin:0 0 18px;max-width:520px;">
-      ${meta.title || "Headline"} <span style="color:#4db8c8;">${meta.titleHighlight || ""}</span>
+      ${m.title || "Headline"} <span style="color:#4db8c8;">${m.titleHighlight || ""}</span>
     </h1>
-    <p style="color:rgba(255,255,255,0.78);font-size:14px;line-height:1.78;max-width:490px;margin:0;white-space:pre-line;">${meta.body || ""}</p>
+    <p style="color:rgba(255,255,255,0.78);font-size:14px;line-height:1.78;max-width:490px;margin:0;white-space:pre-line;">${m.body || ""}</p>
   </div>`;
 }
 
-function renderSectionText(meta: Record<string, any>): string {
-  const eyebrowHtml = meta.eyebrow
-    ? `<div style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1a6fa8;margin-bottom:10px;">${emojiToEntity(meta.eyebrowEmoji)} ${meta.eyebrow}</div>`
+function renderSectionText(m: Record<string, any>): string {
+  const eyebrowHtml = m.eyebrow
+    ? `<div style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1a6fa8;margin-bottom:10px;">${m.eyebrowEmoji || ""} ${m.eyebrow}</div>`
     : "";
-  const titleHtml = meta.title
-    ? `<h2 style="font-size:21px;font-weight:700;color:#0c2752;line-height:1.3;margin:0 0 13px;">${meta.title}</h2>`
+  const titleHtml = m.title
+    ? `<h2 style="font-size:21px;font-weight:700;color:#0c2752;line-height:1.3;margin:0 0 13px;">${m.title}</h2>`
     : "";
-  const bodyHtml = meta.body
-    ? `<p style="font-size:13.5px;color:#4a5e72;line-height:1.78;margin:0;white-space:pre-line;">${meta.body}</p>`
+  const bodyHtml = m.body
+    ? `<p style="font-size:13.5px;color:#4a5e72;line-height:1.78;margin:0;white-space:pre-line;">${m.body}</p>`
     : "";
   return `<div style="padding:42px 40px 0;">${eyebrowHtml}${titleHtml}${bodyHtml}</div>`;
 }
 
-function renderLiveStatus(meta: Record<string, any>): string {
-  const items = (meta.items || []) as string[];
+function renderLiveStatus(m: Record<string, any>): string {
+  const items = (m.items || []) as string[];
   const itemsHtml = items
     .map((i: string) => `<div style="font-size:12px;color:#166534;line-height:1.6;">&#x2713; ${i}</div>`)
     .join("");
@@ -66,7 +99,7 @@ function renderLiveStatus(meta: Record<string, any>): string {
     <div style="background:#f0fdf6;border:1px solid #b8efd4;border-left:4px solid #22c55e;border-radius:10px;padding:17px 20px;margin-top:20px;display:flex;align-items:flex-start;gap:13px;">
       <div style="width:11px;height:11px;background:#22c55e;border-radius:50%;box-shadow:0 0 0 4px rgba(34,197,94,0.17);flex-shrink:0;margin-top:3px;"></div>
       <div>
-        <h4 style="font-size:13.5px;font-weight:600;color:#14532d;margin:0 0 4px;">${meta.title || "Status"}</h4>
+        <h4 style="font-size:13.5px;font-weight:600;color:#14532d;margin:0 0 4px;">${m.title || "Status"}</h4>
         ${itemsHtml}
       </div>
     </div>
@@ -77,9 +110,9 @@ function renderDivider(): string {
   return `<div style="height:1px;background:linear-gradient(to right,transparent,#d4dfe8,transparent);margin:40px 40px 0;"></div>`;
 }
 
-function renderFeatureCard(meta: Record<string, any>): string {
-  const iconBg = meta.iconColor === "navy" ? "#e6eef9" : "#e0f6f8";
-  const bullets = (meta.bullets || []) as { text: string; check: string }[];
+function renderFeatureCard(m: Record<string, any>): string {
+  const iconBg = m.iconColor === "navy" ? "#e6eef9" : "#e0f6f8";
+  const bullets = (m.bullets || []) as { text: string; check: string }[];
   const checkColors: Record<string, { bg: string; color: string }> = {
     teal: { bg: "#cdf5f8", color: "#0e7490" },
     navy: { bg: "#dbeafe", color: "#1d4ed8" },
@@ -97,50 +130,50 @@ function renderFeatureCard(meta: Record<string, any>): string {
     })
     .join("");
 
-  const badgeHtml = meta.badge
-    ? `<span style="margin-left:auto;flex-shrink:0;font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:3px 10px;border-radius:20px;background:#fff8e1;color:#92530a;border:1px solid #f9c846;">${meta.badge}</span>`
+  const badgeHtml = m.badge
+    ? `<span style="margin-left:auto;flex-shrink:0;font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:3px 10px;border-radius:20px;background:#fff8e1;color:#92530a;border:1px solid #f9c846;">${m.badge}</span>`
     : "";
 
   return `
   <div style="padding:0 40px;">
     <div style="border:1px solid #e0eaf2;border-radius:12px;overflow:hidden;margin-top:18px;">
       <div style="padding:17px 20px 13px;display:flex;align-items:center;gap:13px;background:#fff;">
-        <div style="width:40px;height:40px;border-radius:9px;background:${iconBg};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${emojiToEntity(meta.icon)}</div>
+        <div style="width:40px;height:40px;border-radius:9px;background:${iconBg};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${m.icon || "&#x2B50;"}</div>
         <div>
-          <div style="font-size:14px;font-weight:700;color:#0c2752;">${meta.name || "Feature"}</div>
-          <div style="font-size:11px;color:#7a8ea0;margin-top:2px;">${meta.subtitle || ""}</div>
+          <div style="font-size:14px;font-weight:700;color:#0c2752;">${m.name || "Feature"}</div>
+          <div style="font-size:11px;color:#7a8ea0;margin-top:2px;">${m.subtitle || ""}</div>
         </div>
         ${badgeHtml}
       </div>
       <div style="padding:14px 20px 18px;background:#f8fafb;border-top:1px solid #edf2f6;">
-        ${meta.description ? `<p style="font-size:12.5px;color:#516070;line-height:1.65;margin:0 0 12px;">${meta.description}</p>` : ""}
+        ${m.description ? `<p style="font-size:12.5px;color:#516070;line-height:1.65;margin:0 0 12px;">${m.description}</p>` : ""}
         ${bulletsHtml}
       </div>
     </div>
   </div>`;
 }
 
-function renderStrategyBox(meta: Record<string, any>): string {
+function renderStrategyBox(m: Record<string, any>): string {
   return `
   <div style="padding:42px 40px 0;">
-    <div style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1a6fa8;margin-bottom:10px;">${emojiToEntity(meta.eyebrowEmoji)} ${meta.eyebrow || ""}</div>
-    <h2 style="font-size:21px;font-weight:700;color:#0c2752;line-height:1.3;margin:0 0 13px;">${meta.title || ""}</h2>
+    <div style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1a6fa8;margin-bottom:10px;">${m.eyebrowEmoji || ""} ${m.eyebrow || ""}</div>
+    <h2 style="font-size:21px;font-weight:700;color:#0c2752;line-height:1.3;margin:0 0 13px;">${m.title || ""}</h2>
     <div style="background:linear-gradient(135deg,#edf3fb 0%,#e4eefc 100%);border:1px solid #c5d6ee;border-radius:12px;padding:24px 26px;margin-top:18px;">
-      <h4 style="font-size:14px;font-weight:700;color:#0c2752;margin:0 0 9px;">${meta.subtitle || ""}</h4>
-      <p style="font-size:13px;color:#3d4f60;line-height:1.78;margin:0;">${meta.body || ""}</p>
+      <h4 style="font-size:14px;font-weight:700;color:#0c2752;margin:0 0 9px;">${m.subtitle || ""}</h4>
+      <p style="font-size:13px;color:#3d4f60;line-height:1.78;margin:0;">${m.body || ""}</p>
     </div>
   </div>`;
 }
 
-function renderAiCard(meta: Record<string, any>): string {
-  const isPurple = meta.variant === "purple";
+function renderAiCard(m: Record<string, any>): string {
+  const isPurple = m.variant === "purple";
   const topBg = isPurple
     ? "linear-gradient(135deg,#3b1a7a,#5a38ae)"
     : "linear-gradient(135deg,#0c2752,#1a4a8a)";
   const labelBg = isPurple ? "rgba(255,255,255,0.14)" : "rgba(77,184,200,0.18)";
   const labelColor = isPurple ? "#ddd6fe" : "#7de8f4";
 
-  const bullets = (meta.bullets || []) as { title: string; text: string; check: string }[];
+  const bullets = (m.bullets || []) as { title: string; text: string; check: string }[];
   const checkColors: Record<string, { bg: string; color: string }> = {
     teal: { bg: "#cdf5f8", color: "#0e7490" },
     navy: { bg: "#dbeafe", color: "#1d4ed8" },
@@ -162,11 +195,11 @@ function renderAiCard(meta: Record<string, any>): string {
   <div style="padding:0 40px;">
     <div style="border:1px solid #e0eaf2;border-radius:12px;overflow:hidden;margin-top:20px;">
       <div style="padding:20px 24px 16px;display:flex;gap:14px;align-items:flex-start;background:${topBg};">
-        <div style="width:44px;height:44px;background:rgba(255,255,255,0.12);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;">${emojiToEntity(meta.labelEmoji)}</div>
+        <div style="width:44px;height:44px;background:rgba(255,255,255,0.12);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;">${m.labelEmoji || ""}</div>
         <div>
-          <span style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:6px;background:${labelBg};color:${labelColor};">${meta.label || "AI"}</span>
-          <h3 style="font-size:15.5px;font-weight:700;color:#fff;margin:0 0 5px;">${meta.title || ""}</h3>
-          <p style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.55;margin:0;">${meta.subtitle || ""}</p>
+          <span style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:6px;background:${labelBg};color:${labelColor};">${m.label || "AI"}</span>
+          <h3 style="font-size:15.5px;font-weight:700;color:#fff;margin:0 0 5px;">${m.title || ""}</h3>
+          <p style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.55;margin:0;">${m.subtitle || ""}</p>
         </div>
       </div>
       <div style="padding:18px 24px 22px;background:#fff;">
@@ -176,63 +209,44 @@ function renderAiCard(meta: Record<string, any>): string {
   </div>`;
 }
 
-function renderFooter(meta: Record<string, any>): string {
+function renderFooter(m: Record<string, any>): string {
   return `
   <div style="background:#f6f9fc;border-top:2px solid #e0eaf2;padding:30px 40px;text-align:center;">
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;">
-      <div style="width:28px;height:28px;background:linear-gradient(135deg,#1a3c6e,#2563eb);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-        <span style="color:#fff;font-size:11px;font-weight:800;">sB</span>
-      </div>
-      <div>
-        <span style="font-size:14px;font-weight:700;color:#1a3c6e;">${meta.brandName || "skillBetter"}</span>
-        <span style="font-size:9px;color:#8a9aaa;letter-spacing:0.4px;display:block;margin-top:1px;">${meta.byline || "by BetterPlace"}</span>
-      </div>
+      ${logoImg(30)}
     </div>
-    <p style="font-size:13px;color:#4a5e72;line-height:1.7;margin:0 0 16px;">${meta.tagline || ""}</p>
-    <p style="font-size:10px;color:#a0adb8;margin:14px 0 0;">${meta.note || ""}</p>
+    <p style="font-size:13px;color:#4a5e72;line-height:1.7;margin:0 0 16px;">${m.tagline || ""}</p>
+    <p style="font-size:10px;color:#a0adb8;margin:14px 0 0;">${m.note || ""}</p>
   </div>`;
 }
 
-/** Convert emoji characters to HTML numeric entities for iframe compatibility */
-function emojiToEntity(str?: string): string {
-  if (!str) return "";
-  return Array.from(str)
-    .map((char) => {
-      const code = char.codePointAt(0);
-      if (code && code > 127) {
-        return `&#x${code.toString(16).toUpperCase()};`;
-      }
-      return char;
-    })
-    .join("");
-}
-
 function renderBlockHtml(block: ContentBlock): string {
-  const meta = parseMeta(block);
+  const rawMeta = parseMeta(block);
+  const m = encodeMeta(rawMeta);
   const content = block.content || "";
 
   switch (block.type) {
     case "topbar":
-      return renderTopbar(meta);
+      return renderTopbar(m);
     case "hero":
-      return renderHero(meta);
+      return renderHero(m);
     case "live-status":
-      return renderLiveStatus(meta);
+      return renderLiveStatus(m);
     case "feature-card":
-      return renderFeatureCard(meta);
+      return renderFeatureCard(m);
     case "strategy-box":
-      return renderStrategyBox(meta);
+      return renderStrategyBox(m);
     case "ai-card":
-      return renderAiCard(meta);
+      return renderAiCard(m);
     case "footer":
-      return renderFooter(meta);
+      return renderFooter(m);
     case "divider":
       return renderDivider();
     case "text":
-      if (meta.eyebrow || meta.title) {
-        return renderSectionText(meta);
+      if (m.eyebrow || m.title) {
+        return renderSectionText(m);
       }
-      return `<div style="padding:12px 40px;font-size:14px;line-height:1.7;color:#334155;white-space:pre-line;">${emojiToEntity(content).replace(/\n/g, "<br/>")}</div>`;
+      return `<div style="padding:12px 40px;font-size:14px;line-height:1.7;color:#334155;white-space:pre-line;">${e(content).replace(/\n/g, "<br/>")}</div>`;
     case "features": {
       const lines = (content || "Feature 1\nFeature 2\nFeature 3").split("\n").filter(Boolean);
       const heading = lines[0];
@@ -240,18 +254,18 @@ function renderBlockHtml(block: ContentBlock): string {
       const cards = items
         .map(
           (item) =>
-            `<div style="background:#f0f4ff;padding:14px 18px;border-radius:8px;font-size:14px;color:#1e293b;border-left:4px solid #003087;margin-bottom:8px;">${emojiToEntity(item)}</div>`
+            `<div style="background:#f0f4ff;padding:14px 18px;border-radius:8px;font-size:14px;color:#1e293b;border-left:4px solid #003087;margin-bottom:8px;">${e(item)}</div>`
         )
         .join("");
       return `<div style="padding:0 40px;margin-bottom:16px;">
-        <h2 style="font-size:18px;font-weight:700;color:#003087;margin:0 0 12px;">${emojiToEntity(heading) || ""}</h2>
+        <h2 style="font-size:18px;font-weight:700;color:#003087;margin:0 0 12px;">${e(heading) || ""}</h2>
         ${cards}
       </div>`;
     }
     case "callout":
-      return `<div style="margin:0 40px 16px;background:#fffbeb;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;font-size:14px;color:#92400e;white-space:pre-line;">${emojiToEntity(content) || "Important callout message"}</div>`;
+      return `<div style="margin:0 40px 16px;background:#fffbeb;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;font-size:14px;color:#92400e;white-space:pre-line;">${e(content) || "Important callout message"}</div>`;
     case "image-placeholder":
-      return `<div style="height:180px;background:linear-gradient(135deg,#e4f0fa,#d0e6f5);display:flex;align-items:center;justify-content:center;color:#4a7fa8;font-size:12.5px;font-weight:500;">&#x1F4F7; ${emojiToEntity(content) || "Image placeholder"}</div>`;
+      return `<div style="height:180px;background:linear-gradient(135deg,#e4f0fa,#d0e6f5);display:flex;align-items:center;justify-content:center;color:#4a7fa8;font-size:12.5px;font-weight:500;">&#x1F4F7; ${e(content) || "Image placeholder"}</div>`;
     default:
       return "";
   }
