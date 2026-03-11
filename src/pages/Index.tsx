@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { EmailSidebar } from "@/components/email-builder/EmailSidebar";
+import { EmailSidebar, templates } from "@/components/email-builder/EmailSidebar";
 import { EmailEditor } from "@/components/email-builder/EmailEditor";
 import { EmailPreview, generateEmailHtml } from "@/components/email-builder/EmailPreview";
 import { EmailActionBar } from "@/components/email-builder/EmailActionBar";
