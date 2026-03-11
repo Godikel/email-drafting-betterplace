@@ -243,7 +243,7 @@ function VisualSectionText({ meta, onMetaChange }: { meta: Record<string, any>; 
         <Editable
           value={meta.title}
           onChange={(v) => onMetaChange({ ...meta, title: v })}
-          tag="h2"
+          as="h2"
           style={{ fontSize: 21, fontWeight: 700, color: "#0c2752", lineHeight: 1.3, marginBottom: 13 }}
         />
       )}
