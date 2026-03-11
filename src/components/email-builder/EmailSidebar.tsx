@@ -1,4 +1,4 @@
-import { Mail, FileText, PlusCircle } from "lucide-react";
+import { Mail, FileText, PlusCircle, Sparkles } from "lucide-react";
 import { aiRoadmapTemplate } from "@/templates/aiRoadmapEmailTemplate";
 import type { EmailState } from "@/types/email";
 import {
@@ -19,7 +19,7 @@ const initialState: EmailState = {
   blocks: [],
 };
 
-const templates = {
+export const templates: Record<string, EmailState> = {
   blank: initialState,
   aiRoadmap: aiRoadmapTemplate,
 };
@@ -33,9 +33,10 @@ const navItems = [
 interface EmailSidebarProps {
   active: string;
   onNavigate: (id: string) => void;
+  onTemplateLoad?: (templateName: string) => void;
 }
 
-export function EmailSidebar({ active, onNavigate }: EmailSidebarProps) {
+export function EmailSidebar({ active, onNavigate, onTemplateLoad }: EmailSidebarProps) {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent className="pt-4">
@@ -60,6 +61,25 @@ export function EmailSidebar({ active, onNavigate }: EmailSidebarProps) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+            Quick Templates
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => onTemplateLoad?.("aiRoadmap")}
+                  className="text-sidebar-foreground hover:bg-muted"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  <span>AI Roadmap Email</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

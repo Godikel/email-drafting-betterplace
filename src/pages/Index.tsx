@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { EmailSidebar } from "@/components/email-builder/EmailSidebar";
+import { EmailSidebar, templates } from "@/components/email-builder/EmailSidebar";
 import { EmailEditor } from "@/components/email-builder/EmailEditor";
 import { EmailPreview, generateEmailHtml } from "@/components/email-builder/EmailPreview";
 import { EmailActionBar } from "@/components/email-builder/EmailActionBar";
@@ -45,6 +45,14 @@ const Index = () => {
       ...prev,
       blocks: [...prev.blocks, { id: `block-${blockIdCounter}`, type, content: "" }],
     }));
+  }, []);
+
+  const handleTemplateLoad = useCallback((templateName: string) => {
+    const tpl = templates[templateName];
+    if (tpl) {
+      setEmail({ ...tpl });
+      toast.success(`Loaded "${templateName}" template`);
+    }
   }, []);
 
   const handlePreview = () => {
@@ -97,7 +105,7 @@ const Index = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <EmailSidebar active={activeNav} onNavigate={setActiveNav} />
+        <EmailSidebar active={activeNav} onNavigate={setActiveNav} onTemplateLoad={handleTemplateLoad} />
 
         <div className="flex-1 flex flex-col min-w-0">
           <header className="h-14 flex items-center justify-between border-b bg-card px-4 shadow-card">
