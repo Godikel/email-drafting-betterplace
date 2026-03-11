@@ -12,6 +12,18 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+const initialState: EmailState = {
+  subject: "",
+  recipients: "",
+  template: "blank",
+  blocks: [],
+};
+
+const templates = {
+  blank: initialState,
+  aiRoadmap: aiRoadmapTemplate,
+};
+
 const navItems = [
   { title: "Templates", icon: FileText, id: "templates" },
   { title: "Campaigns", icon: Mail, id: "campaigns" },
