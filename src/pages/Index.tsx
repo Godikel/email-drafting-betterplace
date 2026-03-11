@@ -95,7 +95,8 @@ const Index = () => {
   }, []);
 
   const handlePreview = () => {
-    const html = generateEmailHtml(email);
+    const absoluteLogoUrl = new URL(skillbetterLogo, window.location.origin).toString();
+    const html = generateEmailHtml(email, absoluteLogoUrl);
     const win = window.open("", "_blank");
     if (win) {
       win.document.write(html);
