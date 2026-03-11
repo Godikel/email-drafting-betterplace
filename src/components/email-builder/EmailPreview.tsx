@@ -23,7 +23,7 @@ function renderTopbar(meta: Record<string, any>): string {
       </div>
       <div style="width:1px;height:26px;background:#d0d8e0;"></div>
       <div style="background:#f0f4f8;border:1px solid #dde3ea;border-radius:5px;padding:4px 10px;font-size:10px;font-weight:700;color:#1a3c6e;letter-spacing:0.5px;text-align:center;">
-        🤝 ${meta.partnerName || "PARTNER"}<br/><span style="font-size:9px;font-weight:400;color:#7a8a9a;">${meta.partnerSub || ""}</span>
+        &#x1F91D; ${meta.partnerName || "PARTNER"}<br/><span style="font-size:9px;font-weight:400;color:#7a8a9a;">${meta.partnerSub || ""}</span>
       </div>
     </div>
     <span style="font-size:11px;font-weight:600;color:#1a6fa8;letter-spacing:0.3px;">${meta.label || "Update"}</span>
@@ -34,7 +34,7 @@ function renderHero(meta: Record<string, any>): string {
   return `
   <div style="background:linear-gradient(155deg,#0c2752 0%,#1a4a8a 55%,#1568a8 100%);padding:50px 40px;position:relative;overflow:hidden;">
     <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(77,184,200,0.16);border:1px solid rgba(77,184,200,0.38);color:#7de8f4;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:20px;">
-      ${meta.pillEmoji || ""} ${meta.pill || "UPDATE"}
+      ${emojiToEntity(meta.pillEmoji)} ${meta.pill || "UPDATE"}
     </div>
     <h1 style="font-size:34px;font-weight:800;color:#ffffff;line-height:1.22;margin:0 0 18px;max-width:520px;">
       ${meta.title || "Headline"} <span style="color:#4db8c8;">${meta.titleHighlight || ""}</span>
@@ -45,7 +45,7 @@ function renderHero(meta: Record<string, any>): string {
 
 function renderSectionText(meta: Record<string, any>): string {
   const eyebrowHtml = meta.eyebrow
-    ? `<div style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1a6fa8;margin-bottom:10px;">${meta.eyebrowEmoji || ""} ${meta.eyebrow}</div>`
+    ? `<div style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1a6fa8;margin-bottom:10px;">${emojiToEntity(meta.eyebrowEmoji)} ${meta.eyebrow}</div>`
     : "";
   const titleHtml = meta.title
     ? `<h2 style="font-size:21px;font-weight:700;color:#0c2752;line-height:1.3;margin:0 0 13px;">${meta.title}</h2>`
@@ -59,7 +59,7 @@ function renderSectionText(meta: Record<string, any>): string {
 function renderLiveStatus(meta: Record<string, any>): string {
   const items = (meta.items || []) as string[];
   const itemsHtml = items
-    .map((i: string) => `<div style="font-size:12px;color:#166534;line-height:1.6;">✓ ${i}</div>`)
+    .map((i: string) => `<div style="font-size:12px;color:#166534;line-height:1.6;">&#x2713; ${i}</div>`)
     .join("");
   return `
   <div style="padding:0 40px;">
@@ -91,7 +91,7 @@ function renderFeatureCard(meta: Record<string, any>): string {
       const c = checkColors[b.check] || checkColors.teal;
       return `
       <div style="display:flex;align-items:flex-start;gap:9px;margin-bottom:9px;">
-        <div style="width:17px;height:17px;border-radius:50%;background:${c.bg};color:${c.color};display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;flex-shrink:0;margin-top:1px;">✓</div>
+        <div style="width:17px;height:17px;border-radius:50%;background:${c.bg};color:${c.color};display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;flex-shrink:0;margin-top:1px;">&#x2713;</div>
         <span style="font-size:13px;color:#3d4f60;line-height:1.62;">${b.text}</span>
       </div>`;
     })
@@ -105,7 +105,7 @@ function renderFeatureCard(meta: Record<string, any>): string {
   <div style="padding:0 40px;">
     <div style="border:1px solid #e0eaf2;border-radius:12px;overflow:hidden;margin-top:18px;">
       <div style="padding:17px 20px 13px;display:flex;align-items:center;gap:13px;background:#fff;">
-        <div style="width:40px;height:40px;border-radius:9px;background:${iconBg};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${meta.icon || "⭐"}</div>
+        <div style="width:40px;height:40px;border-radius:9px;background:${iconBg};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${emojiToEntity(meta.icon)}</div>
         <div>
           <div style="font-size:14px;font-weight:700;color:#0c2752;">${meta.name || "Feature"}</div>
           <div style="font-size:11px;color:#7a8ea0;margin-top:2px;">${meta.subtitle || ""}</div>
@@ -123,7 +123,7 @@ function renderFeatureCard(meta: Record<string, any>): string {
 function renderStrategyBox(meta: Record<string, any>): string {
   return `
   <div style="padding:42px 40px 0;">
-    <div style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1a6fa8;margin-bottom:10px;">${meta.eyebrowEmoji || ""} ${meta.eyebrow || ""}</div>
+    <div style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1a6fa8;margin-bottom:10px;">${emojiToEntity(meta.eyebrowEmoji)} ${meta.eyebrow || ""}</div>
     <h2 style="font-size:21px;font-weight:700;color:#0c2752;line-height:1.3;margin:0 0 13px;">${meta.title || ""}</h2>
     <div style="background:linear-gradient(135deg,#edf3fb 0%,#e4eefc 100%);border:1px solid #c5d6ee;border-radius:12px;padding:24px 26px;margin-top:18px;">
       <h4 style="font-size:14px;font-weight:700;color:#0c2752;margin:0 0 9px;">${meta.subtitle || ""}</h4>
@@ -152,8 +152,8 @@ function renderAiCard(meta: Record<string, any>): string {
       const c = checkColors[b.check] || checkColors.teal;
       return `
       <div style="display:flex;align-items:flex-start;gap:9px;margin-bottom:9px;">
-        <div style="width:17px;height:17px;border-radius:50%;background:${c.bg};color:${c.color};display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;flex-shrink:0;margin-top:1px;">✓</div>
-        <span style="font-size:13px;color:#3d4f60;line-height:1.62;"><strong style="color:#0c2752;font-weight:600;">${b.title}</strong> — ${b.text}</span>
+        <div style="width:17px;height:17px;border-radius:50%;background:${c.bg};color:${c.color};display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;flex-shrink:0;margin-top:1px;">&#x2713;</div>
+        <span style="font-size:13px;color:#3d4f60;line-height:1.62;"><strong style="color:#0c2752;font-weight:600;">${b.title}</strong> &mdash; ${b.text}</span>
       </div>`;
     })
     .join("");
@@ -162,7 +162,7 @@ function renderAiCard(meta: Record<string, any>): string {
   <div style="padding:0 40px;">
     <div style="border:1px solid #e0eaf2;border-radius:12px;overflow:hidden;margin-top:20px;">
       <div style="padding:20px 24px 16px;display:flex;gap:14px;align-items:flex-start;background:${topBg};">
-        <div style="width:44px;height:44px;background:rgba(255,255,255,0.12);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;">${meta.labelEmoji || "🤖"}</div>
+        <div style="width:44px;height:44px;background:rgba(255,255,255,0.12);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;">${emojiToEntity(meta.labelEmoji)}</div>
         <div>
           <span style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:6px;background:${labelBg};color:${labelColor};">${meta.label || "AI"}</span>
           <h3 style="font-size:15.5px;font-weight:700;color:#fff;margin:0 0 5px;">${meta.title || ""}</h3>
@@ -193,6 +193,20 @@ function renderFooter(meta: Record<string, any>): string {
   </div>`;
 }
 
+/** Convert emoji characters to HTML numeric entities for iframe compatibility */
+function emojiToEntity(str?: string): string {
+  if (!str) return "";
+  return Array.from(str)
+    .map((char) => {
+      const code = char.codePointAt(0);
+      if (code && code > 127) {
+        return `&#x${code.toString(16).toUpperCase()};`;
+      }
+      return char;
+    })
+    .join("");
+}
+
 function renderBlockHtml(block: ContentBlock): string {
   const meta = parseMeta(block);
   const content = block.content || "";
@@ -218,7 +232,7 @@ function renderBlockHtml(block: ContentBlock): string {
       if (meta.eyebrow || meta.title) {
         return renderSectionText(meta);
       }
-      return `<div style="padding:12px 40px;font-size:14px;line-height:1.7;color:#334155;white-space:pre-line;">${content.replace(/\n/g, "<br/>")}</div>`;
+      return `<div style="padding:12px 40px;font-size:14px;line-height:1.7;color:#334155;white-space:pre-line;">${emojiToEntity(content).replace(/\n/g, "<br/>")}</div>`;
     case "features": {
       const lines = (content || "Feature 1\nFeature 2\nFeature 3").split("\n").filter(Boolean);
       const heading = lines[0];
@@ -226,18 +240,18 @@ function renderBlockHtml(block: ContentBlock): string {
       const cards = items
         .map(
           (item) =>
-            `<div style="background:#f0f4ff;padding:14px 18px;border-radius:8px;font-size:14px;color:#1e293b;border-left:4px solid #003087;margin-bottom:8px;">${item}</div>`
+            `<div style="background:#f0f4ff;padding:14px 18px;border-radius:8px;font-size:14px;color:#1e293b;border-left:4px solid #003087;margin-bottom:8px;">${emojiToEntity(item)}</div>`
         )
         .join("");
       return `<div style="padding:0 40px;margin-bottom:16px;">
-        <h2 style="font-size:18px;font-weight:700;color:#003087;margin:0 0 12px;">${heading || ""}</h2>
+        <h2 style="font-size:18px;font-weight:700;color:#003087;margin:0 0 12px;">${emojiToEntity(heading) || ""}</h2>
         ${cards}
       </div>`;
     }
     case "callout":
-      return `<div style="margin:0 40px 16px;background:#fffbeb;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;font-size:14px;color:#92400e;white-space:pre-line;">${content || "Important callout message"}</div>`;
+      return `<div style="margin:0 40px 16px;background:#fffbeb;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;font-size:14px;color:#92400e;white-space:pre-line;">${emojiToEntity(content) || "Important callout message"}</div>`;
     case "image-placeholder":
-      return `<div style="height:180px;background:linear-gradient(135deg,#e4f0fa,#d0e6f5);display:flex;align-items:center;justify-content:center;color:#4a7fa8;font-size:12.5px;font-weight:500;">📷 ${content || "Image placeholder"}</div>`;
+      return `<div style="height:180px;background:linear-gradient(135deg,#e4f0fa,#d0e6f5);display:flex;align-items:center;justify-content:center;color:#4a7fa8;font-size:12.5px;font-weight:500;">&#x1F4F7; ${emojiToEntity(content) || "Image placeholder"}</div>`;
     default:
       return "";
   }
@@ -245,11 +259,24 @@ function renderBlockHtml(block: ContentBlock): string {
 
 export function generateEmailHtml(email: EmailState): string {
   const blocks = email.blocks.map(renderBlockHtml).join("");
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');*{margin:0;padding:0;box-sizing:border-box;}body{background:#f0f2f5;font-family:'Inter',sans-serif;color:#1a1a2e;-webkit-font-smoothing:antialiased;}</style></head><body style="margin:0;padding:24px;font-family:'Inter',sans-serif;background:#f0f2f5;">
-    <div style="max-width:680px;margin:0 auto;background:#ffffff;border-radius:0;overflow:hidden;">
-      ${blocks || '<p style="color:#94a3b8;text-align:center;padding:40px 0;">Add content sections to see the preview</p>'}
-    </div>
-  </body></html>`;
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #f0f2f5; font-family: 'Inter', sans-serif; color: #1a1a2e; -webkit-font-smoothing: antialiased; }
+  </style>
+</head>
+<body style="margin:0;padding:24px;font-family:'Inter',sans-serif;background:#f0f2f5;">
+  <div style="max-width:680px;margin:0 auto;background:#ffffff;overflow:hidden;">
+    ${blocks || '<p style="color:#94a3b8;text-align:center;padding:40px 0;">Add content sections to see the preview</p>'}
+  </div>
+</body>
+</html>`;
 }
 
 interface EmailPreviewProps {
