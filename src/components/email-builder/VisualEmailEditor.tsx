@@ -479,7 +479,7 @@ function VisualAiCard({ meta, onMetaChange }: { meta: Record<string, any>; onMet
                         newBullets[i] = { ...b, title: v };
                         onMetaChange({ ...meta, bullets: newBullets });
                       }}
-                      tag="strong"
+                      as="strong"
                       style={{ color: "#0c2752", fontWeight: 700, fontSize: 13 }}
                     />
                     <span style={{ color: "#3d4f60", fontSize: 13 }}> — </span>
