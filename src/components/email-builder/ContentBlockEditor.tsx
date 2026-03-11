@@ -1,4 +1,4 @@
-import { GripVertical, Trash2, Type, Layout, MessageSquare, Star } from "lucide-react";
+import { GripVertical, Trash2, Type, Layout, MessageSquare, Star, Minus, Image, Footprints, Bot, Box, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { ContentBlock, ContentBlockType } from "@/types/email";
@@ -8,6 +8,14 @@ const blockMeta: Record<ContentBlockType, { label: string; icon: React.ElementTy
   features: { label: "Feature Cards", icon: Star, placeholder: "Feature 1\nFeature 2\nFeature 3" },
   callout: { label: "Callout Box", icon: MessageSquare, placeholder: "Important callout message…" },
   text: { label: "Text Block", icon: Type, placeholder: "Write your content here…" },
+  topbar: { label: "Top Bar", icon: Layout, placeholder: "Brand names…" },
+  "live-status": { label: "Live Status", icon: Zap, placeholder: "Status items…" },
+  "feature-card": { label: "Feature Card", icon: Star, placeholder: "Feature details…" },
+  "strategy-box": { label: "Strategy Box", icon: Box, placeholder: "Strategy content…" },
+  "ai-card": { label: "AI Card", icon: Bot, placeholder: "AI feature details…" },
+  footer: { label: "Footer", icon: Footprints, placeholder: "Footer content…" },
+  divider: { label: "Divider", icon: Minus, placeholder: "" },
+  "image-placeholder": { label: "Image", icon: Image, placeholder: "Image description…" },
 };
 
 interface ContentBlockEditorProps {
@@ -17,8 +25,28 @@ interface ContentBlockEditorProps {
 }
 
 export function ContentBlockEditor({ block, onChange, onRemove }: ContentBlockEditorProps) {
-  const meta = blockMeta[block.type];
+  const meta = blockMeta[block.type] || { label: block.type, icon: Type, placeholder: "" };
   const Icon = meta.icon;
+
+  // Dividers don't need editing
+  if (block.type === "divider") {
+    return (
+      <div className="rounded-lg border bg-card shadow-card animate-fade-in">
+        <div className="flex items-center gap-2 px-3 py-2 bg-muted/40 rounded-lg">
+          <Icon className="h-4 w-4 text-primary" />
+          <span className="text-sm font-medium text-card-foreground">{meta.label}</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-auto h-7 w-7 text-muted-foreground hover:text-destructive"
+            onClick={() => onRemove(block.id)}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-lg border bg-card shadow-card animate-fade-in">
