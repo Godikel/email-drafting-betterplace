@@ -451,7 +451,7 @@ function VisualAiCard({ meta, onMetaChange }: { meta: Record<string, any>; onMet
               <Editable
                 value={meta.title || ""}
                 onChange={(v) => onMetaChange({ ...meta, title: v })}
-                tag="h3"
+                as="h3"
                 style={{ fontSize: 15.5, fontWeight: 700, color: "#fff", lineHeight: 1.25, marginBottom: 6 }}
               />
               <Editable
