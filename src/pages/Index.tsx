@@ -183,7 +183,22 @@ const Index = () => {
               <SidebarTrigger />
               <h1 className="text-base font-semibold text-foreground">Email Builder</h1>
             </div>
-            <EmailActionBar onPreview={handlePreview} onSave={handleSave} onSend={handleSend} isSending={isSending} />
+            <EmailActionBar
+              onPreview={handlePreview}
+              onSave={handleSave}
+              onSend={handleSend}
+              isSending={isSending}
+              onUploadHtml={() => fileInputRef.current?.click()}
+              hasRawHtml={!!email.rawHtml}
+              onClearRawHtml={handleClearRawHtml}
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".html,.htm"
+              className="hidden"
+              onChange={handleHtmlUpload}
+            />
           </header>
 
           <main className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 overflow-auto">
