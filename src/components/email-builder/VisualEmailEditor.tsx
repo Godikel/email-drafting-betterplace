@@ -534,7 +534,7 @@ function VisualFooter({ meta, onMetaChange }: { meta: Record<string, any>; onMet
       <Editable
         value={meta.note || ""}
         onChange={(v) => onMetaChange({ ...meta, note: v })}
-        tag="p"
+        as="p"
         style={{ fontSize: 10, color: "#a0adb8", marginTop: 14 }}
       />
     </div>
