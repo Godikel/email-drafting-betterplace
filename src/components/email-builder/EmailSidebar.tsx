@@ -1,5 +1,5 @@
 import { Mail, FileText, PlusCircle, Sparkles } from "lucide-react";
-import { aiRoadmapTemplate } from "@/templates/aiRoadmapEmailTemplate";
+import { iffcoTokioTemplate } from "@/templates/iffcoTokioTemplate";
 import type { EmailState } from "@/types/email";
 import {
   Sidebar,
@@ -21,7 +21,7 @@ const initialState: EmailState = {
 
 export const templates: Record<string, EmailState> = {
   blank: initialState,
-  aiRoadmap: aiRoadmapTemplate,
+  aiRoadmap: iffcoTokioTemplate,
 };
 
 const navItems = [
