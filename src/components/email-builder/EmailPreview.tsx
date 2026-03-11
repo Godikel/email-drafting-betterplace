@@ -1,9 +1,6 @@
 import type { EmailState, ContentBlock } from "@/types/email";
 
-function getAssetUrl(path: string): string {
-  if (typeof window === "undefined") return path;
-  return new URL(path, window.location.origin).toString();
-}
+const LOGO_URL = "https://id-preview--2581eb34-fe6b-415e-88af-86e442116d87.lovable.app/assets/skillbetter-Cv_rj9ZC.png";
 
 function parseMeta(block: ContentBlock): Record<string, any> {
   try {
@@ -28,6 +25,7 @@ function e(str?: string): string {
 
 function encodeMeta(meta: Record<string, any>): Record<string, any> {
   const result: Record<string, any> = {};
+
   for (const [key, value] of Object.entries(meta)) {
     if (typeof value === "string") {
       result[key] = e(value);
@@ -43,29 +41,36 @@ function encodeMeta(meta: Record<string, any>): Record<string, any> {
       result[key] = value;
     }
   }
+
   return result;
 }
 
-function logoImg(height: number, align: "left" | "center" = "left"): string {
-  return `<img src="${getAssetUrl("/images/skillbetter-logo.png")}" alt="skillBetter" style="height:${height}px;width:auto;display:block;margin:${align === "center" ? "0 auto" : "0"};border:0;outline:none;text-decoration:none;" />`;
+function logoImg(height: number, centered = false): string {
+  return `<img src="${LOGO_URL}" alt="skillBetter" style="height:${height}px;width:auto;display:block;${centered ? "margin:0 auto;" : ""}border:0;outline:none;text-decoration:none;" />`;
 }
 
-function emojiGlyph(icon?: string, size = 16): string {
+function emojiBox(icon?: string, size = 16): string {
   if (!icon) return "";
-  return `<span style="display:inline-flex;align-items:center;justify-content:center;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-size:${size}px;line-height:1;vertical-align:middle;">${icon}</span>`;
+
+  return `<span style="display:inline-block;width:${size}px;height:${size}px;line-height:${size}px;text-align:center;vertical-align:middle;font-size:${Math.max(
+    size - 2,
+    12,
+  )}px;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;">${icon}</span>`;
 }
 
-function emojiBadge(icon?: string, size = 16, bg = "transparent", color = "inherit"): string {
-  if (!icon) return "";
-  return `<span style="display:inline-flex;align-items:center;justify-content:center;width:${size + 10}px;height:${size + 10}px;border-radius:999px;background:${bg};color:${color};font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-size:${size}px;line-height:1;vertical-align:middle;flex:0 0 ${size + 10}px;">${icon}</span>`;
+function checkCircle(background: string, color: string): string {
+  return `<span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:999px;background:${background};color:${color};font-size:11px;font-weight:700;font-family:Arial,sans-serif;vertical-align:middle;">&#10003;</span>`;
 }
 
-function checkMark(bg: string, color: string): string {
-  return `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:999px;background:${bg};color:${color};font-size:11px;line-height:1;font-family:Arial,sans-serif;font-weight:700;flex:0 0 18px;">&#10003;</span>`;
+function textPill(text: string, background: string, color: string, border: string): string {
+  return `<span style="display:inline-block;padding:11px 20px;border-radius:999px;background:${background};color:${color};border:${border};font-size:9px;font-weight:700;letter-spacing:1.2px;line-height:1;text-transform:uppercase;white-space:nowrap;vertical-align:middle;">${text}</span>`;
 }
 
-function pill(text: string, background: string, color: string, border: string): string {
-  return `<span style="display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 22px;border-radius:999px;background:${background};color:${color};border:${border};font-size:9px;font-weight:700;letter-spacing:1.2px;line-height:1;text-transform:uppercase;white-space:nowrap;">${text}</span>`;
+function iconTextLabel(icon: string | undefined, text: string, color: string): string {
+  return `<table role="presentation" style="border-collapse:collapse;margin:0 0 10px 0;"><tr><td valign="middle" style="padding-right:8px;line-height:1;">${emojiBox(
+    icon,
+    14,
+  )}</td><td valign="middle" style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${color};line-height:1;white-space:nowrap;">${text}</td></tr></table>`;
 }
 
 function renderTopbar(m: Record<string, any>): string {
@@ -73,24 +78,26 @@ function renderTopbar(m: Record<string, any>): string {
   <div style="background:#ffffff;padding:16px 32px;border-bottom:1px solid #e8ecf0;">
     <table role="presentation" style="width:100%;border-collapse:collapse;">
       <tr>
-        <td style="vertical-align:middle;">
+        <td valign="middle">
           <table role="presentation" style="border-collapse:collapse;">
             <tr>
-              <td style="vertical-align:middle;padding-right:12px;">${logoImg(36)}</td>
-              <td style="vertical-align:middle;padding-right:12px;"><div style="width:1px;height:26px;background:#d0d8e0;"></div></td>
-              <td style="vertical-align:middle;">
-                <div style="background:#f0f4f8;border:1px solid #dde3ea;border-radius:10px;padding:8px 16px;display:inline-block;">
-                  <div style="display:flex;align-items:center;gap:8px;color:#1a3c6e;font-size:10px;font-weight:700;letter-spacing:0.5px;line-height:1;white-space:nowrap;">
-                    ${emojiGlyph("&#x1F91D;", 12)}
-                    <span>${m.partnerName || "PARTNER"}</span>
-                  </div>
-                  <div style="font-size:9px;font-weight:600;color:#7a8a9a;letter-spacing:0.3px;line-height:1.4;margin-top:6px;">${m.partnerSub || ""}</div>
+              <td valign="middle" style="padding-right:14px;">${logoImg(34)}</td>
+              <td valign="middle" style="padding-right:14px;"><div style="width:1px;height:28px;background:#d0d8e0;"></div></td>
+              <td valign="middle">
+                <div style="display:inline-block;background:#f0f4f8;border:1px solid #dde3ea;border-radius:10px;padding:8px 14px;vertical-align:middle;">
+                  <table role="presentation" style="border-collapse:collapse;">
+                    <tr>
+                      <td valign="middle" style="padding-right:6px;line-height:1;">${emojiBox("&#x1F91D;", 12)}</td>
+                      <td valign="middle" style="font-size:10px;font-weight:700;color:#1a3c6e;letter-spacing:0.5px;line-height:1;white-space:nowrap;">${m.partnerName || "PARTNER"}</td>
+                    </tr>
+                  </table>
+                  <div style="font-size:9px;font-weight:600;color:#7a8a9a;letter-spacing:0.3px;line-height:1.35;margin-top:5px;white-space:nowrap;">${m.partnerSub || ""}</div>
                 </div>
               </td>
             </tr>
           </table>
         </td>
-        <td style="vertical-align:middle;text-align:right;white-space:nowrap;font-size:11px;font-weight:700;color:#1a6fa8;letter-spacing:0.2px;">${m.label || "Update"}</td>
+        <td valign="middle" style="text-align:right;font-size:11px;font-weight:700;color:#1a6fa8;letter-spacing:0.2px;white-space:nowrap;">${m.label || "Update"}</td>
       </tr>
     </table>
   </div>`;
@@ -99,46 +106,55 @@ function renderTopbar(m: Record<string, any>): string {
 function renderHero(m: Record<string, any>): string {
   return `
   <div style="background:linear-gradient(155deg,#0c2752 0%,#1a4a8a 55%,#1568a8 100%);padding:50px 40px;position:relative;overflow:hidden;">
-    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(77,184,200,0.16);border:1px solid rgba(77,184,200,0.38);color:#7de8f4;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:20px;line-height:1;">
-      ${emojiGlyph(m.pillEmoji, 12)}
-      <span>${m.pill || "UPDATE"}</span>
+    <div style="display:inline-block;background:rgba(77,184,200,0.16);border:1px solid rgba(77,184,200,0.38);border-radius:20px;padding:5px 14px;margin-bottom:20px;">
+      <table role="presentation" style="border-collapse:collapse;">
+        <tr>
+          <td valign="middle" style="padding-right:8px;line-height:1;">${emojiBox(m.pillEmoji, 12)}</td>
+          <td valign="middle" style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#7de8f4;line-height:1;white-space:nowrap;">${m.pill || "UPDATE"}</td>
+        </tr>
+      </table>
     </div>
-    <h1 style="font-size:34px;font-weight:800;color:#ffffff;line-height:1.22;margin:0 0 18px;max-width:520px;">
-      ${m.title || "Headline"} <span style="color:#4db8c8;">${m.titleHighlight || ""}</span>
-    </h1>
+    <h1 style="font-size:34px;font-weight:800;color:#ffffff;line-height:1.22;margin:0 0 18px;max-width:520px;">${m.title || "Headline"} <span style="color:#4db8c8;">${m.titleHighlight || ""}</span></h1>
     <p style="color:rgba(255,255,255,0.78);font-size:14px;line-height:1.78;max-width:490px;margin:0;white-space:pre-line;">${m.body || ""}</p>
   </div>`;
 }
 
 function renderSectionText(m: Record<string, any>): string {
-  const eyebrowHtml = m.eyebrow
-    ? `<div style="display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1a6fa8;margin-bottom:10px;line-height:1;">${emojiGlyph(m.eyebrowEmoji, 12)}<span>${m.eyebrow}</span></div>`
-    : "";
+  const eyebrowHtml = m.eyebrow ? iconTextLabel(m.eyebrowEmoji, m.eyebrow, "#1a6fa8") : "";
   const titleHtml = m.title
     ? `<h2 style="font-size:21px;font-weight:700;color:#0c2752;line-height:1.3;margin:0 0 13px;">${m.title}</h2>`
     : "";
   const bodyHtml = m.body
     ? `<p style="font-size:13.5px;color:#4a5e72;line-height:1.78;margin:0;white-space:pre-line;">${m.body}</p>`
     : "";
+
   return `<div style="padding:42px 40px 0;">${eyebrowHtml}${titleHtml}${bodyHtml}</div>`;
 }
 
 function renderLiveStatus(m: Record<string, any>): string {
   const items = (m.items || []) as string[];
   const itemsHtml = items
-    .map((item: string) => {
+    .map((item) => {
       const cleanItem = item.replace(/\s*[✓✔]$/, "");
-      return `<div style="display:flex;align-items:flex-start;gap:10px;margin-top:8px;">${checkMark("#cdf5d8", "#166534")}<span style="font-size:12px;color:#166534;line-height:1.55;">${cleanItem}</span></div>`;
+      return `<tr><td valign="top" style="padding:0 10px 10px 0;line-height:1;">${checkCircle(
+        "#d5f1df",
+        "#166534",
+      )}</td><td valign="top" style="font-size:12px;color:#166534;line-height:1.55;padding:0 0 10px 0;">${cleanItem}</td></tr>`;
     })
     .join("");
+
   return `
   <div style="padding:0 40px;">
-    <div style="background:#f0fdf6;border:1px solid #b8efd4;border-left:4px solid #22c55e;border-radius:10px;padding:17px 20px;margin-top:20px;display:flex;align-items:flex-start;gap:13px;">
-      <div style="width:11px;height:11px;background:#22c55e;border-radius:50%;box-shadow:0 0 0 4px rgba(34,197,94,0.17);flex-shrink:0;margin-top:4px;"></div>
-      <div>
-        <h4 style="font-size:13.5px;font-weight:600;color:#14532d;margin:0 0 4px;">${m.title || "Status"}</h4>
-        ${itemsHtml}
-      </div>
+    <div style="background:#f0fdf6;border:1px solid #b8efd4;border-left:4px solid #22c55e;border-radius:10px;padding:17px 20px;margin-top:20px;">
+      <table role="presentation" style="border-collapse:collapse;">
+        <tr>
+          <td valign="top" style="padding-right:13px;"><div style="width:11px;height:11px;background:#22c55e;border-radius:50%;box-shadow:0 0 0 4px rgba(34,197,94,0.17);margin-top:4px;"></div></td>
+          <td valign="top">
+            <h4 style="font-size:13.5px;font-weight:600;color:#14532d;margin:0 0 8px;line-height:1.3;">${m.title || "Status"}</h4>
+            <table role="presentation" style="border-collapse:collapse;">${itemsHtml}</table>
+          </td>
+        </tr>
+      </table>
     </div>
   </div>`;
 }
@@ -159,30 +175,33 @@ function renderFeatureCard(m: Record<string, any>): string {
   const bulletsHtml = bullets
     .map((b) => {
       const c = checkColors[b.check] || checkColors.teal;
-      return `
-      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
-        ${checkMark(c.bg, c.color)}
-        <span style="font-size:13px;color:#3d4f60;line-height:1.62;">${b.text}</span>
-      </div>`;
+      return `<tr><td valign="top" style="padding:0 12px 14px 0;line-height:1;">${checkCircle(c.bg, c.color)}</td><td valign="top" style="font-size:13px;color:#3d4f60;line-height:1.62;padding:0 0 14px 0;">${b.text}</td></tr>`;
     })
     .join("");
 
-  const badgeHtml = m.badge ? pill(m.badge, "#fff8e1", "#92530a", "1px solid #f9c846") : "";
+  const badgeHtml = m.badge ? textPill(m.badge, "#fff8e1", "#92530a", "1px solid #f9c846") : "";
 
   return `
   <div style="padding:0 40px;">
     <div style="border:1px solid #e0eaf2;border-radius:12px;overflow:hidden;margin-top:18px;">
-      <div style="padding:17px 20px 13px;display:flex;align-items:center;gap:13px;background:#fff;">
-        <div style="width:40px;height:40px;border-radius:12px;background:${iconBg};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${emojiGlyph(m.icon || "&#x2B50;", 18)}</div>
-        <div style="min-width:0;flex:1;">
-          <div style="font-size:14px;font-weight:700;color:#0c2752;line-height:1.2;">${m.name || "Feature"}</div>
-          <div style="font-size:11px;color:#7a8ea0;margin-top:4px;line-height:1.35;">${m.subtitle || ""}</div>
-        </div>
-        ${badgeHtml}
+      <div style="padding:17px 20px 13px;background:#fff;">
+        <table role="presentation" style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td valign="middle" style="width:54px;padding-right:13px;"><div style="width:40px;height:40px;border-radius:12px;background:${iconBg};text-align:center;line-height:40px;">${emojiBox(
+              m.icon || "&#x2B50;",
+              18,
+            )}</div></td>
+            <td valign="middle">
+              <div style="font-size:14px;font-weight:700;color:#0c2752;line-height:1.2;">${m.name || "Feature"}</div>
+              <div style="font-size:11px;color:#7a8ea0;line-height:1.35;margin-top:4px;">${m.subtitle || ""}</div>
+            </td>
+            <td valign="middle" style="text-align:right;white-space:nowrap;padding-left:16px;">${badgeHtml}</td>
+          </tr>
+        </table>
       </div>
       <div style="padding:14px 20px 18px;background:#f8fafb;border-top:1px solid #edf2f6;">
-        ${m.description ? `<p style="font-size:12.5px;color:#516070;line-height:1.65;margin:0 0 12px;">${m.description}</p>` : ""}
-        ${bulletsHtml}
+        ${m.description ? `<p style="font-size:12.5px;color:#516070;line-height:1.65;margin:0 0 16px;">${m.description}</p>` : ""}
+        <table role="presentation" style="border-collapse:collapse;">${bulletsHtml}</table>
       </div>
     </div>
   </div>`;
@@ -190,12 +209,15 @@ function renderFeatureCard(m: Record<string, any>): string {
 
 function renderStrategyBox(m: Record<string, any>): string {
   const subtitleHtml = m.subtitle
-    ? `<div style="display:flex;align-items:center;gap:8px;margin:0 0 9px;">${emojiGlyph(m.subtitleEmoji, 14)}<h4 style="font-size:14px;font-weight:700;color:#0c2752;margin:0;line-height:1.3;">${m.subtitle}</h4></div>`
+    ? `<table role="presentation" style="border-collapse:collapse;margin:0 0 9px 0;"><tr><td valign="middle" style="padding-right:8px;line-height:1;">${emojiBox(
+        m.subtitleEmoji,
+        14,
+      )}</td><td valign="middle" style="font-size:14px;font-weight:700;color:#0c2752;line-height:1.3;">${m.subtitle}</td></tr></table>`
     : "";
 
   return `
   <div style="padding:42px 40px 0;">
-    <div style="display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1a6fa8;margin-bottom:10px;line-height:1;">${emojiGlyph(m.eyebrowEmoji, 12)}<span>${m.eyebrow || ""}</span></div>
+    ${iconTextLabel(m.eyebrowEmoji, m.eyebrow || "", "#1a6fa8")}
     <h2 style="font-size:21px;font-weight:700;color:#0c2752;line-height:1.3;margin:0 0 13px;">${m.title || ""}</h2>
     <div style="background:linear-gradient(135deg,#edf3fb 0%,#e4eefc 100%);border:1px solid #c5d6ee;border-radius:12px;padding:24px 26px;margin-top:18px;">
       ${subtitleHtml}
@@ -222,27 +244,30 @@ function renderAiCard(m: Record<string, any>): string {
   const bulletsHtml = bullets
     .map((b) => {
       const c = checkColors[b.check] || checkColors.teal;
-      return `
-      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
-        ${checkMark(c.bg, c.color)}
-        <span style="font-size:13px;color:#3d4f60;line-height:1.62;"><strong style="color:#0c2752;font-weight:700;">${b.title}</strong> &mdash; ${b.text}</span>
-      </div>`;
+      return `<tr><td valign="top" style="padding:0 12px 14px 0;line-height:1;">${checkCircle(c.bg, c.color)}</td><td valign="top" style="font-size:13px;color:#3d4f60;line-height:1.62;padding:0 0 14px 0;"><strong style="color:#0c2752;font-weight:700;">${b.title}</strong> &mdash; ${b.text}</td></tr>`;
     })
     .join("");
 
   return `
   <div style="padding:0 40px;">
     <div style="border:1px solid #e0eaf2;border-radius:12px;overflow:hidden;margin-top:20px;">
-      <div style="padding:20px 24px 16px;display:flex;gap:14px;align-items:flex-start;background:${topBg};">
-        <div style="width:44px;height:44px;background:rgba(255,255,255,0.12);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${emojiGlyph(m.labelEmoji, 21)}</div>
-        <div style="min-width:0;flex:1;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;min-height:32px;padding:0 18px;border-radius:999px;margin-bottom:8px;background:${labelBg};color:${labelColor};font-size:9px;font-weight:700;letter-spacing:1.5px;line-height:1;text-transform:uppercase;">${m.label || "AI"}</span>
-          <h3 style="font-size:15.5px;font-weight:700;color:#fff;line-height:1.25;margin:0 0 6px;">${m.title || ""}</h3>
-          <p style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.55;margin:0;">${m.subtitle || ""}</p>
-        </div>
+      <div style="padding:20px 24px 16px;background:${topBg};">
+        <table role="presentation" style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td valign="top" style="width:58px;padding-right:14px;"><div style="width:44px;height:44px;background:rgba(255,255,255,0.12);border-radius:11px;text-align:center;line-height:44px;">${emojiBox(
+              m.labelEmoji,
+              21,
+            )}</div></td>
+            <td valign="top">
+              <span style="display:inline-block;padding:10px 16px;border-radius:999px;margin-bottom:10px;background:${labelBg};color:${labelColor};font-size:9px;font-weight:700;letter-spacing:1.5px;line-height:1;text-transform:uppercase;white-space:nowrap;">${m.label || "AI"}</span>
+              <h3 style="font-size:15.5px;font-weight:700;color:#fff;line-height:1.25;margin:0 0 6px;">${m.title || ""}</h3>
+              <p style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.55;margin:0;">${m.subtitle || ""}</p>
+            </td>
+          </tr>
+        </table>
       </div>
       <div style="padding:18px 24px 22px;background:#fff;">
-        ${bulletsHtml}
+        <table role="presentation" style="border-collapse:collapse;">${bulletsHtml}</table>
       </div>
     </div>
   </div>`;
@@ -251,7 +276,7 @@ function renderAiCard(m: Record<string, any>): string {
 function renderFooter(m: Record<string, any>): string {
   return `
   <div style="background:#f6f9fc;border-top:2px solid #e0eaf2;padding:30px 40px;text-align:center;">
-    <div style="margin-bottom:18px;">${logoImg(32, "center")}</div>
+    <div style="margin-bottom:18px;">${logoImg(32, true)}</div>
     <p style="font-size:13px;color:#4a5e72;line-height:1.7;margin:0 0 16px;">${m.tagline || ""}</p>
     <p style="font-size:10px;color:#a0adb8;margin:14px 0 0;">${m.note || ""}</p>
   </div>`;
@@ -293,15 +318,12 @@ function renderBlockHtml(block: ContentBlock): string {
             `<div style="background:#f0f4ff;padding:14px 18px;border-radius:8px;font-size:14px;color:#1e293b;border-left:4px solid #003087;margin-bottom:8px;">${e(item)}</div>`
         )
         .join("");
-      return `<div style="padding:0 40px;margin-bottom:16px;">
-        <h2 style="font-size:18px;font-weight:700;color:#003087;margin:0 0 12px;">${e(heading) || ""}</h2>
-        ${cards}
-      </div>`;
+      return `<div style="padding:0 40px;margin-bottom:16px;"><h2 style="font-size:18px;font-weight:700;color:#003087;margin:0 0 12px;">${e(heading) || ""}</h2>${cards}</div>`;
     }
     case "callout":
       return `<div style="margin:0 40px 16px;background:#fffbeb;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;font-size:14px;color:#92400e;white-space:pre-line;">${e(content) || "Important callout message"}</div>`;
     case "image-placeholder":
-      return `<div style="height:180px;background:linear-gradient(135deg,#e4f0fa,#d0e6f5);display:flex;align-items:center;justify-content:center;color:#4a7fa8;font-size:12.5px;font-weight:500;">${emojiGlyph("&#x1F4F7;", 14)}&nbsp;${e(content) || "Image placeholder"}</div>`;
+      return `<div style="height:180px;background:linear-gradient(135deg,#e4f0fa,#d0e6f5);text-align:center;color:#4a7fa8;font-size:12.5px;font-weight:500;line-height:180px;">${emojiBox("&#x1F4F7;", 14)}&nbsp;${e(content) || "Image placeholder"}</div>`;
     default:
       return "";
   }
@@ -309,6 +331,7 @@ function renderBlockHtml(block: ContentBlock): string {
 
 export function generateEmailHtml(email: EmailState): string {
   const blocks = email.blocks.map(renderBlockHtml).join("");
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
