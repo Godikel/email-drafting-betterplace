@@ -66,6 +66,7 @@ function BlockWrapper({
   onRemove,
   onMoveUp,
   onMoveDown,
+  onStyleOpen,
   isFirst,
   isLast,
   children,
@@ -74,6 +75,7 @@ function BlockWrapper({
   onDragEnd,
   isDragging,
   isDragOver,
+  customStyle,
 }: {
   block: ContentBlock;
   isSelected: boolean;
@@ -81,6 +83,7 @@ function BlockWrapper({
   onRemove: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
+  onStyleOpen: () => void;
   isFirst: boolean;
   isLast: boolean;
   children: React.ReactNode;
@@ -89,6 +92,7 @@ function BlockWrapper({
   onDragEnd: () => void;
   isDragging: boolean;
   isDragOver: boolean;
+  customStyle: React.CSSProperties;
 }) {
   return (
     <div
