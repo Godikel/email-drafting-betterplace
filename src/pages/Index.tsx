@@ -73,15 +73,18 @@ const Index = () => {
     setIsSending(true);
     try {
       const html = generateEmailHtml(email);
-      const response = await fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          subject: email.subject,
-          recipients: email.recipients,
-          html,
-        }),
-      });
+      const response = await fetch(
+        "https://script.google.com/macros/s/AKfycbzrlKhp_vdMTE8vkupLjB5TWZ5B67qKdTg86N7f6LdN0scAzT0CcknB72EPF7kOosEy/exec",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            subject: email.subject,
+            recipients: email.recipients,
+            html,
+          }),
+        },
+      );
 
       if (!response.ok) throw new Error("Failed to send");
       toast.success("Email sent successfully!");
@@ -103,12 +106,7 @@ const Index = () => {
               <SidebarTrigger />
               <h1 className="text-base font-semibold text-foreground">Email Builder</h1>
             </div>
-            <EmailActionBar
-              onPreview={handlePreview}
-              onSave={handleSave}
-              onSend={handleSend}
-              isSending={isSending}
-            />
+            <EmailActionBar onPreview={handlePreview} onSave={handleSave} onSend={handleSend} isSending={isSending} />
           </header>
 
           <main className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 overflow-auto">
