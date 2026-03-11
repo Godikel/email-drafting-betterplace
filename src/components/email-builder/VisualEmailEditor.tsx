@@ -214,7 +214,7 @@ function VisualHero({ meta, onMetaChange }: { meta: Record<string, any>; onMetaC
       <Editable
         value={meta.body || ""}
         onChange={(v) => onMetaChange({ ...meta, body: v })}
-        tag="p"
+        as="p"
         multiline
         style={{ color: "rgba(255,255,255,0.78)", fontSize: 14, lineHeight: 1.78, maxWidth: 490, marginTop: 18 }}
       />
