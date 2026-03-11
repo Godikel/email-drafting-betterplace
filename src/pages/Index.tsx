@@ -175,7 +175,7 @@ const Index = () => {
               />
             </div>
             <div className="min-w-0">
-              <EmailPreview email={email} />
+              <EmailPreview email={email} logoUrl={EMAIL_LOGO_URL} />
             </div>
           </main>
         </div>

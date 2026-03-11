@@ -1,34 +1,4 @@
-import { useState, useEffect } from "react";
 import type { EmailState, ContentBlock } from "@/types/email";
-import skillbetterLogo from "@/assets/skillbetter-logo.png";
-
-let cachedLogoDataUrl: string | null = null;
-
-function useLogoDataUrl(): string {
-  const [dataUrl, setDataUrl] = useState<string>(cachedLogoDataUrl || skillbetterLogo);
-
-  useEffect(() => {
-    if (cachedLogoDataUrl) return;
-    // Convert the imported asset URL to a base64 data URI
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.drawImage(img, 0, 0);
-        const url = canvas.toDataURL("image/png");
-        cachedLogoDataUrl = url;
-        setDataUrl(url);
-      }
-    };
-    img.src = skillbetterLogo;
-  }, []);
-
-  return dataUrl;
-}
 
 function parseMeta(block: ContentBlock): Record<string, any> {
   try {
@@ -346,10 +316,10 @@ export function generateEmailHtml(email: EmailState, logoUrl: string): string {
 
 interface EmailPreviewProps {
   email: EmailState;
+  logoUrl: string;
 }
 
-export function EmailPreview({ email }: EmailPreviewProps) {
-  const logoUrl = useLogoDataUrl();
+export function EmailPreview({ email, logoUrl }: EmailPreviewProps) {
   const html = generateEmailHtml(email, logoUrl);
 
   return (
