@@ -16,17 +16,17 @@ function parseMeta(block: ContentBlock): Record<string, any> {
 function Editable({
   value,
   onChange,
-  tag: Tag = "span",
   className = "",
   style = {},
   multiline = false,
+  as = "span",
 }: {
   value: string;
   onChange: (v: string) => void;
-  tag?: keyof JSX.IntrinsicElements;
   className?: string;
   style?: React.CSSProperties;
   multiline?: boolean;
+  as?: string;
 }) {
   const ref = useRef<HTMLElement>(null);
   const handleBlur = () => {
@@ -35,18 +35,25 @@ function Editable({
       if (text !== value) onChange(text);
     }
   };
-  return (
-    // @ts-ignore - dynamic tag with contentEditable
-    <Tag
-      ref={ref}
-      contentEditable
-      suppressContentEditableWarning
-      onBlur={handleBlur}
-      className={`outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-1 rounded px-0.5 cursor-text transition-shadow ${className}`}
-      style={{ ...style, minWidth: "20px", display: multiline ? "block" : "inline" }}
-      dangerouslySetInnerHTML={{ __html: value.replace(/\n/g, "<br/>") }}
-    />
-  );
+
+  const commonProps = {
+    ref: ref as any,
+    contentEditable: true,
+    suppressContentEditableWarning: true,
+    onBlur: handleBlur,
+    className: `outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-1 rounded px-0.5 cursor-text transition-shadow ${className}`,
+    style: { ...style, minWidth: "20px", display: multiline ? "block" : "inline" } as React.CSSProperties,
+    dangerouslySetInnerHTML: { __html: value.replace(/\n/g, "<br/>") },
+  };
+
+  if (as === "h1") return <h1 {...commonProps} />;
+  if (as === "h2") return <h2 {...commonProps} />;
+  if (as === "h3") return <h3 {...commonProps} />;
+  if (as === "h4") return <h4 {...commonProps} />;
+  if (as === "p") return <p {...commonProps} />;
+  if (as === "div") return <div {...commonProps} />;
+  if (as === "strong") return <strong {...commonProps} />;
+  return <span {...commonProps} />;
 }
 
 /* ── Block wrapper with controls ── */
