@@ -527,7 +527,7 @@ function VisualFooter({ meta, onMetaChange }: { meta: Record<string, any>; onMet
       <Editable
         value={meta.tagline || ""}
         onChange={(v) => onMetaChange({ ...meta, tagline: v })}
-        tag="p"
+        as="p"
         multiline
         style={{ fontSize: 13, color: "#4a5e72", lineHeight: 1.7, marginBottom: 16 }}
       />
