@@ -73,11 +73,12 @@ const Index = () => {
     setIsSending(true);
     try {
       const html = generateEmailHtml(email);
-      const response = await fetch(
+      await fetch(
         "https://script.google.com/macros/s/AKfycbzrlKhp_vdMTE8vkupLjB5TWZ5B67qKdTg86N7f6LdN0scAzT0CcknB72EPF7kOosEy/exec",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
           body: JSON.stringify({
             subject: email.subject,
             recipients: email.recipients,
@@ -85,8 +86,6 @@ const Index = () => {
           }),
         },
       );
-
-      if (!response.ok) throw new Error("Failed to send");
       toast.success("Email sent successfully!");
     } catch {
       toast.error("Failed to send email. Please try again.");
