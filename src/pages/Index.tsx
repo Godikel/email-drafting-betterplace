@@ -151,6 +151,10 @@ const Index = () => {
     setIsSending(true);
     try {
       const html = buildEmailHtml();
+      const payloadSize = new Blob([html]).size;
+      if (payloadSize > 100000) {
+        toast.warning(`HTML is large (${(payloadSize / 1024).toFixed(0)} KB). Gmail may truncate or reject emails over ~100 KB.`);
+      }
       await fetch(
         "https://script.google.com/macros/s/AKfycbzrlKhp_vdMTE8vkupLjB5TWZ5B67qKdTg86N7f6LdN0scAzT0CcknB72EPF7kOosEy/exec",
         {
@@ -164,7 +168,7 @@ const Index = () => {
           }),
         },
       );
-      toast.success("Email sent successfully!");
+      toast.info("Email request sent! Due to CORS, delivery can't be confirmed — please check the recipient inbox.");
     } catch {
       toast.error("Failed to send email. Please try again.");
     } finally {
