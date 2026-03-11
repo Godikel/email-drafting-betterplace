@@ -1,6 +1,34 @@
+import { useState, useEffect } from "react";
 import type { EmailState, ContentBlock } from "@/types/email";
+import skillbetterLogo from "@/assets/skillbetter-logo.png";
 
-const LOGO_URL = "https://id-preview--2581eb34-fe6b-415e-88af-86e442116d87.lovable.app/assets/skillbetter-Cv_rj9ZC.png";
+let cachedLogoDataUrl: string | null = null;
+
+function useLogoDataUrl(): string {
+  const [dataUrl, setDataUrl] = useState<string>(cachedLogoDataUrl || skillbetterLogo);
+
+  useEffect(() => {
+    if (cachedLogoDataUrl) return;
+    // Convert the imported asset URL to a base64 data URI
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        const url = canvas.toDataURL("image/png");
+        cachedLogoDataUrl = url;
+        setDataUrl(url);
+      }
+    };
+    img.src = skillbetterLogo;
+  }, []);
+
+  return dataUrl;
+}
 
 function parseMeta(block: ContentBlock): Record<string, any> {
   try {
@@ -25,7 +53,6 @@ function e(str?: string): string {
 
 function encodeMeta(meta: Record<string, any>): Record<string, any> {
   const result: Record<string, any> = {};
-
   for (const [key, value] of Object.entries(meta)) {
     if (typeof value === "string") {
       result[key] = e(value);
@@ -41,21 +68,16 @@ function encodeMeta(meta: Record<string, any>): Record<string, any> {
       result[key] = value;
     }
   }
-
   return result;
 }
 
-function logoImg(height: number, centered = false): string {
-  return `<img src="${LOGO_URL}" alt="skillBetter" style="height:${height}px;width:auto;display:block;${centered ? "margin:0 auto;" : ""}border:0;outline:none;text-decoration:none;" />`;
+function logoImg(logoUrl: string, height: number, centered = false): string {
+  return `<img src="${logoUrl}" alt="skillBetter" style="height:${height}px;width:auto;display:block;${centered ? "margin:0 auto;" : ""}border:0;outline:none;text-decoration:none;" />`;
 }
 
 function emojiBox(icon?: string, size = 16): string {
   if (!icon) return "";
-
-  return `<span style="display:inline-block;width:${size}px;height:${size}px;line-height:${size}px;text-align:center;vertical-align:middle;font-size:${Math.max(
-    size - 2,
-    12,
-  )}px;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;">${icon}</span>`;
+  return `<span style="display:inline-block;width:${size}px;height:${size}px;line-height:${size}px;text-align:center;vertical-align:middle;font-size:${Math.max(size - 2, 12)}px;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;">${icon}</span>`;
 }
 
 function checkCircle(background: string, color: string): string {
@@ -67,13 +89,10 @@ function textPill(text: string, background: string, color: string, border: strin
 }
 
 function iconTextLabel(icon: string | undefined, text: string, color: string): string {
-  return `<table role="presentation" style="border-collapse:collapse;margin:0 0 10px 0;"><tr><td valign="middle" style="padding-right:8px;line-height:1;">${emojiBox(
-    icon,
-    14,
-  )}</td><td valign="middle" style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${color};line-height:1;white-space:nowrap;">${text}</td></tr></table>`;
+  return `<table role="presentation" style="border-collapse:collapse;margin:0 0 10px 0;"><tr><td valign="middle" style="padding-right:8px;line-height:1;">${emojiBox(icon, 14)}</td><td valign="middle" style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${color};line-height:1;white-space:nowrap;">${text}</td></tr></table>`;
 }
 
-function renderTopbar(m: Record<string, any>): string {
+function renderTopbar(m: Record<string, any>, logoUrl: string): string {
   return `
   <div style="background:#ffffff;padding:16px 32px;border-bottom:1px solid #e8ecf0;">
     <table role="presentation" style="width:100%;border-collapse:collapse;">
@@ -81,7 +100,7 @@ function renderTopbar(m: Record<string, any>): string {
         <td valign="middle">
           <table role="presentation" style="border-collapse:collapse;">
             <tr>
-              <td valign="middle" style="padding-right:14px;">${logoImg(34)}</td>
+              <td valign="middle" style="padding-right:14px;">${logoImg(logoUrl, 34)}</td>
               <td valign="middle" style="padding-right:14px;"><div style="width:1px;height:28px;background:#d0d8e0;"></div></td>
               <td valign="middle">
                 <div style="display:inline-block;background:#f0f4f8;border:1px solid #dde3ea;border-radius:10px;padding:8px 14px;vertical-align:middle;">
@@ -121,13 +140,8 @@ function renderHero(m: Record<string, any>): string {
 
 function renderSectionText(m: Record<string, any>): string {
   const eyebrowHtml = m.eyebrow ? iconTextLabel(m.eyebrowEmoji, m.eyebrow, "#1a6fa8") : "";
-  const titleHtml = m.title
-    ? `<h2 style="font-size:21px;font-weight:700;color:#0c2752;line-height:1.3;margin:0 0 13px;">${m.title}</h2>`
-    : "";
-  const bodyHtml = m.body
-    ? `<p style="font-size:13.5px;color:#4a5e72;line-height:1.78;margin:0;white-space:pre-line;">${m.body}</p>`
-    : "";
-
+  const titleHtml = m.title ? `<h2 style="font-size:21px;font-weight:700;color:#0c2752;line-height:1.3;margin:0 0 13px;">${m.title}</h2>` : "";
+  const bodyHtml = m.body ? `<p style="font-size:13.5px;color:#4a5e72;line-height:1.78;margin:0;white-space:pre-line;">${m.body}</p>` : "";
   return `<div style="padding:42px 40px 0;">${eyebrowHtml}${titleHtml}${bodyHtml}</div>`;
 }
 
@@ -136,10 +150,7 @@ function renderLiveStatus(m: Record<string, any>): string {
   const itemsHtml = items
     .map((item) => {
       const cleanItem = item.replace(/\s*[✓✔]$/, "");
-      return `<tr><td valign="top" style="padding:0 10px 10px 0;line-height:1;">${checkCircle(
-        "#d5f1df",
-        "#166534",
-      )}</td><td valign="top" style="font-size:12px;color:#166534;line-height:1.55;padding:0 0 10px 0;">${cleanItem}</td></tr>`;
+      return `<tr><td valign="top" style="padding:0 10px 10px 0;line-height:1;">${checkCircle("#d5f1df", "#166534")}</td><td valign="top" style="font-size:12px;color:#166534;line-height:1.55;padding:0 0 10px 0;">${cleanItem}</td></tr>`;
     })
     .join("");
 
@@ -187,10 +198,7 @@ function renderFeatureCard(m: Record<string, any>): string {
       <div style="padding:17px 20px 13px;background:#fff;">
         <table role="presentation" style="width:100%;border-collapse:collapse;">
           <tr>
-            <td valign="middle" style="width:54px;padding-right:13px;"><div style="width:40px;height:40px;border-radius:12px;background:${iconBg};text-align:center;line-height:40px;">${emojiBox(
-              m.icon || "&#x2B50;",
-              18,
-            )}</div></td>
+            <td valign="middle" style="width:54px;padding-right:13px;"><div style="width:40px;height:40px;border-radius:12px;background:${iconBg};text-align:center;line-height:40px;">${emojiBox(m.icon || "&#x2B50;", 18)}</div></td>
             <td valign="middle">
               <div style="font-size:14px;font-weight:700;color:#0c2752;line-height:1.2;">${m.name || "Feature"}</div>
               <div style="font-size:11px;color:#7a8ea0;line-height:1.35;margin-top:4px;">${m.subtitle || ""}</div>
@@ -209,12 +217,8 @@ function renderFeatureCard(m: Record<string, any>): string {
 
 function renderStrategyBox(m: Record<string, any>): string {
   const subtitleHtml = m.subtitle
-    ? `<table role="presentation" style="border-collapse:collapse;margin:0 0 9px 0;"><tr><td valign="middle" style="padding-right:8px;line-height:1;">${emojiBox(
-        m.subtitleEmoji,
-        14,
-      )}</td><td valign="middle" style="font-size:14px;font-weight:700;color:#0c2752;line-height:1.3;">${m.subtitle}</td></tr></table>`
+    ? `<table role="presentation" style="border-collapse:collapse;margin:0 0 9px 0;"><tr><td valign="middle" style="padding-right:8px;line-height:1;">${emojiBox(m.subtitleEmoji, 14)}</td><td valign="middle" style="font-size:14px;font-weight:700;color:#0c2752;line-height:1.3;">${m.subtitle}</td></tr></table>`
     : "";
-
   return `
   <div style="padding:42px 40px 0;">
     ${iconTextLabel(m.eyebrowEmoji, m.eyebrow || "", "#1a6fa8")}
@@ -228,9 +232,7 @@ function renderStrategyBox(m: Record<string, any>): string {
 
 function renderAiCard(m: Record<string, any>): string {
   const isPurple = m.variant === "purple";
-  const topBg = isPurple
-    ? "linear-gradient(135deg,#3b1a7a,#5a38ae)"
-    : "linear-gradient(135deg,#0c2752,#1a4a8a)";
+  const topBg = isPurple ? "linear-gradient(135deg,#3b1a7a,#5a38ae)" : "linear-gradient(135deg,#0c2752,#1a4a8a)";
   const labelBg = isPurple ? "rgba(255,255,255,0.14)" : "rgba(77,184,200,0.18)";
   const labelColor = isPurple ? "#ddd6fe" : "#7de8f4";
 
@@ -254,10 +256,7 @@ function renderAiCard(m: Record<string, any>): string {
       <div style="padding:20px 24px 16px;background:${topBg};">
         <table role="presentation" style="width:100%;border-collapse:collapse;">
           <tr>
-            <td valign="top" style="width:58px;padding-right:14px;"><div style="width:44px;height:44px;background:rgba(255,255,255,0.12);border-radius:11px;text-align:center;line-height:44px;">${emojiBox(
-              m.labelEmoji,
-              21,
-            )}</div></td>
+            <td valign="top" style="width:58px;padding-right:14px;"><div style="width:44px;height:44px;background:rgba(255,255,255,0.12);border-radius:11px;text-align:center;line-height:44px;">${emojiBox(m.labelEmoji, 21)}</div></td>
             <td valign="top">
               <span style="display:inline-block;padding:10px 16px;border-radius:999px;margin-bottom:10px;background:${labelBg};color:${labelColor};font-size:9px;font-weight:700;letter-spacing:1.5px;line-height:1;text-transform:uppercase;white-space:nowrap;">${m.label || "AI"}</span>
               <h3 style="font-size:15.5px;font-weight:700;color:#fff;line-height:1.25;margin:0 0 6px;">${m.title || ""}</h3>
@@ -273,22 +272,22 @@ function renderAiCard(m: Record<string, any>): string {
   </div>`;
 }
 
-function renderFooter(m: Record<string, any>): string {
+function renderFooter(m: Record<string, any>, logoUrl: string): string {
   return `
   <div style="background:#f6f9fc;border-top:2px solid #e0eaf2;padding:30px 40px;text-align:center;">
-    <div style="margin-bottom:18px;">${logoImg(32, true)}</div>
+    <div style="margin-bottom:18px;">${logoImg(logoUrl, 32, true)}</div>
     <p style="font-size:13px;color:#4a5e72;line-height:1.7;margin:0 0 16px;">${m.tagline || ""}</p>
     <p style="font-size:10px;color:#a0adb8;margin:14px 0 0;">${m.note || ""}</p>
   </div>`;
 }
 
-function renderBlockHtml(block: ContentBlock): string {
+function renderBlockHtml(block: ContentBlock, logoUrl: string): string {
   const m = encodeMeta(parseMeta(block));
   const content = block.content || "";
 
   switch (block.type) {
     case "topbar":
-      return renderTopbar(m);
+      return renderTopbar(m, logoUrl);
     case "hero":
       return renderHero(m);
     case "live-status":
@@ -300,24 +299,17 @@ function renderBlockHtml(block: ContentBlock): string {
     case "ai-card":
       return renderAiCard(m);
     case "footer":
-      return renderFooter(m);
+      return renderFooter(m, logoUrl);
     case "divider":
       return renderDivider();
     case "text":
-      if (m.eyebrow || m.title) {
-        return renderSectionText(m);
-      }
+      if (m.eyebrow || m.title) return renderSectionText(m);
       return `<div style="padding:12px 40px;font-size:14px;line-height:1.7;color:#334155;white-space:pre-line;">${e(content).replace(/\n/g, "<br/>")}</div>`;
     case "features": {
       const lines = (content || "Feature 1\nFeature 2\nFeature 3").split("\n").filter(Boolean);
       const heading = lines[0];
       const items = lines.slice(1);
-      const cards = items
-        .map(
-          (item) =>
-            `<div style="background:#f0f4ff;padding:14px 18px;border-radius:8px;font-size:14px;color:#1e293b;border-left:4px solid #003087;margin-bottom:8px;">${e(item)}</div>`
-        )
-        .join("");
+      const cards = items.map((item) => `<div style="background:#f0f4ff;padding:14px 18px;border-radius:8px;font-size:14px;color:#1e293b;border-left:4px solid #003087;margin-bottom:8px;">${e(item)}</div>`).join("");
       return `<div style="padding:0 40px;margin-bottom:16px;"><h2 style="font-size:18px;font-weight:700;color:#003087;margin:0 0 12px;">${e(heading) || ""}</h2>${cards}</div>`;
     }
     case "callout":
@@ -329,9 +321,8 @@ function renderBlockHtml(block: ContentBlock): string {
   }
 }
 
-export function generateEmailHtml(email: EmailState): string {
-  const blocks = email.blocks.map(renderBlockHtml).join("");
-
+export function generateEmailHtml(email: EmailState, logoUrl: string): string {
+  const blocks = email.blocks.map((b) => renderBlockHtml(b, logoUrl)).join("");
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -358,7 +349,8 @@ interface EmailPreviewProps {
 }
 
 export function EmailPreview({ email }: EmailPreviewProps) {
-  const html = generateEmailHtml(email);
+  const logoUrl = useLogoDataUrl();
+  const html = generateEmailHtml(email, logoUrl);
 
   return (
     <div className="h-full flex flex-col">
