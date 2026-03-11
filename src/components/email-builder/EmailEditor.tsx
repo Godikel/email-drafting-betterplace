@@ -1,4 +1,4 @@
-import { PlusCircle, Layout, Star, MessageSquare, Type } from "lucide-react";
+import { PlusCircle, Layout, Star, MessageSquare, Type, Minus, Bot, Box, Zap, Footprints } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,29 +17,48 @@ const templates = [
   { value: "promo", label: "Promotional" },
   { value: "newsletter", label: "Newsletter" },
   { value: "blank", label: "Blank" },
+  { value: "ai-roadmap", label: "AI Roadmap" },
 ];
 
 const addBlockOptions: { type: ContentBlockType; label: string; icon: React.ElementType }[] = [
+  { type: "topbar", label: "Top Bar", icon: Layout },
   { type: "hero", label: "Hero", icon: Layout },
-  { type: "features", label: "Features", icon: Star },
-  { type: "callout", label: "Callout", icon: MessageSquare },
   { type: "text", label: "Text", icon: Type },
+  { type: "live-status", label: "Live Status", icon: Zap },
+  { type: "feature-card", label: "Feature Card", icon: Star },
+  { type: "strategy-box", label: "Strategy Box", icon: Box },
+  { type: "ai-card", label: "AI Card", icon: Bot },
+  { type: "divider", label: "Divider", icon: Minus },
+  { type: "footer", label: "Footer", icon: Footprints },
+  { type: "features", label: "Features (simple)", icon: Star },
+  { type: "callout", label: "Callout", icon: MessageSquare },
 ];
 
 interface EmailEditorProps {
   email: EmailState;
   onChange: (update: Partial<EmailState>) => void;
   onBlockChange: (id: string, content: string) => void;
+  onBlockMetaChange: (id: string, meta: string) => void;
   onBlockRemove: (id: string) => void;
   onBlockAdd: (type: ContentBlockType) => void;
+  onBlockReorder: (fromId: string, toId: string) => void;
+  dragState: { dragging: string | null; over: string | null };
+  onDragStart: (id: string) => void;
+  onDragOver: (id: string) => void;
+  onDragEnd: () => void;
 }
 
 export function EmailEditor({
   email,
   onChange,
   onBlockChange,
+  onBlockMetaChange,
   onBlockRemove,
   onBlockAdd,
+  dragState,
+  onDragStart,
+  onDragOver,
+  onDragEnd,
 }: EmailEditorProps) {
   return (
     <div className="space-y-6">
@@ -88,14 +107,22 @@ export function EmailEditor({
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold text-foreground mb-3">Content Sections</h3>
-        <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-foreground mb-3">
+          Content Sections ({email.blocks.length})
+        </h3>
+        <div className="space-y-2">
           {email.blocks.map((block) => (
             <ContentBlockEditor
               key={block.id}
               block={block}
               onChange={onBlockChange}
+              onMetaChange={onBlockMetaChange}
               onRemove={onBlockRemove}
+              onDragStart={onDragStart}
+              onDragOver={onDragOver}
+              onDragEnd={onDragEnd}
+              isDragging={dragState.dragging === block.id}
+              isDragOver={dragState.over === block.id}
             />
           ))}
         </div>
@@ -107,7 +134,7 @@ export function EmailEditor({
               variant="outline"
               size="sm"
               onClick={() => onBlockAdd(opt.type)}
-              className="gap-1.5 shadow-card"
+              className="gap-1.5 shadow-card text-xs"
             >
               <PlusCircle className="h-3.5 w-3.5" />
               {opt.label}

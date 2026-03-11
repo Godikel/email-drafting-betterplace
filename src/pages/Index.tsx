@@ -20,6 +20,7 @@ const Index = () => {
   const [activeNav, setActiveNav] = useState("new");
   const [email, setEmail] = useState<EmailState>(initialState);
   const [isSending, setIsSending] = useState(false);
+  const [dragState, setDragState] = useState<{ dragging: string | null; over: string | null }>({ dragging: null, over: null });
 
   const handleChange = useCallback((update: Partial<EmailState>) => {
     setEmail((prev) => ({ ...prev, ...update }));
@@ -29,6 +30,13 @@ const Index = () => {
     setEmail((prev) => ({
       ...prev,
       blocks: prev.blocks.map((b) => (b.id === id ? { ...b, content } : b)),
+    }));
+  }, []);
+
+  const handleBlockMetaChange = useCallback((id: string, meta: string) => {
+    setEmail((prev) => ({
+      ...prev,
+      blocks: prev.blocks.map((b) => (b.id === id ? { ...b, meta } : b)),
     }));
   }, []);
 
@@ -47,10 +55,40 @@ const Index = () => {
     }));
   }, []);
 
+  const handleBlockReorder = useCallback((fromId: string, toId: string) => {
+    if (fromId === toId) return;
+    setEmail((prev) => {
+      const blocks = [...prev.blocks];
+      const fromIndex = blocks.findIndex((b) => b.id === fromId);
+      const toIndex = blocks.findIndex((b) => b.id === toId);
+      if (fromIndex === -1 || toIndex === -1) return prev;
+      const [moved] = blocks.splice(fromIndex, 1);
+      blocks.splice(toIndex, 0, moved);
+      return { ...prev, blocks };
+    });
+  }, []);
+
+  const handleDragStart = useCallback((id: string) => {
+    setDragState({ dragging: id, over: null });
+  }, []);
+
+  const handleDragOver = useCallback((id: string) => {
+    setDragState((prev) => ({ ...prev, over: id }));
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDragState((prev) => {
+      if (prev.dragging && prev.over && prev.dragging !== prev.over) {
+        handleBlockReorder(prev.dragging, prev.over);
+      }
+      return { dragging: null, over: null };
+    });
+  }, [handleBlockReorder]);
+
   const handleTemplateLoad = useCallback((templateName: string) => {
     const tpl = templates[templateName];
     if (tpl) {
-      setEmail({ ...tpl });
+      setEmail({ ...tpl, blocks: tpl.blocks.map((b) => ({ ...b })) });
       toast.success(`Loaded "${templateName}" template`);
     }
   }, []);
@@ -117,13 +155,19 @@ const Index = () => {
           </header>
 
           <main className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 overflow-auto">
-            <div className="min-w-0">
+            <div className="min-w-0 overflow-auto max-h-[calc(100vh-5rem)]">
               <EmailEditor
                 email={email}
                 onChange={handleChange}
                 onBlockChange={handleBlockChange}
+                onBlockMetaChange={handleBlockMetaChange}
                 onBlockRemove={handleBlockRemove}
                 onBlockAdd={handleBlockAdd}
+                onBlockReorder={handleBlockReorder}
+                dragState={dragState}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragEnd={handleDragEnd}
               />
             </div>
             <div className="min-w-0">
