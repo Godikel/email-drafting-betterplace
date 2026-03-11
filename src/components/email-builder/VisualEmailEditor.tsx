@@ -142,6 +142,13 @@ function BlockWrapper({
           </button>
         )}
         <button
+          className="p-1 rounded hover:bg-primary/10 text-muted-foreground hover:text-primary"
+          onClick={(e) => { e.stopPropagation(); onStyleOpen(); }}
+          title="Style settings"
+        >
+          <Palette className="h-3.5 w-3.5" />
+        </button>
+        <button
           className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
           onClick={(e) => { e.stopPropagation(); onRemove(); }}
           title="Remove block"
@@ -149,6 +156,7 @@ function BlockWrapper({
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </div>
+      <div style={customStyle}>
       {children}
     </div>
   );
