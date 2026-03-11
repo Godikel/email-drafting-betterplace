@@ -412,7 +412,7 @@ function VisualStrategyBox({ meta, onMetaChange }: { meta: Record<string, any>; 
         {meta.subtitle && (
           <div className="flex items-center gap-2 mb-2">
             <Editable value={meta.subtitleEmoji || ""} onChange={(v) => onMetaChange({ ...meta, subtitleEmoji: v })} style={{ fontSize: 14 }} />
-            <Editable value={meta.subtitle} onChange={(v) => onMetaChange({ ...meta, subtitle: v })} tag="h4" style={{ fontSize: 14, fontWeight: 700, color: "#0c2752" }} />
+            <Editable value={meta.subtitle} onChange={(v) => onMetaChange({ ...meta, subtitle: v })} as="h4" style={{ fontSize: 14, fontWeight: 700, color: "#0c2752" }} />
           </div>
         )}
         <Editable value={meta.body || ""} onChange={(v) => onMetaChange({ ...meta, body: v })} tag="p" multiline style={{ fontSize: 13, color: "#3d4f60", lineHeight: 1.78 }} />
