@@ -170,7 +170,7 @@ function VisualTopbar({ meta, onMetaChange }: { meta: Record<string, any>; onMet
               value={meta.partnerSub || ""}
               onChange={(v) => onMetaChange({ ...meta, partnerSub: v })}
               style={{ fontSize: 9, fontWeight: 600, color: "#7a8a9a", marginTop: 4 }}
-              tag="div"
+              as="div"
             />
           </div>
         </div>
