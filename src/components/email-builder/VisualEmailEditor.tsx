@@ -407,7 +407,7 @@ function VisualStrategyBox({ meta, onMetaChange }: { meta: Record<string, any>; 
         <Editable value={meta.eyebrowEmoji || ""} onChange={(v) => onMetaChange({ ...meta, eyebrowEmoji: v })} style={{ fontSize: 12 }} />
         <Editable value={meta.eyebrow || ""} onChange={(v) => onMetaChange({ ...meta, eyebrow: v })} style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase" as const, color: "#1a6fa8" }} />
       </div>
-      <Editable value={meta.title || ""} onChange={(v) => onMetaChange({ ...meta, title: v })} tag="h2" style={{ fontSize: 21, fontWeight: 700, color: "#0c2752", lineHeight: 1.3, marginBottom: 13 }} />
+      <Editable value={meta.title || ""} onChange={(v) => onMetaChange({ ...meta, title: v })} as="h2" style={{ fontSize: 21, fontWeight: 700, color: "#0c2752", lineHeight: 1.3, marginBottom: 13 }} />
       <div style={{ background: "linear-gradient(135deg, #edf3fb 0%, #e4eefc 100%)", border: "1px solid #c5d6ee", borderRadius: 12, padding: "24px 26px", marginTop: 18 }}>
         {meta.subtitle && (
           <div className="flex items-center gap-2 mb-2">
