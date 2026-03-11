@@ -14,7 +14,7 @@ const initialState: EmailState = {
   blocks: [],
 };
 
-const EMAIL_LOGO_URL = "https://radiant-reply-room.lovable.app/images/skillbetter-logo.png";
+const EMAIL_LOGO_URL = "https://id-preview--2581eb34-fe6b-415e-88af-86e442116d87.lovable.app/assets/skillbetter-Cv_rj9ZC.png";
 
 let blockIdCounter = 0;
 
