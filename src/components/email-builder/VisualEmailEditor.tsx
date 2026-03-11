@@ -355,7 +355,7 @@ function VisualFeatureCard({ meta, onMetaChange }: { meta: Record<string, any>; 
             <Editable
               value={meta.description}
               onChange={(v) => onMetaChange({ ...meta, description: v })}
-              tag="p"
+              as="p"
               multiline
               style={{ fontSize: 12.5, color: "#516070", lineHeight: 1.65, marginBottom: 16 }}
             />
