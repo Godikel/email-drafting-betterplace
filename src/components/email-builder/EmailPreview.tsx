@@ -1,3 +1,4 @@
+import { stylesToInline } from "./BlockStylePanel";
 import type { EmailState, ContentBlock } from "@/types/email";
 
 function parseMeta(block: ContentBlock): Record<string, any> {
