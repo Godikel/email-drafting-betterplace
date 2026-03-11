@@ -120,7 +120,10 @@ const Index = () => {
     }
   }, []);
 
-  const buildEmailHtml = useCallback(() => generateEmailHtml(email, EMAIL_LOGO_URL), [email]);
+  const buildEmailHtml = useCallback(() => {
+    if (email.rawHtml) return email.rawHtml;
+    return generateEmailHtml(email, EMAIL_LOGO_URL);
+  }, [email]);
 
   const handlePreview = () => {
     const html = buildEmailHtml();
