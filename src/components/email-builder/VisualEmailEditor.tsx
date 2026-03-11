@@ -251,7 +251,7 @@ function VisualSectionText({ meta, onMetaChange }: { meta: Record<string, any>; 
         <Editable
           value={meta.body}
           onChange={(v) => onMetaChange({ ...meta, body: v })}
-          tag="p"
+          as="p"
           multiline
           style={{ fontSize: 13.5, color: "#4a5e72", lineHeight: 1.78 }}
         />
