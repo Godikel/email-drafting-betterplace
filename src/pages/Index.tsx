@@ -6,6 +6,7 @@ import { EmailPreview, generateEmailHtml } from "@/components/email-builder/Emai
 import { EmailActionBar } from "@/components/email-builder/EmailActionBar";
 import { toast } from "sonner";
 import type { EmailState, ContentBlockType } from "@/types/email";
+import skillbetterLogo from "@/assets/skillbetter-logo.png";
 
 const initialState: EmailState = {
   subject: "",
