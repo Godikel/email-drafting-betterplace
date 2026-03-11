@@ -331,7 +331,7 @@ function VisualFeatureCard({ meta, onMetaChange }: { meta: Record<string, any>; 
               <Editable
                 value={meta.name || "Feature"}
                 onChange={(v) => onMetaChange({ ...meta, name: v })}
-                tag="div"
+                as="div"
                 style={{ fontSize: 14, fontWeight: 700, color: "#0c2752" }}
               />
               <Editable
