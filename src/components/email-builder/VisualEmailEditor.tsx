@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback } from "react";
-import { GripVertical, Trash2, Plus, ArrowUp, ArrowDown } from "lucide-react";
+import { GripVertical, Trash2, Plus, ArrowUp, ArrowDown, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BlockStylePanel, stylesToCss } from "./BlockStylePanel";
+import type { BlockStyles } from "./BlockStylePanel";
 import type { ContentBlock, ContentBlockType } from "@/types/email";
 
 /* ── helpers ── */
