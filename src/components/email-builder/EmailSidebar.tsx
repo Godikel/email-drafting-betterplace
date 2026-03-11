@@ -1,4 +1,6 @@
 import { Mail, FileText, PlusCircle } from "lucide-react";
+import { aiRoadmapTemplate } from "@/templates/aiRoadmapEmailTemplate";
+import type { EmailState } from "@/types/email";
 import {
   Sidebar,
   SidebarContent,
