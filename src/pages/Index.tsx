@@ -6,6 +6,7 @@ import { EmailPreview, generateEmailHtml } from "@/components/email-builder/Emai
 import { EmailActionBar } from "@/components/email-builder/EmailActionBar";
 import { toast } from "sonner";
 import type { EmailState, ContentBlockType } from "@/types/email";
+import skillbetterLogo from "@/assets/skillbetter-logo.png";
 
 const initialState: EmailState = {
   subject: "",
@@ -94,7 +95,8 @@ const Index = () => {
   }, []);
 
   const handlePreview = () => {
-    const html = generateEmailHtml(email);
+    const absoluteLogoUrl = new URL(skillbetterLogo, window.location.origin).toString();
+    const html = generateEmailHtml(email, absoluteLogoUrl);
     const win = window.open("", "_blank");
     if (win) {
       win.document.write(html);
@@ -118,7 +120,8 @@ const Index = () => {
 
     setIsSending(true);
     try {
-      const html = generateEmailHtml(email);
+      const absoluteLogoUrl = new URL(skillbetterLogo, window.location.origin).toString();
+      const html = generateEmailHtml(email, absoluteLogoUrl);
       await fetch(
         "https://script.google.com/macros/s/AKfycbzrlKhp_vdMTE8vkupLjB5TWZ5B67qKdTg86N7f6LdN0scAzT0CcknB72EPF7kOosEy/exec",
         {
