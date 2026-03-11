@@ -457,7 +457,7 @@ function VisualAiCard({ meta, onMetaChange }: { meta: Record<string, any>; onMet
               <Editable
                 value={meta.subtitle || ""}
                 onChange={(v) => onMetaChange({ ...meta, subtitle: v })}
-                tag="p"
+                as="p"
                 multiline
                 style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.55 }}
               />
