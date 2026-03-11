@@ -1,4 +1,6 @@
 import { Mail, FileText, PlusCircle } from "lucide-react";
+import { aiRoadmapTemplate } from "@/templates/aiRoadmapEmailTemplate";
+import type { EmailState } from "@/types/email";
 import {
   Sidebar,
   SidebarContent,
@@ -9,6 +11,18 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+
+const initialState: EmailState = {
+  subject: "",
+  recipients: "",
+  template: "blank",
+  blocks: [],
+};
+
+const templates = {
+  blank: initialState,
+  aiRoadmap: aiRoadmapTemplate,
+};
 
 const navItems = [
   { title: "Templates", icon: FileText, id: "templates" },
