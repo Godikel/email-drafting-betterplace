@@ -24,6 +24,30 @@ const Index = () => {
   const [email, setEmail] = useState<EmailState>(initialState);
   const [isSending, setIsSending] = useState(false);
   const [dragState, setDragState] = useState<{ dragging: string | null; over: string | null }>({ dragging: null, over: null });
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleHtmlUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.name.endsWith(".html") && !file.name.endsWith(".htm")) {
+      toast.error("Please upload an HTML file.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const html = ev.target?.result as string;
+      setEmail((prev) => ({ ...prev, rawHtml: html, blocks: [] }));
+      toast.success(`Loaded "${file.name}" as raw HTML`);
+    };
+    reader.readAsText(file);
+    // Reset input so the same file can be re-uploaded
+    e.target.value = "";
+  }, []);
+
+  const handleClearRawHtml = useCallback(() => {
+    setEmail((prev) => ({ ...prev, rawHtml: undefined }));
+    toast.info("Switched back to block editor");
+  }, []);
 
   const handleChange = useCallback((update: Partial<EmailState>) => {
     setEmail((prev) => ({ ...prev, ...update }));
