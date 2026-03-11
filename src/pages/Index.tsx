@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { EmailSidebar, templates } from "@/components/email-builder/EmailSidebar";
 import { EmailEditor } from "@/components/email-builder/EmailEditor";
@@ -12,6 +12,7 @@ const initialState: EmailState = {
   recipients: "",
   template: "blank",
   blocks: [],
+  rawHtml: undefined,
 };
 
 const EMAIL_LOGO_URL = "https://radiant-reply-room.lovable.app/images/skillbetter-logo.png";
