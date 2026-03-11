@@ -208,7 +208,7 @@ function VisualHero({ meta, onMetaChange }: { meta: Record<string, any>; onMetaC
       <Editable
         value={meta.titleHighlight || ""}
         onChange={(v) => onMetaChange({ ...meta, titleHighlight: v })}
-        tag="span"
+        as="span"
         style={{ fontSize: 34, fontWeight: 800, color: "#4db8c8", lineHeight: 1.22 }}
       />
       <Editable
