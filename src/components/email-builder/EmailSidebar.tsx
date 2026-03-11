@@ -79,7 +79,16 @@ export function EmailSidebar({ active, onNavigate, onTemplateLoad }: EmailSideba
                   className="text-sidebar-foreground hover:bg-muted"
                 >
                   <Sparkles className="mr-2 h-4 w-4" />
-                  <span>AI Roadmap Email</span>
+                  <span>AI Roadmap (Original)</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => onTemplateLoad?.("aiRoadmapEditable")}
+                  className="text-sidebar-foreground hover:bg-muted"
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  <span>AI Roadmap (Visual Edit)</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
