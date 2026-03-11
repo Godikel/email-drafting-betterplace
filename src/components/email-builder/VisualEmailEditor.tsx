@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback } from "react";
-import { GripVertical, Trash2, Plus, ArrowUp, ArrowDown } from "lucide-react";
+import { GripVertical, Trash2, Plus, ArrowUp, ArrowDown, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BlockStylePanel, stylesToCss } from "./BlockStylePanel";
+import type { BlockStyles } from "./BlockStylePanel";
 import type { ContentBlock, ContentBlockType } from "@/types/email";
 
 /* ── helpers ── */
@@ -64,6 +66,7 @@ function BlockWrapper({
   onRemove,
   onMoveUp,
   onMoveDown,
+  onStyleOpen,
   isFirst,
   isLast,
   children,
@@ -72,6 +75,7 @@ function BlockWrapper({
   onDragEnd,
   isDragging,
   isDragOver,
+  customStyle,
 }: {
   block: ContentBlock;
   isSelected: boolean;
@@ -79,6 +83,7 @@ function BlockWrapper({
   onRemove: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
+  onStyleOpen: () => void;
   isFirst: boolean;
   isLast: boolean;
   children: React.ReactNode;
@@ -87,6 +92,7 @@ function BlockWrapper({
   onDragEnd: () => void;
   isDragging: boolean;
   isDragOver: boolean;
+  customStyle: React.CSSProperties;
 }) {
   return (
     <div
@@ -136,6 +142,13 @@ function BlockWrapper({
           </button>
         )}
         <button
+          className="p-1 rounded hover:bg-primary/10 text-muted-foreground hover:text-primary"
+          onClick={(e) => { e.stopPropagation(); onStyleOpen(); }}
+          title="Style settings"
+        >
+          <Palette className="h-3.5 w-3.5" />
+        </button>
+        <button
           className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
           onClick={(e) => { e.stopPropagation(); onRemove(); }}
           title="Remove block"
@@ -143,7 +156,9 @@ function BlockWrapper({
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </div>
-      {children}
+      <div style={customStyle}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -552,6 +567,7 @@ interface VisualEmailEditorProps {
 
 export function VisualEmailEditor({ blocks, onBlockMetaChange, onBlockRemove, onBlockReorder }: VisualEmailEditorProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [stylePanelId, setStylePanelId] = useState<string | null>(null);
   const [dragState, setDragState] = useState<{ dragging: string | null; over: string | null }>({ dragging: null, over: null });
 
   const handleMetaChange = useCallback(
@@ -559,6 +575,16 @@ export function VisualEmailEditor({ blocks, onBlockMetaChange, onBlockRemove, on
       onBlockMetaChange(id, JSON.stringify(newMeta));
     },
     [onBlockMetaChange]
+  );
+
+  const handleStyleChange = useCallback(
+    (id: string, newStyles: BlockStyles) => {
+      const block = blocks.find((b) => b.id === id);
+      if (!block) return;
+      const meta = parseMeta(block);
+      handleMetaChange(id, { ...meta, _styles: newStyles });
+    },
+    [blocks, handleMetaChange]
   );
 
   const handleMoveUp = useCallback(
@@ -610,42 +636,65 @@ export function VisualEmailEditor({ blocks, onBlockMetaChange, onBlockRemove, on
     }
   };
 
+  const stylePanelBlock = stylePanelId ? blocks.find((b) => b.id === stylePanelId) : null;
+  const stylePanelMeta = stylePanelBlock ? parseMeta(stylePanelBlock) : {};
+
   return (
     <div className="h-full flex flex-col">
       <div className="flex items-center gap-2 mb-3">
         <h3 className="text-sm font-semibold text-foreground">Visual Editor</h3>
         <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-          Click to edit text • Drag to reorder
+          Click to edit • Drag to reorder • 🎨 to style
         </span>
       </div>
-      <div
-        className="flex-1 rounded-lg border bg-card shadow-card overflow-auto"
-        onClick={() => setSelectedId(null)}
-      >
-        <div style={{ maxWidth: 680, margin: "0 auto", background: "#ffffff", fontFamily: "'Inter', sans-serif" }}>
-          <div className="pl-12 relative">
-            {blocks.map((block, i) => (
-              <BlockWrapper
-                key={block.id}
-                block={block}
-                isSelected={selectedId === block.id}
-                onSelect={() => setSelectedId(block.id)}
-                onRemove={() => onBlockRemove(block.id)}
-                onMoveUp={() => handleMoveUp(i)}
-                onMoveDown={() => handleMoveDown(i)}
-                isFirst={i === 0}
-                isLast={i === blocks.length - 1}
-                onDragStart={() => setDragState({ dragging: block.id, over: null })}
-                onDragOver={() => setDragState((prev) => ({ ...prev, over: block.id }))}
-                onDragEnd={handleDragEnd}
-                isDragging={dragState.dragging === block.id}
-                isDragOver={dragState.over === block.id}
-              >
-                {renderBlock(block)}
-              </BlockWrapper>
-            ))}
+      <div className="flex-1 flex gap-4">
+        <div
+          className="flex-1 rounded-lg border bg-card shadow-card overflow-auto"
+          onClick={() => { setSelectedId(null); }}
+        >
+          <div style={{ maxWidth: 680, margin: "0 auto", background: "#ffffff", fontFamily: "'Inter', sans-serif" }}>
+            <div className="pl-12 relative">
+              {blocks.map((block, i) => {
+                const meta = parseMeta(block);
+                const blockStyles: BlockStyles = meta._styles || {};
+                return (
+                  <BlockWrapper
+                    key={block.id}
+                    block={block}
+                    isSelected={selectedId === block.id}
+                    onSelect={() => setSelectedId(block.id)}
+                    onRemove={() => onBlockRemove(block.id)}
+                    onMoveUp={() => handleMoveUp(i)}
+                    onMoveDown={() => handleMoveDown(i)}
+                    onStyleOpen={() => setStylePanelId(stylePanelId === block.id ? null : block.id)}
+                    isFirst={i === 0}
+                    isLast={i === blocks.length - 1}
+                    onDragStart={() => setDragState({ dragging: block.id, over: null })}
+                    onDragOver={() => setDragState((prev) => ({ ...prev, over: block.id }))}
+                    onDragEnd={handleDragEnd}
+                    isDragging={dragState.dragging === block.id}
+                    isDragOver={dragState.over === block.id}
+                    customStyle={stylesToCss(blockStyles)}
+                  >
+                    {renderBlock(block)}
+                  </BlockWrapper>
+                );
+              })}
+            </div>
           </div>
         </div>
+
+        {/* Style panel sidebar */}
+        {stylePanelBlock && (
+          <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+            <BlockStylePanel
+              styles={stylePanelMeta._styles || {}}
+              onChange={(newStyles) => handleStyleChange(stylePanelBlock.id, newStyles)}
+              onClose={() => setStylePanelId(null)}
+              blockType={stylePanelBlock.type}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

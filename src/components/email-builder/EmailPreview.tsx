@@ -1,3 +1,4 @@
+import { stylesToInline } from "./BlockStylePanel";
 import type { EmailState, ContentBlock } from "@/types/email";
 
 function parseMeta(block: ContentBlock): Record<string, any> {
@@ -252,40 +253,46 @@ function renderFooter(m: Record<string, any>, logoUrl: string): string {
 }
 
 function renderBlockHtml(block: ContentBlock, logoUrl: string): string {
-  const m = encodeMeta(parseMeta(block));
+  const rawMeta = parseMeta(block);
+  const customStyles = rawMeta._styles ? stylesToInline(rawMeta._styles) : "";
+  const m = encodeMeta(rawMeta);
   const content = block.content || "";
+  const wrapWithStyles = (html: string) => {
+    if (!customStyles) return html;
+    return `<div style="${customStyles}">${html}</div>`;
+  };
 
   switch (block.type) {
     case "topbar":
-      return renderTopbar(m, logoUrl);
+      return wrapWithStyles(renderTopbar(m, logoUrl));
     case "hero":
-      return renderHero(m);
+      return wrapWithStyles(renderHero(m));
     case "live-status":
-      return renderLiveStatus(m);
+      return wrapWithStyles(renderLiveStatus(m));
     case "feature-card":
-      return renderFeatureCard(m);
+      return wrapWithStyles(renderFeatureCard(m));
     case "strategy-box":
-      return renderStrategyBox(m);
+      return wrapWithStyles(renderStrategyBox(m));
     case "ai-card":
-      return renderAiCard(m);
+      return wrapWithStyles(renderAiCard(m));
     case "footer":
-      return renderFooter(m, logoUrl);
+      return wrapWithStyles(renderFooter(m, logoUrl));
     case "divider":
-      return renderDivider();
+      return wrapWithStyles(renderDivider());
     case "text":
-      if (m.eyebrow || m.title) return renderSectionText(m);
-      return `<div style="padding:12px 40px;font-size:14px;line-height:1.7;color:#334155;white-space:pre-line;">${e(content).replace(/\n/g, "<br/>")}</div>`;
+      if (m.eyebrow || m.title) return wrapWithStyles(renderSectionText(m));
+      return wrapWithStyles(`<div style="padding:12px 40px;font-size:14px;line-height:1.7;color:#334155;white-space:pre-line;">${e(content).replace(/\n/g, "<br/>")}</div>`);
     case "features": {
       const lines = (content || "Feature 1\nFeature 2\nFeature 3").split("\n").filter(Boolean);
       const heading = lines[0];
       const items = lines.slice(1);
       const cards = items.map((item) => `<div style="background:#f0f4ff;padding:14px 18px;border-radius:8px;font-size:14px;color:#1e293b;border-left:4px solid #003087;margin-bottom:8px;">${e(item)}</div>`).join("");
-      return `<div style="padding:0 40px;margin-bottom:16px;"><h2 style="font-size:18px;font-weight:700;color:#003087;margin:0 0 12px;">${e(heading) || ""}</h2>${cards}</div>`;
+      return wrapWithStyles(`<div style="padding:0 40px;margin-bottom:16px;"><h2 style="font-size:18px;font-weight:700;color:#003087;margin:0 0 12px;">${e(heading) || ""}</h2>${cards}</div>`);
     }
     case "callout":
-      return `<div style="margin:0 40px 16px;background:#fffbeb;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;font-size:14px;color:#92400e;white-space:pre-line;">${e(content) || "Important callout message"}</div>`;
+      return wrapWithStyles(`<div style="margin:0 40px 16px;background:#fffbeb;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;font-size:14px;color:#92400e;white-space:pre-line;">${e(content) || "Important callout message"}</div>`);
     case "image-placeholder":
-      return `<div style="height:180px;background:linear-gradient(135deg,#e4f0fa,#d0e6f5);text-align:center;color:#4a7fa8;font-size:12.5px;font-weight:500;line-height:180px;">${emojiBox("&#x1F4F7;", 14)}&nbsp;${e(content) || "Image placeholder"}</div>`;
+      return wrapWithStyles(`<div style="height:180px;background:linear-gradient(135deg,#e4f0fa,#d0e6f5);text-align:center;color:#4a7fa8;font-size:12.5px;font-weight:500;line-height:180px;">${emojiBox("&#x1F4F7;", 14)}&nbsp;${e(content) || "Image placeholder"}</div>`);
     default:
       return "";
   }
