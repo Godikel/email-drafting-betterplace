@@ -695,6 +695,7 @@ interface VisualEmailEditorProps {
   onBlockMetaChange: (id: string, meta: string) => void;
   onBlockRemove: (id: string) => void;
   onBlockReorder: (fromId: string, toId: string) => void;
+  onBlockAdd: (type: ContentBlockType, afterIndex?: number) => void;
 }
 
 export function VisualEmailEditor({ blocks, onBlockMetaChange, onBlockRemove, onBlockReorder }: VisualEmailEditorProps) {
