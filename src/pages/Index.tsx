@@ -1,10 +1,11 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { EmailSidebar, templates } from "@/components/email-builder/EmailSidebar";
 import { EmailEditor } from "@/components/email-builder/EmailEditor";
 import { EmailPreview, generateEmailHtml } from "@/components/email-builder/EmailPreview";
 import { VisualEmailEditor } from "@/components/email-builder/VisualEmailEditor";
 import { EmailActionBar } from "@/components/email-builder/EmailActionBar";
+import { useEmailTemplates } from "@/hooks/useEmailTemplates";
 import { toast } from "sonner";
 import type { EmailState, ContentBlockType } from "@/types/email";
 
@@ -26,6 +27,10 @@ const Index = () => {
   const [isSending, setIsSending] = useState(false);
   const [dragState, setDragState] = useState<{ dragging: string | null; over: string | null }>({ dragging: null, over: null });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [currentTemplateId, setCurrentTemplateId] = useState<string | undefined>();
+  const { savedTemplates, fetchTemplates, saveTemplate, deleteTemplate } = useEmailTemplates();
+
+  useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
 
   const handleHtmlUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -135,9 +140,17 @@ const Index = () => {
     }
   };
 
-  const handleSave = () => {
-    toast.success("Template saved successfully!");
+  const handleSave = async () => {
+    const name = prompt("Template name:", email.subject || "Untitled Template");
+    if (!name) return;
+    await saveTemplate(name, email, currentTemplateId);
   };
+
+  const handleLoadSaved = useCallback((tpl: { id: string; name: string; template_data: EmailState }) => {
+    setEmail(tpl.template_data);
+    setCurrentTemplateId(tpl.id);
+    toast.success(`Loaded "${tpl.name}"`);
+  }, []);
 
   const handleSend = async () => {
     if (!email.subject.trim()) {
@@ -180,7 +193,7 @@ const Index = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <EmailSidebar active={activeNav} onNavigate={setActiveNav} onTemplateLoad={handleTemplateLoad} />
+        <EmailSidebar active={activeNav} onNavigate={setActiveNav} onTemplateLoad={handleTemplateLoad} savedTemplates={savedTemplates} onLoadSaved={handleLoadSaved} onDeleteSaved={deleteTemplate} />
 
         <div className="flex-1 flex flex-col min-w-0">
           <header className="h-14 flex items-center justify-between border-b bg-card px-4 shadow-card">

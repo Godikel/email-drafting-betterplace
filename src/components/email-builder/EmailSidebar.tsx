@@ -1,7 +1,8 @@
-import { Mail, FileText, PlusCircle, Sparkles, Pencil } from "lucide-react";
+import { Mail, FileText, PlusCircle, Sparkles, Pencil, Save, Trash2 } from "lucide-react";
 import { iffcoTokioTemplate } from "@/templates/iffcoTokioTemplate";
 import { iffcoTokioEditableTemplate } from "@/templates/iffcoTokioEditableTemplate";
 import type { EmailState } from "@/types/email";
+import type { SavedTemplate } from "@/hooks/useEmailTemplates";
 import {
   Sidebar,
   SidebarContent,
@@ -36,9 +37,12 @@ interface EmailSidebarProps {
   active: string;
   onNavigate: (id: string) => void;
   onTemplateLoad?: (templateName: string) => void;
+  savedTemplates?: SavedTemplate[];
+  onLoadSaved?: (tpl: SavedTemplate) => void;
+  onDeleteSaved?: (id: string) => void;
 }
 
-export function EmailSidebar({ active, onNavigate, onTemplateLoad }: EmailSidebarProps) {
+export function EmailSidebar({ active, onNavigate, onTemplateLoad, savedTemplates = [], onLoadSaved, onDeleteSaved }: EmailSidebarProps) {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent className="pt-4">
@@ -94,6 +98,35 @@ export function EmailSidebar({ active, onNavigate, onTemplateLoad }: EmailSideba
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {savedTemplates.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+              Saved Templates
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {savedTemplates.map((tpl) => (
+                  <SidebarMenuItem key={tpl.id}>
+                    <SidebarMenuButton
+                      onClick={() => onLoadSaved?.(tpl)}
+                      className="text-sidebar-foreground hover:bg-muted"
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      <span className="truncate flex-1">{tpl.name}</span>
+                      <button
+                        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive p-0.5"
+                        onClick={(e) => { e.stopPropagation(); onDeleteSaved?.(tpl.id); }}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
     </Sidebar>
   );
