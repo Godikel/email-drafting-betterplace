@@ -764,30 +764,33 @@ export function VisualEmailEditor({ blocks, onBlockMetaChange, onBlockRemove, on
         <div className="flex-1 rounded-lg border bg-card shadow-card overflow-auto" onClick={() => setSelectedId(null)}>
           <div style={{ maxWidth: 680, margin: "0 auto", background: "#ffffff", fontFamily: "'Inter', sans-serif" }}>
             <div className="pl-12 relative">
+              <AddBlockButton onAdd={(type) => onBlockAdd(type, 0)} />
               {blocks.map((block, i) => {
                 const meta = parseMeta(block);
                 const blockStyles: BlockStyles = meta._styles || {};
                 return (
-                  <BlockWrapper
-                    key={block.id}
-                    block={block}
-                    isSelected={selectedId === block.id}
-                    onSelect={() => setSelectedId(block.id)}
-                    onRemove={() => onBlockRemove(block.id)}
-                    onMoveUp={() => handleMoveUp(i)}
-                    onMoveDown={() => handleMoveDown(i)}
-                    onStyleOpen={() => setStylePanelId(stylePanelId === block.id ? null : block.id)}
-                    isFirst={i === 0}
-                    isLast={i === blocks.length - 1}
-                    onDragStart={() => setDragState({ dragging: block.id, over: null })}
-                    onDragOver={() => setDragState((prev) => ({ ...prev, over: block.id }))}
-                    onDragEnd={handleDragEnd}
-                    isDragging={dragState.dragging === block.id}
-                    isDragOver={dragState.over === block.id}
-                    customStyle={stylesToCss(blockStyles)}
-                  >
-                    {renderBlock(block)}
-                  </BlockWrapper>
+                  <div key={block.id}>
+                    <BlockWrapper
+                      block={block}
+                      isSelected={selectedId === block.id}
+                      onSelect={() => setSelectedId(block.id)}
+                      onRemove={() => onBlockRemove(block.id)}
+                      onMoveUp={() => handleMoveUp(i)}
+                      onMoveDown={() => handleMoveDown(i)}
+                      onStyleOpen={() => setStylePanelId(stylePanelId === block.id ? null : block.id)}
+                      isFirst={i === 0}
+                      isLast={i === blocks.length - 1}
+                      onDragStart={() => setDragState({ dragging: block.id, over: null })}
+                      onDragOver={() => setDragState((prev) => ({ ...prev, over: block.id }))}
+                      onDragEnd={handleDragEnd}
+                      isDragging={dragState.dragging === block.id}
+                      isDragOver={dragState.over === block.id}
+                      customStyle={stylesToCss(blockStyles)}
+                    >
+                      {renderBlock(block)}
+                    </BlockWrapper>
+                    <AddBlockButton onAdd={(type) => onBlockAdd(type, i + 1)} />
+                  </div>
                 );
               })}
             </div>
