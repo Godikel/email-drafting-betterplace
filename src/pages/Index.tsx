@@ -300,9 +300,9 @@ const Index = () => {
                       <div className="rounded-lg border bg-card shadow-card overflow-hidden">
                         <iframe
                           title="Raw HTML Preview"
-                          srcDoc={email.rawHtml}
+                          srcDoc={email.rawHtml.includes('<meta charset') ? email.rawHtml : `<meta charset="utf-8">${email.rawHtml}`}
                           className="w-full min-h-[600px] border-0"
-                          sandbox="allow-same-origin"
+                          sandbox="allow-same-origin allow-popups"
                         />
                       </div>
                     </div>
