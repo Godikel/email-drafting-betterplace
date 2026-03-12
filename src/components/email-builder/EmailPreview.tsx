@@ -12,15 +12,16 @@ function parseMeta(block: ContentBlock): Record<string, any> {
 
 function e(str?: string): string {
   if (!str) return "";
-  return Array.from(str)
-    .map((char) => {
-      const code = char.codePointAt(0);
-      if (code && code > 127) {
-        return `&#x${code.toString(16).toUpperCase()};`;
-      }
-      return char;
-    })
-    .join("");
+  const result: string[] = [];
+  for (const char of str) {
+    const code = char.codePointAt(0)!;
+    if (code > 127) {
+      result.push(`&#${code};`);
+    } else {
+      result.push(char);
+    }
+  }
+  return result.join("");
 }
 
 function encodeMeta(meta: Record<string, any>): Record<string, any> {
