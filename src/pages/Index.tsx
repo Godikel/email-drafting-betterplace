@@ -194,7 +194,7 @@ const Index = () => {
           mode: "no-cors",
           headers: { "Content-Type": "text/plain; charset=UTF-8" },
           body: JSON.stringify({
-            subject: email.subject,
+            subject: email.subject.replace(/[\u{1F000}-\u{1FFFF}|\u{2600}-\u{27BF}|\u{FE00}-\u{FEFF}|\u{1F900}-\u{1F9FF}]/gu, "").trim(),
             recipients: email.recipients,
             html,
           }),
