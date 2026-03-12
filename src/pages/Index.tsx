@@ -1,10 +1,11 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { EmailSidebar, templates } from "@/components/email-builder/EmailSidebar";
 import { EmailEditor } from "@/components/email-builder/EmailEditor";
 import { EmailPreview, generateEmailHtml } from "@/components/email-builder/EmailPreview";
 import { VisualEmailEditor } from "@/components/email-builder/VisualEmailEditor";
 import { EmailActionBar } from "@/components/email-builder/EmailActionBar";
+import { useEmailTemplates } from "@/hooks/useEmailTemplates";
 import { toast } from "sonner";
 import type { EmailState, ContentBlockType } from "@/types/email";
 
