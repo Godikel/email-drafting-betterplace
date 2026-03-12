@@ -698,7 +698,7 @@ interface VisualEmailEditorProps {
   onBlockAdd: (type: ContentBlockType, afterIndex?: number) => void;
 }
 
-export function VisualEmailEditor({ blocks, onBlockMetaChange, onBlockRemove, onBlockReorder }: VisualEmailEditorProps) {
+export function VisualEmailEditor({ blocks, onBlockMetaChange, onBlockRemove, onBlockReorder, onBlockAdd }: VisualEmailEditorProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [stylePanelId, setStylePanelId] = useState<string | null>(null);
   const [dragState, setDragState] = useState<{ dragging: string | null; over: string | null }>({ dragging: null, over: null });
