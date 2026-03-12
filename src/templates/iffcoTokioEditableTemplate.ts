@@ -32,6 +32,20 @@ export const iffcoTokioEditableTemplate: EmailState = {
         title: "What's Live, What's Coming Next —",
         titleHighlight: "and Why It Matters",
         body: "Dear Iffco Tokio Team,\n\nWe are excited to share a candid update on our AI capabilities — what is live today, what is on the near horizon, and how we are building AI that genuinely moves the needle for your people.",
+        pointers: [
+          {
+            text: "AI Chatbot — Live & Deployed",
+            subItems: ["Conversational engagement", "Interactive learning on-demand"],
+          },
+          {
+            text: "Scheduler & Reels Feed — Coming Soon",
+            subItems: ["Automated nudges & reminders", "Short-form video learning"],
+          },
+          {
+            text: "AI Assessments & Sales Simulations — May Release",
+            subItems: ["Role-based skill scorecards", "Real-world conversation practice"],
+          },
+        ],
       }),
     },
     {

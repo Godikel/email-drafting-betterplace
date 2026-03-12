@@ -94,6 +94,20 @@ function renderTopbar(m: Record<string, any>, logoUrl: string): string {
 }
 
 function renderHero(m: Record<string, any>): string {
+  const pointers = (m.pointers || []) as { text: string; subItems?: string[] }[];
+  const pointersHtml = pointers.length > 0 ? `
+    <div style="margin-top:24px;">
+      ${pointers.map((p) => {
+        const subHtml = (p.subItems || []).map((sub: string) =>
+          `<tr><td valign="top" style="padding:0 8px 6px 28px;line-height:1;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:rgba(125,232,244,0.5);vertical-align:middle;"></span></td><td valign="top" style="font-size:12.5px;color:rgba(255,255,255,0.65);line-height:1.55;padding:0 0 6px 0;">${sub}</td></tr>`
+        ).join("");
+        return `<table role="presentation" style="border-collapse:collapse;margin-bottom:14px;">
+          <tr><td valign="top" style="padding:0 10px 6px 0;line-height:1;">${checkCircle("rgba(77,184,200,0.25)", "#7de8f4")}</td><td valign="top" style="font-size:14px;font-weight:600;color:#ffffff;line-height:1.55;padding:0 0 6px 0;">${p.text}</td></tr>
+          ${subHtml}
+        </table>`;
+      }).join("")}
+    </div>` : "";
+
   return `
   <div style="background:linear-gradient(155deg,#0c2752 0%,#1a4a8a 55%,#1568a8 100%);padding:50px 40px;position:relative;overflow:hidden;">
     <div style="display:inline-block;background:rgba(77,184,200,0.16);border:1px solid rgba(77,184,200,0.38);border-radius:20px;padding:5px 14px;margin-bottom:20px;">
@@ -106,6 +120,7 @@ function renderHero(m: Record<string, any>): string {
     </div>
     <h1 style="font-size:34px;font-weight:800;color:#ffffff;line-height:1.22;margin:0 0 18px;max-width:520px;">${m.title || "Headline"} <span style="color:#4db8c8;">${m.titleHighlight || ""}</span></h1>
     <p style="color:rgba(255,255,255,0.78);font-size:14px;line-height:1.78;max-width:490px;margin:0;white-space:pre-line;">${m.body || ""}</p>
+    ${pointersHtml}
   </div>`;
 }
 
