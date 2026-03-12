@@ -256,6 +256,7 @@ const Index = () => {
                     onBlockMetaChange={handleBlockMetaChange}
                     onBlockRemove={handleBlockRemove}
                     onBlockReorder={handleBlockReorder}
+                    onBlockAdd={handleBlockAdd}
                   />
                 </div>
                 <div className="min-w-0">
