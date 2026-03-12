@@ -53,7 +53,11 @@ function emojiBox(icon?: string, size = 16): string {
 }
 
 function checkCircle(background: string, color: string): string {
-  return `<span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:999px;background:${background};color:${color};font-size:11px;font-weight:700;font-family:Arial,sans-serif;vertical-align:middle;">&#10003;</span>`;
+  return `<span style="display:inline-block;width:18px;height:18px;border-radius:999px;background:${background};vertical-align:middle;text-align:center;line-height:18px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 12 12" style="vertical-align:middle;margin-top:-1px;">
+      <path d="M2 6.5L4.5 9L10 3" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+  </span>`;
 }
 
 function textPill(text: string, background: string, color: string, border: string): string {
@@ -112,23 +116,21 @@ function renderHero(m: Record<string, any>): string {
   const bg = getHeroBg(m.heroBg || "navy");
   const sections = (m.sections || []) as { label: string; color: string }[];
 
-  const sectionsHtml = sections.length > 0 ? `<div style="margin-top:20px;">${sections.map((s) =>
-    `<span style="display:inline-block;background:${s.color}22;border:1px solid ${s.color}55;border-radius:8px;padding:6px 12px;margin:0 6px 6px 0;font-size:11px;font-weight:600;color:#ffffff;">&#x25CF;&nbsp;${s.label}</span>`
-  ).join("")}</div>` : "";
+  const sectionsHtml = sections.length > 0 ? `<div style="margin-top:20px;">${sections.map((s) => {
+    const dotSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;margin-right:6px;"><circle cx="4" cy="4" r="4" fill="${s.color}"/></svg>`;
+    return `<span style="display:inline-block;background:${s.color}22;border:1px solid ${s.color}55;border-radius:8px;padding:6px 12px;margin:0 6px 6px 0;font-size:11px;font-weight:600;color:#ffffff;">${dotSvg}${s.label}</span>`;
+  }).join("")}</div>` : "";
 
   const pointersHtml = renderPointers(pointers, `${bg.highlightColor}40`, bg.pillColor, "#ffffff", "rgba(255,255,255,0.65)", `${bg.pillColor}80`);
 
   return `
   <div style="background:${bg.gradient};padding:50px 40px;position:relative;overflow:hidden;">
-    <div style="display:inline-block;background:${bg.pillBg};border:1px solid ${bg.pillBorder};border-radius:20px;padding:5px 14px;margin-bottom:20px;">
-      <table role="presentation" style="border-collapse:collapse;">
-        <tr>
-          <td valign="middle" style="padding-right:8px;line-height:1;">${emojiBox(m.pillEmoji, 12)}</td>
-          <td valign="middle" style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${bg.pillColor};line-height:1;white-space:nowrap;">${m.pill || "UPDATE"}</td>
-        </tr>
-      </table>
+    <div style="display:inline-flex;align-items:center;gap:6px;background:${bg.pillBg};border:1px solid ${bg.pillBorder};border-radius:20px;padding:5px 14px;margin-bottom:20px;">
+      <span style="font-size:12px;line-height:1;">${emojiBox(m.pillEmoji, 12)}</span>
+      <span style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${bg.pillColor};line-height:1;white-space:nowrap;">${m.pill || "UPDATE"}</span>
     </div>
-    <h1 style="font-size:34px;font-weight:800;color:#ffffff;line-height:1.22;margin:0 0 18px;max-width:520px;">${m.title || "Headline"} <span style="color:${bg.highlightColor};">${m.titleHighlight || ""}</span></h1>
+    <h1 style="font-size:34px;font-weight:800;color:#ffffff;line-height:1.22;margin:0 0 0;max-width:520px;">${m.title || "Headline"}</h1>
+    ${m.titleHighlight ? `<div style="font-size:34px;font-weight:800;color:${bg.highlightColor};line-height:1.22;margin:0 0 18px;max-width:520px;">${m.titleHighlight}</div>` : '<div style="margin-bottom:18px;"></div>'}
     <p style="color:rgba(255,255,255,0.78);font-size:14px;line-height:1.78;max-width:490px;margin:0;white-space:pre-line;">${m.body || ""}</p>
     ${sectionsHtml}
     ${pointersHtml}
