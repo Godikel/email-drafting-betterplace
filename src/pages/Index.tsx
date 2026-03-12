@@ -140,9 +140,17 @@ const Index = () => {
     }
   };
 
-  const handleSave = () => {
-    toast.success("Template saved successfully!");
+  const handleSave = async () => {
+    const name = prompt("Template name:", email.subject || "Untitled Template");
+    if (!name) return;
+    await saveTemplate(name, email, currentTemplateId);
   };
+
+  const handleLoadSaved = useCallback((tpl: { id: string; name: string; template_data: EmailState }) => {
+    setEmail(tpl.template_data);
+    setCurrentTemplateId(tpl.id);
+    toast.success(`Loaded "${tpl.name}"`);
+  }, []);
 
   const handleSend = async () => {
     if (!email.subject.trim()) {
