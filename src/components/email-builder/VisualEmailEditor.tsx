@@ -392,19 +392,26 @@ function VisualLiveStatus({ meta, onMetaChange }: { meta: Record<string, any>; o
           <div>
             <Editable value={meta.title || "Status"} onChange={(v) => onMetaChange({ ...meta, title: v })} as="h4" style={{ fontSize: 13.5, fontWeight: 600, color: "#14532d", marginBottom: 8 }} />
             <div className="space-y-2">
-              {items.map((item, i) => (
-                <div key={i} className="flex items-start gap-2 group/item">
-                  <CheckIcon bg="#d5f1df" color="#166534" />
-                  <Editable
-                    value={item.replace(/\s*[✓✔]$/, "")}
-                    onChange={(v) => { const ni = [...items]; ni[i] = v; onMetaChange({ ...meta, items: ni }); }}
-                    style={{ fontSize: 12, color: "#166534", lineHeight: 1.55 }}
-                  />
-                  <button className="opacity-0 group-hover/item:opacity-100 text-muted-foreground hover:text-destructive flex-shrink-0" onClick={() => onMetaChange({ ...meta, items: items.filter((_, idx) => idx !== i) })}>
-                    <Trash2 className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
+              <DraggableBulletList
+                bullets={items.map((text, idx) => ({ text, idx }))}
+                onReorder={(nb) => onMetaChange({ ...meta, items: nb.map((b) => b.text) })}
+                renderBullet={(b, i, dp) => (
+                  <div {...dp} className={`flex items-start gap-2 group/item ${dp.className}`} style={dp.style}>
+                    <span className="cursor-grab flex-shrink-0 text-muted-foreground opacity-0 group-hover/item:opacity-60 hover:!opacity-100 mt-0.5">
+                      <GripVertical className="h-3 w-3" />
+                    </span>
+                    <CheckIcon bg="#d5f1df" color="#166534" />
+                    <Editable
+                      value={b.text.replace(/\s*[✓✔]$/, "")}
+                      onChange={(v) => { const ni = [...items]; ni[i] = v; onMetaChange({ ...meta, items: ni }); }}
+                      style={{ fontSize: 12, color: "#166534", lineHeight: 1.55 }}
+                    />
+                    <button className="opacity-0 group-hover/item:opacity-100 text-muted-foreground hover:text-destructive flex-shrink-0" onClick={() => onMetaChange({ ...meta, items: items.filter((_, idx) => idx !== i) })}>
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+              />
               <button className="text-xs text-primary hover:underline mt-1" onClick={() => onMetaChange({ ...meta, items: [...items, "New item"] })}>+ Add item</button>
             </div>
           </div>
