@@ -292,12 +292,12 @@ function VisualHero({ meta, onMetaChange }: { meta: Record<string, any>; onMetaC
       <PointersSection
         pointers={pointers}
         onChange={(p) => onMetaChange({ ...meta, pointers: p })}
-        checkBg={`${bg.accent}40`}
-        checkColor={bg.accentLight}
+        checkBg={`${bg.highlightColor}40`}
+        checkColor={bg.pillColor}
         textColor="#ffffff"
         subColor="rgba(255,255,255,0.65)"
-        addColor={bg.accentLight}
-        dotColor={`${bg.accentLight}80`}
+        addColor={bg.pillColor}
+        dotColor={`${bg.pillColor}80`}
       />
     </div>
   );
