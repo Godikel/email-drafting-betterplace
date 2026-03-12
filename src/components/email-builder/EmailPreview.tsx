@@ -53,7 +53,11 @@ function emojiBox(icon?: string, size = 16): string {
 }
 
 function checkCircle(background: string, color: string): string {
-  return `<span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:999px;background:${background};color:${color};font-size:11px;font-weight:700;font-family:Arial,sans-serif;vertical-align:middle;">&#10003;</span>`;
+  return `<span style="display:inline-block;width:18px;height:18px;border-radius:999px;background:${background};vertical-align:middle;text-align:center;line-height:18px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 12 12" style="vertical-align:middle;margin-top:-1px;">
+      <path d="M2 6.5L4.5 9L10 3" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+  </span>`;
 }
 
 function textPill(text: string, background: string, color: string, border: string): string {
