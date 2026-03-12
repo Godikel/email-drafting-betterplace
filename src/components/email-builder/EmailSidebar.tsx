@@ -1,6 +1,7 @@
 import { Mail, FileText, PlusCircle, Sparkles, Pencil, Save, Trash2 } from "lucide-react";
 import { iffcoTokioTemplate } from "@/templates/iffcoTokioTemplate";
 import { iffcoTokioEditableTemplate } from "@/templates/iffcoTokioEditableTemplate";
+import { iffcoTokioV2Template } from "@/templates/iffcoTokioV2Template";
 import type { EmailState } from "@/types/email";
 import type { SavedTemplate } from "@/hooks/useEmailTemplates";
 import {
