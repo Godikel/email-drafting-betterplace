@@ -28,9 +28,14 @@ const Index = () => {
   const [dragState, setDragState] = useState<{ dragging: string | null; over: string | null }>({ dragging: null, over: null });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentTemplateId, setCurrentTemplateId] = useState<string | undefined>();
-  const { savedTemplates, fetchTemplates, saveTemplate, deleteTemplate } = useEmailTemplates();
+  const { savedTemplates, fetchTemplates, saveTemplate, deleteTemplate, autosaveDraft, setActiveDraft, draftId } = useEmailTemplates();
 
   useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
+
+  // Auto-save draft on every change
+  useEffect(() => {
+    autosaveDraft(email);
+  }, [email, autosaveDraft]);
 
   const handleHtmlUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -56,7 +61,10 @@ const Index = () => {
   }, []);
 
   const handleChange = useCallback((update: Partial<EmailState>) => {
-    setEmail((prev) => ({ ...prev, ...update }));
+    setEmail((prev) => {
+      const next = { ...prev, ...update };
+      return next;
+    });
   }, []);
 
   const handleBlockChange = useCallback((id: string, content: string) => {
@@ -148,14 +156,19 @@ const Index = () => {
   const handleSave = async () => {
     const name = prompt("Template name:", email.subject || "Untitled Template");
     if (!name) return;
-    await saveTemplate(name, email, currentTemplateId);
+    const result = await saveTemplate(name, email, currentTemplateId || draftId || undefined);
+    if (result && typeof result === "string") {
+      setCurrentTemplateId(result);
+      setActiveDraft(result);
+    }
   };
 
   const handleLoadSaved = useCallback((tpl: { id: string; name: string; template_data: EmailState }) => {
     setEmail(tpl.template_data);
     setCurrentTemplateId(tpl.id);
+    setActiveDraft(tpl.id);
     toast.success(`Loaded "${tpl.name}"`);
-  }, []);
+  }, [setActiveDraft]);
 
   const handleSend = async () => {
     if (!email.subject.trim()) {
