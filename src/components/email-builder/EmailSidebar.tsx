@@ -26,6 +26,7 @@ export const templates: Record<string, EmailState> = {
   blank: initialState,
   aiRoadmap: iffcoTokioTemplate,
   aiRoadmapEditable: iffcoTokioEditableTemplate,
+  aiRoadmapV2: iffcoTokioV2Template,
 };
 
 const navItems = [
