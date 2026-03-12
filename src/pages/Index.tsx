@@ -238,7 +238,7 @@ const Index = () => {
           </header>
 
           <main className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 overflow-auto">
-            {email.template === "ai-roadmap-editable" ? (
+            {(email.template === "ai-roadmap-editable" || email.template === "ai-roadmap-v2") ? (
               /* ── Visual Editor Mode: full-width WYSIWYG ── */
               <>
                 <div className="min-w-0 overflow-auto max-h-[calc(100vh-5rem)]">
