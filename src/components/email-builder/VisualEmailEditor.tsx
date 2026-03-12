@@ -1,11 +1,53 @@
 import { useState, useRef, useCallback } from "react";
-import { GripVertical, Trash2, ArrowUp, ArrowDown, Palette } from "lucide-react";
+import { GripVertical, Trash2, ArrowUp, ArrowDown, Palette, PlusCircle, Layout, Type, Zap, Star, Box, Bot, Minus, Footprints, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { BlockStylePanel, stylesToCss } from "./BlockStylePanel";
 import type { BlockStyles } from "./BlockStylePanel";
 import { FloatingTextToolbar } from "./FloatingTextToolbar";
 import { ThemePicker, CARD_THEMES, HERO_BACKGROUNDS, getCardTheme, getHeroBg } from "./ColorThemePicker";
 import type { ContentBlock, ContentBlockType } from "@/types/email";
+
+const addBlockOptions: { type: ContentBlockType; label: string; icon: React.ElementType }[] = [
+  { type: "topbar", label: "Top Bar", icon: Layout },
+  { type: "hero", label: "Hero", icon: Layout },
+  { type: "text", label: "Text", icon: Type },
+  { type: "live-status", label: "Live Status", icon: Zap },
+  { type: "strategy-box", label: "Strategy Box", icon: Box },
+  { type: "ai-card", label: "AI Card", icon: Bot },
+  { type: "divider", label: "Divider", icon: Minus },
+  { type: "footer", label: "Footer", icon: Footprints },
+  { type: "features", label: "Features", icon: Star },
+  { type: "callout", label: "Callout", icon: MessageSquare },
+];
+
+function AddBlockButton({ onAdd }: { onAdd: (type: ContentBlockType) => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="flex justify-center py-1 group">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 px-3 py-1 rounded-full border border-dashed border-muted-foreground/30 hover:border-primary/50 bg-background">
+            <PlusCircle className="h-3.5 w-3.5" />
+            Add block
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-48 p-1" align="center">
+          {addBlockOptions.map((opt) => (
+            <button
+              key={opt.type}
+              onClick={() => { onAdd(opt.type); setOpen(false); }}
+              className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded hover:bg-accent text-foreground transition-colors"
+            >
+              <opt.icon className="h-3.5 w-3.5 text-muted-foreground" />
+              {opt.label}
+            </button>
+          ))}
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
 
 /* ── helpers ── */
 function parseMeta(block: ContentBlock): Record<string, any> {
