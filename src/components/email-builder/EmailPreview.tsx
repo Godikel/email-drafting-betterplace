@@ -1,4 +1,5 @@
 import { stylesToInline } from "./BlockStylePanel";
+import { getCardTheme, getHeroBg } from "./ColorThemePicker";
 import type { EmailState, ContentBlock } from "@/types/email";
 
 function parseMeta(block: ContentBlock): Record<string, any> {
