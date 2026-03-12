@@ -580,35 +580,42 @@ function VisualAiCard({ meta, onMetaChange }: { meta: Record<string, any>; onMet
         </div>
         <div style={{ padding: "18px 24px 22px", background: "#fff" }}>
           <div className="space-y-3">
-            {bullets.map((b, i) => {
-              const t = getCardTheme(b.check || themeKey);
-              return (
-                <div key={i} className="flex items-start gap-2.5 group/bullet">
-                  <CheckIcon bg={t.checkBg} color={t.checkColor} />
-                  <div className="flex-1">
-                    {b.title && (
-                      <>
-                        <Editable
-                          value={b.title}
-                          onChange={(v) => { const nb = [...bullets]; nb[i] = { ...b, title: v }; onMetaChange({ ...meta, bullets: nb }); }}
-                          as="strong"
-                          style={{ color: "#0c2752", fontWeight: 700, fontSize: 13 }}
-                        />
-                        <span style={{ color: "#3d4f60", fontSize: 13 }}> — </span>
-                      </>
-                    )}
-                    <Editable
-                      value={b.text}
-                      onChange={(v) => { const nb = [...bullets]; nb[i] = { ...b, text: v }; onMetaChange({ ...meta, bullets: nb }); }}
-                      style={{ fontSize: 13, color: "#3d4f60", lineHeight: 1.62 }}
-                    />
+            <DraggableBulletList
+              bullets={bullets}
+              onReorder={(nb) => onMetaChange({ ...meta, bullets: nb })}
+              renderBullet={(b, i, dp) => {
+                const t = getCardTheme(b.check || themeKey);
+                return (
+                  <div {...dp} className={`flex items-start gap-2.5 group/bullet ${dp.className}`} style={dp.style}>
+                    <span className="cursor-grab flex-shrink-0 text-muted-foreground opacity-0 group-hover/bullet:opacity-60 hover:!opacity-100 mt-0.5">
+                      <GripVertical className="h-3 w-3" />
+                    </span>
+                    <CheckIcon bg={t.checkBg} color={t.checkColor} />
+                    <div className="flex-1">
+                      {b.title && (
+                        <>
+                          <Editable
+                            value={b.title}
+                            onChange={(v) => { const nb = [...bullets]; nb[i] = { ...b, title: v }; onMetaChange({ ...meta, bullets: nb }); }}
+                            as="strong"
+                            style={{ color: "#0c2752", fontWeight: 700, fontSize: 13 }}
+                          />
+                          <span style={{ color: "#3d4f60", fontSize: 13 }}> — </span>
+                        </>
+                      )}
+                      <Editable
+                        value={b.text}
+                        onChange={(v) => { const nb = [...bullets]; nb[i] = { ...b, text: v }; onMetaChange({ ...meta, bullets: nb }); }}
+                        style={{ fontSize: 13, color: "#3d4f60", lineHeight: 1.62 }}
+                      />
+                    </div>
+                    <button className="opacity-0 group-hover/bullet:opacity-100 text-muted-foreground hover:text-destructive flex-shrink-0" onClick={() => onMetaChange({ ...meta, bullets: bullets.filter((_, idx) => idx !== i) })}>
+                      <Trash2 className="h-3 w-3" />
+                    </button>
                   </div>
-                  <button className="opacity-0 group-hover/bullet:opacity-100 text-muted-foreground hover:text-destructive flex-shrink-0" onClick={() => onMetaChange({ ...meta, bullets: bullets.filter((_, idx) => idx !== i) })}>
-                    <Trash2 className="h-3 w-3" />
-                  </button>
-                </div>
-              );
-            })}
+                );
+              }}
+            />
             <button className="text-xs text-primary hover:underline" onClick={() => onMetaChange({ ...meta, bullets: [...bullets, { title: "New Title", text: "Description", check: themeKey }] })}>+ Add bullet</button>
           </div>
           <PointersSection pointers={pointers} onChange={(p) => onMetaChange({ ...meta, pointers: p })} checkBg={theme.checkBg} checkColor={theme.checkColor} />
