@@ -172,22 +172,20 @@ function renderDivider(): string {
 }
 
 function renderFeatureCard(m: Record<string, any>): string {
-  const iconBg = m.iconColor === "navy" ? "#dfe7f5" : "#dceff2";
+  const themeKey = m.iconColor || "teal";
+  const theme = getCardTheme(themeKey);
   const bullets = (m.bullets || []) as { text: string; check: string }[];
-  const checkColors: Record<string, { bg: string; color: string }> = {
-    teal: { bg: "#d5f1f4", color: "#0f7c90" },
-    navy: { bg: "#dae6ff", color: "#2457d6" },
-    purple: { bg: "#ece6ff", color: "#6d28d9" },
-  };
+  const pointers = (m.pointers || []) as { text?: string; subItems?: string[] }[];
 
   const bulletsHtml = bullets
     .map((b) => {
-      const c = checkColors[b.check] || checkColors.teal;
-      return `<tr><td valign="top" style="padding:0 12px 14px 0;line-height:1;">${checkCircle(c.bg, c.color)}</td><td valign="top" style="font-size:13px;color:#3d4f60;line-height:1.62;padding:0 0 14px 0;">${b.text}</td></tr>`;
+      const t = getCardTheme(b.check || themeKey);
+      return `<tr><td valign="top" style="padding:0 12px 14px 0;line-height:1;">${checkCircle(t.checkBg, t.checkColor)}</td><td valign="top" style="font-size:13px;color:#3d4f60;line-height:1.62;padding:0 0 14px 0;">${b.text}</td></tr>`;
     })
     .join("");
 
   const badgeHtml = m.badge ? textPill(m.badge, "#fff8e1", "#92530a", "1px solid #f9c846") : "";
+  const pointersHtml = renderPointers(pointers, theme.checkBg, theme.checkColor, "#3d4f60", "#6b7280", "#94a3b8");
 
   return `
   <div style="padding:0 40px;">
@@ -195,7 +193,7 @@ function renderFeatureCard(m: Record<string, any>): string {
       <div style="padding:17px 20px 13px;background:#fff;">
         <table role="presentation" style="width:100%;border-collapse:collapse;">
           <tr>
-            <td valign="middle" style="width:54px;padding-right:13px;"><div style="width:40px;height:40px;border-radius:12px;background:${iconBg};text-align:center;line-height:40px;">${emojiBox(m.icon || "&#x2B50;", 18)}</div></td>
+            <td valign="middle" style="width:54px;padding-right:13px;"><div style="width:40px;height:40px;border-radius:12px;background:${theme.iconBg};text-align:center;line-height:40px;">${emojiBox(m.icon || "&#x2B50;", 18)}</div></td>
             <td valign="middle">
               <div style="font-size:14px;font-weight:700;color:#0c2752;line-height:1.2;">${m.name || "Feature"}</div>
               <div style="font-size:11px;color:#7a8ea0;line-height:1.35;margin-top:4px;">${m.subtitle || ""}</div>
@@ -207,6 +205,7 @@ function renderFeatureCard(m: Record<string, any>): string {
       <div style="padding:14px 20px 18px;background:#f8fafb;border-top:1px solid #edf2f6;">
         ${m.description ? `<p style="font-size:12.5px;color:#516070;line-height:1.65;margin:0 0 16px;">${m.description}</p>` : ""}
         <table role="presentation" style="border-collapse:collapse;">${bulletsHtml}</table>
+        ${pointersHtml}
       </div>
     </div>
   </div>`;
