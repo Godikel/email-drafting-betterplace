@@ -28,7 +28,7 @@ const Index = () => {
   const [dragState, setDragState] = useState<{ dragging: string | null; over: string | null }>({ dragging: null, over: null });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentTemplateId, setCurrentTemplateId] = useState<string | undefined>();
-  const { savedTemplates, fetchTemplates, saveTemplate, deleteTemplate } = useEmailTemplates();
+  const { savedTemplates, fetchTemplates, saveTemplate, deleteTemplate, autosaveDraft, setActiveDraft, draftId } = useEmailTemplates();
 
   useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
 
