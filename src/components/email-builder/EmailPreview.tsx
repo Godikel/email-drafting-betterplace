@@ -94,33 +94,43 @@ function renderTopbar(m: Record<string, any>, logoUrl: string): string {
   </div>`;
 }
 
+function renderPointers(pointers: { text?: string; subItems?: string[] }[], checkBg: string, checkColor: string, textColor: string, subColor: string, dotColor: string): string {
+  if (!pointers || pointers.length === 0) return "";
+  return `<div style="margin-top:20px;">
+    ${pointers.map((p) => {
+      const titleHtml = p.text ? `<tr><td valign="top" style="padding:0 10px 6px 0;line-height:1;">${checkCircle(checkBg, checkColor)}</td><td valign="top" style="font-size:13px;font-weight:600;color:${textColor};line-height:1.55;padding:0 0 6px 0;">${p.text}</td></tr>` : "";
+      const subHtml = (p.subItems || []).map((sub: string) =>
+        `<tr><td valign="top" style="padding:0 8px 6px ${p.text ? "28px" : "0"};line-height:1;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${dotColor};vertical-align:middle;"></span></td><td valign="top" style="font-size:12px;color:${subColor};line-height:1.55;padding:0 0 6px 0;">${sub}</td></tr>`
+      ).join("");
+      return `<table role="presentation" style="border-collapse:collapse;margin-bottom:12px;">${titleHtml}${subHtml}</table>`;
+    }).join("")}
+  </div>`;
+}
+
 function renderHero(m: Record<string, any>): string {
-  const pointers = (m.pointers || []) as { text: string; subItems?: string[] }[];
-  const pointersHtml = pointers.length > 0 ? `
-    <div style="margin-top:24px;">
-      ${pointers.map((p) => {
-        const subHtml = (p.subItems || []).map((sub: string) =>
-          `<tr><td valign="top" style="padding:0 8px 6px 28px;line-height:1;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:rgba(125,232,244,0.5);vertical-align:middle;"></span></td><td valign="top" style="font-size:12.5px;color:rgba(255,255,255,0.65);line-height:1.55;padding:0 0 6px 0;">${sub}</td></tr>`
-        ).join("");
-        return `<table role="presentation" style="border-collapse:collapse;margin-bottom:14px;">
-          <tr><td valign="top" style="padding:0 10px 6px 0;line-height:1;">${checkCircle("rgba(77,184,200,0.25)", "#7de8f4")}</td><td valign="top" style="font-size:14px;font-weight:600;color:#ffffff;line-height:1.55;padding:0 0 6px 0;">${p.text}</td></tr>
-          ${subHtml}
-        </table>`;
-      }).join("")}
-    </div>` : "";
+  const pointers = (m.pointers || []) as { text?: string; subItems?: string[] }[];
+  const bg = getHeroBg(m.heroBg || "navy");
+  const sections = (m.sections || []) as { label: string; color: string }[];
+
+  const sectionsHtml = sections.length > 0 ? `<div style="margin-top:20px;">${sections.map((s) =>
+    `<span style="display:inline-block;background:${s.color}22;border:1px solid ${s.color}55;border-radius:8px;padding:6px 12px;margin:0 6px 6px 0;font-size:11px;font-weight:600;color:#ffffff;">&#x25CF;&nbsp;${s.label}</span>`
+  ).join("")}</div>` : "";
+
+  const pointersHtml = renderPointers(pointers, `${bg.highlightColor}40`, bg.pillColor, "#ffffff", "rgba(255,255,255,0.65)", `${bg.pillColor}80`);
 
   return `
-  <div style="background:linear-gradient(155deg,#0c2752 0%,#1a4a8a 55%,#1568a8 100%);padding:50px 40px;position:relative;overflow:hidden;">
-    <div style="display:inline-block;background:rgba(77,184,200,0.16);border:1px solid rgba(77,184,200,0.38);border-radius:20px;padding:5px 14px;margin-bottom:20px;">
+  <div style="background:${bg.gradient};padding:50px 40px;position:relative;overflow:hidden;">
+    <div style="display:inline-block;background:${bg.pillBg};border:1px solid ${bg.pillBorder};border-radius:20px;padding:5px 14px;margin-bottom:20px;">
       <table role="presentation" style="border-collapse:collapse;">
         <tr>
           <td valign="middle" style="padding-right:8px;line-height:1;">${emojiBox(m.pillEmoji, 12)}</td>
-          <td valign="middle" style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#7de8f4;line-height:1;white-space:nowrap;">${m.pill || "UPDATE"}</td>
+          <td valign="middle" style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${bg.pillColor};line-height:1;white-space:nowrap;">${m.pill || "UPDATE"}</td>
         </tr>
       </table>
     </div>
-    <h1 style="font-size:34px;font-weight:800;color:#ffffff;line-height:1.22;margin:0 0 18px;max-width:520px;">${m.title || "Headline"} <span style="color:#4db8c8;">${m.titleHighlight || ""}</span></h1>
+    <h1 style="font-size:34px;font-weight:800;color:#ffffff;line-height:1.22;margin:0 0 18px;max-width:520px;">${m.title || "Headline"} <span style="color:${bg.highlightColor};">${m.titleHighlight || ""}</span></h1>
     <p style="color:rgba(255,255,255,0.78);font-size:14px;line-height:1.78;max-width:490px;margin:0;white-space:pre-line;">${m.body || ""}</p>
+    ${sectionsHtml}
     ${pointersHtml}
   </div>`;
 }
