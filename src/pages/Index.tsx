@@ -32,6 +32,11 @@ const Index = () => {
 
   useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
 
+  // Auto-save draft on every change
+  useEffect(() => {
+    autosaveDraft(email);
+  }, [email, autosaveDraft]);
+
   const handleHtmlUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
