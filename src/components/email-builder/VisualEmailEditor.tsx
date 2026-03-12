@@ -572,7 +572,7 @@ function VisualAiCard({ meta, onMetaChange }: { meta: Record<string, any>; onMet
               const c = checkColors[b.check] || checkColors.teal;
               return (
                 <div key={i} className="flex items-start gap-2.5 group/bullet">
-                  <span style={{ display: "inline-block", width: 18, height: 18, lineHeight: "18px", textAlign: "center", borderRadius: "999px", background: c.bg, color: c.color, fontSize: 11, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>✓</span>
+                  <CheckIcon bg={c.bg} color={c.color} />
                   <div className="flex-1">
                     <Editable
                       value={b.title}
