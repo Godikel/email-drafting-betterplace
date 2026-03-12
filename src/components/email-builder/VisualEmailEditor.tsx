@@ -467,7 +467,7 @@ function VisualFeatureCard({ meta, onMetaChange }: { meta: Record<string, any>; 
               const c = checkColors[b.check] || checkColors.teal;
               return (
                 <div key={i} className="flex items-start gap-2.5">
-                  <span style={{ display: "inline-block", width: 18, height: 18, lineHeight: "18px", textAlign: "center", borderRadius: "999px", background: c.bg, color: c.color, fontSize: 11, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>✓</span>
+                  <CheckIcon bg={c.bg} color={c.color} />
                   <Editable
                     value={b.text}
                     onChange={(v) => {
