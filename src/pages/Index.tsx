@@ -80,12 +80,17 @@ const Index = () => {
     }));
   }, []);
 
-  const handleBlockAdd = useCallback((type: ContentBlockType) => {
+  const handleBlockAdd = useCallback((type: ContentBlockType, afterIndex?: number) => {
     blockIdCounter++;
-    setEmail((prev) => ({
-      ...prev,
-      blocks: [...prev.blocks, { id: `block-${blockIdCounter}`, type, content: "" }],
-    }));
+    setEmail((prev) => {
+      const newBlock = { id: `block-${blockIdCounter}`, type, content: "" };
+      if (afterIndex !== undefined) {
+        const blocks = [...prev.blocks];
+        blocks.splice(afterIndex, 0, newBlock);
+        return { ...prev, blocks };
+      }
+      return { ...prev, blocks: [...prev.blocks, newBlock] };
+    });
   }, []);
 
   const handleBlockReorder = useCallback((fromId: string, toId: string) => {
@@ -251,6 +256,7 @@ const Index = () => {
                     onBlockMetaChange={handleBlockMetaChange}
                     onBlockRemove={handleBlockRemove}
                     onBlockReorder={handleBlockReorder}
+                    onBlockAdd={handleBlockAdd}
                   />
                 </div>
                 <div className="min-w-0">
