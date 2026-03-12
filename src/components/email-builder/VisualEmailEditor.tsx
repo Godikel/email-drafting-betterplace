@@ -199,7 +199,19 @@ function VisualTopbar({ meta, onMetaChange }: { meta: Record<string, any>; onMet
   );
 }
 
+function CheckIcon({ bg, color: iconColor, size = 18 }: { bg: string; color: string; size?: number }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, borderRadius: "999px", background: bg, flexShrink: 0 }}>
+      <svg width={size * 0.55} height={size * 0.55} viewBox="0 0 12 12" fill="none">
+        <path d="M2 6.5L4.5 9L10 3" stroke={iconColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </span>
+  );
+}
+
 function VisualHero({ meta, onMetaChange }: { meta: Record<string, any>; onMetaChange: (m: Record<string, any>) => void }) {
+  const pointers = (meta.pointers || []) as { text: string; subItems?: string[] }[];
+
   return (
     <div style={{ background: "linear-gradient(155deg, #0c2752 0%, #1a4a8a 55%, #1568a8 100%)", padding: "50px 40px", position: "relative", overflow: "hidden" }}>
       <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(77,184,200,0.16)", border: "1px solid rgba(77,184,200,0.38)", borderRadius: 20, padding: "5px 14px", marginBottom: 20 }}>
@@ -233,6 +245,81 @@ function VisualHero({ meta, onMetaChange }: { meta: Record<string, any>; onMetaC
         multiline
         style={{ color: "rgba(255,255,255,0.78)", fontSize: 14, lineHeight: 1.78, maxWidth: 490, marginTop: 18 }}
       />
+      {/* Pointers with sub-pointers */}
+      {pointers.length > 0 && (
+        <div style={{ marginTop: 24 }}>
+          {pointers.map((pointer, i) => (
+            <div key={i} style={{ marginBottom: 14 }}>
+              <div className="flex items-start gap-2.5 group/pointer">
+                <CheckIcon bg="rgba(77,184,200,0.25)" color="#7de8f4" />
+                <Editable
+                  value={pointer.text}
+                  onChange={(v) => {
+                    const newPointers = [...pointers];
+                    newPointers[i] = { ...pointer, text: v };
+                    onMetaChange({ ...meta, pointers: newPointers });
+                  }}
+                  style={{ fontSize: 14, fontWeight: 600, color: "#ffffff", lineHeight: 1.55 }}
+                />
+                <button
+                  className="opacity-0 group-hover/pointer:opacity-100 flex-shrink-0"
+                  style={{ color: "rgba(255,255,255,0.5)" }}
+                  onClick={() => onMetaChange({ ...meta, pointers: pointers.filter((_, idx) => idx !== i) })}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+              {/* Sub-pointers */}
+              {(pointer.subItems || []).map((sub, j) => (
+                <div key={j} className="flex items-start gap-2 group/sub" style={{ marginLeft: 28, marginTop: 6 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(125,232,244,0.5)", flexShrink: 0, marginTop: 6 }} />
+                  <Editable
+                    value={sub}
+                    onChange={(v) => {
+                      const newPointers = [...pointers];
+                      const newSubs = [...(pointer.subItems || [])];
+                      newSubs[j] = v;
+                      newPointers[i] = { ...pointer, subItems: newSubs };
+                      onMetaChange({ ...meta, pointers: newPointers });
+                    }}
+                    style={{ fontSize: 12.5, color: "rgba(255,255,255,0.65)", lineHeight: 1.55 }}
+                  />
+                  <button
+                    className="opacity-0 group-hover/sub:opacity-100 flex-shrink-0"
+                    style={{ color: "rgba(255,255,255,0.4)" }}
+                    onClick={() => {
+                      const newPointers = [...pointers];
+                      const newSubs = (pointer.subItems || []).filter((_, idx) => idx !== j);
+                      newPointers[i] = { ...pointer, subItems: newSubs };
+                      onMetaChange({ ...meta, pointers: newPointers });
+                    }}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+              <button
+                className="text-xs hover:underline"
+                style={{ marginLeft: 28, marginTop: 4, color: "rgba(125,232,244,0.6)", fontSize: 11 }}
+                onClick={() => {
+                  const newPointers = [...pointers];
+                  newPointers[i] = { ...pointer, subItems: [...(pointer.subItems || []), "New sub-point"] };
+                  onMetaChange({ ...meta, pointers: newPointers });
+                }}
+              >
+                + Add sub-point
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      <button
+        className="text-xs hover:underline"
+        style={{ marginTop: pointers.length > 0 ? 8 : 24, color: "rgba(125,232,244,0.7)", fontSize: 11 }}
+        onClick={() => onMetaChange({ ...meta, pointers: [...pointers, { text: "New pointer", subItems: [] }] })}
+      >
+        + Add pointer
+      </button>
     </div>
   );
 }
