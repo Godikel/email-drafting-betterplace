@@ -23,6 +23,8 @@ export interface ContentBlock {
 export interface EmailState {
   subject: string;
   recipients: string;
+  cc?: string;
+  bcc?: string;
   template: string;
   blocks: ContentBlock[];
   rawHtml?: string;
