@@ -192,7 +192,7 @@ const Index = () => {
         {
           method: "POST",
           mode: "no-cors",
-          headers: { "Content-Type": "text/plain" },
+          headers: { "Content-Type": "text/plain; charset=UTF-8" },
           body: JSON.stringify({
             subject: email.subject,
             recipients: email.recipients,
