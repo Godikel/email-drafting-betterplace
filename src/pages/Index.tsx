@@ -27,6 +27,10 @@ const Index = () => {
   const [isSending, setIsSending] = useState(false);
   const [dragState, setDragState] = useState<{ dragging: string | null; over: string | null }>({ dragging: null, over: null });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [currentTemplateId, setCurrentTemplateId] = useState<string | undefined>();
+  const { savedTemplates, fetchTemplates, saveTemplate, deleteTemplate } = useEmailTemplates();
+
+  useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
 
   const handleHtmlUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
