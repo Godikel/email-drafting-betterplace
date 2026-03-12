@@ -56,7 +56,10 @@ const Index = () => {
   }, []);
 
   const handleChange = useCallback((update: Partial<EmailState>) => {
-    setEmail((prev) => ({ ...prev, ...update }));
+    setEmail((prev) => {
+      const next = { ...prev, ...update };
+      return next;
+    });
   }, []);
 
   const handleBlockChange = useCallback((id: string, content: string) => {
