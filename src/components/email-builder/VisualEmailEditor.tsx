@@ -67,7 +67,7 @@ function CheckIcon({ bg, color: iconColor, size = 18 }: { bg: string; color: str
   );
 }
 
-/* ── Universal Pointers Component ── */
+/* ── Universal Pointers Component (with drag-drop) ── */
 function PointersSection({
   pointers,
   onChange,
@@ -87,13 +87,61 @@ function PointersSection({
   addColor?: string;
   dotColor?: string;
 }) {
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
+  const [subDrag, setSubDrag] = useState<{ pIdx: number; sIdx: number } | null>(null);
+  const [subOver, setSubOver] = useState<{ pIdx: number; sIdx: number } | null>(null);
+
+  const handlePointerDragEnd = () => {
+    if (dragIdx !== null && overIdx !== null && dragIdx !== overIdx) {
+      const np = [...pointers];
+      const [moved] = np.splice(dragIdx, 1);
+      np.splice(overIdx, 0, moved);
+      onChange(np);
+    }
+    setDragIdx(null);
+    setOverIdx(null);
+  };
+
+  const handleSubDragEnd = () => {
+    if (subDrag && subOver) {
+      const np = [...pointers];
+      if (subDrag.pIdx === subOver.pIdx) {
+        const subs = [...(np[subDrag.pIdx].subItems || [])];
+        const [moved] = subs.splice(subDrag.sIdx, 1);
+        subs.splice(subOver.sIdx, 0, moved);
+        np[subDrag.pIdx] = { ...np[subDrag.pIdx], subItems: subs };
+      } else {
+        const fromSubs = [...(np[subDrag.pIdx].subItems || [])];
+        const toSubs = [...(np[subOver.pIdx].subItems || [])];
+        const [moved] = fromSubs.splice(subDrag.sIdx, 1);
+        toSubs.splice(subOver.sIdx, 0, moved);
+        np[subDrag.pIdx] = { ...np[subDrag.pIdx], subItems: fromSubs };
+        np[subOver.pIdx] = { ...np[subOver.pIdx], subItems: toSubs };
+      }
+      onChange(np);
+    }
+    setSubDrag(null);
+    setSubOver(null);
+  };
+
   return (
     <div style={{ marginTop: 16 }}>
       {pointers.map((pointer, i) => (
-        <div key={i} style={{ marginBottom: 12 }}>
-          {/* Title row - only show if text exists */}
+        <div
+          key={i}
+          style={{ marginBottom: 12, opacity: dragIdx === i ? 0.4 : 1 }}
+          className={`transition-all ${overIdx === i && dragIdx !== null && dragIdx !== i ? "ring-1 ring-primary/50 rounded" : ""}`}
+          draggable
+          onDragStart={(e) => { e.stopPropagation(); e.dataTransfer.effectAllowed = "move"; setDragIdx(i); }}
+          onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setOverIdx(i); }}
+          onDragEnd={(e) => { e.stopPropagation(); handlePointerDragEnd(); }}
+        >
           {pointer.text && (
             <div className="flex items-start gap-2.5 group/pointer">
+              <span className="cursor-grab flex-shrink-0 text-muted-foreground opacity-0 group-hover/pointer:opacity-60 hover:!opacity-100 mt-0.5">
+                <GripVertical className="h-3 w-3" />
+              </span>
               <CheckIcon bg={checkBg} color={checkColor} />
               <Editable
                 value={pointer.text}
@@ -113,9 +161,19 @@ function PointersSection({
               </button>
             </div>
           )}
-          {/* Sub-items */}
           {(pointer.subItems || []).map((sub, j) => (
-            <div key={j} className="flex items-start gap-2 group/sub" style={{ marginLeft: pointer.text ? 28 : 0, marginTop: 5 }}>
+            <div
+              key={j}
+              className={`flex items-start gap-2 group/sub ${subOver?.pIdx === i && subOver?.sIdx === j && subDrag !== null ? "ring-1 ring-primary/40 rounded" : ""}`}
+              style={{ marginLeft: pointer.text ? 28 : 0, marginTop: 5, opacity: subDrag?.pIdx === i && subDrag?.sIdx === j ? 0.4 : 1 }}
+              draggable
+              onDragStart={(e) => { e.stopPropagation(); e.dataTransfer.effectAllowed = "move"; setSubDrag({ pIdx: i, sIdx: j }); }}
+              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setSubOver({ pIdx: i, sIdx: j }); }}
+              onDragEnd={(e) => { e.stopPropagation(); handleSubDragEnd(); }}
+            >
+              <span className="cursor-grab flex-shrink-0 text-muted-foreground opacity-0 group-hover/sub:opacity-60 hover:!opacity-100 mt-1">
+                <GripVertical className="h-3 w-3" />
+              </span>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: dotColor, flexShrink: 0, marginTop: 6 }} />
               <Editable
                 value={sub}
