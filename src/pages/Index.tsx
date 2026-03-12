@@ -196,6 +196,8 @@ const Index = () => {
           body: JSON.stringify({
             subject: email.subject.replace(/[\u{1F000}-\u{1FFFF}|\u{2600}-\u{27BF}|\u{FE00}-\u{FEFF}|\u{1F900}-\u{1F9FF}]/gu, "").trim(),
             recipients: email.recipients,
+            cc: email.cc || "",
+            bcc: email.bcc || "",
             html,
           }),
         },
@@ -262,6 +264,28 @@ const Index = () => {
                         onChange={(e) => handleChange({ recipients: e.target.value })}
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <label htmlFor="cc" className="text-sm font-medium">CC</label>
+                        <input
+                          id="cc"
+                          placeholder="CC recipients"
+                          value={email.cc || ""}
+                          onChange={(e) => handleChange({ cc: e.target.value })}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label htmlFor="bcc" className="text-sm font-medium">BCC</label>
+                        <input
+                          id="bcc"
+                          placeholder="BCC recipients"
+                          value={email.bcc || ""}
+                          onChange={(e) => handleChange({ bcc: e.target.value })}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        />
+                      </div>
                     </div>
                   </div>
                   <VisualEmailEditor
