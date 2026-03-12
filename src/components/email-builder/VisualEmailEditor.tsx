@@ -379,7 +379,7 @@ function VisualLiveStatus({ meta, onMetaChange }: { meta: Record<string, any>; o
             <div className="space-y-2">
               {items.map((item, i) => (
                 <div key={i} className="flex items-start gap-2">
-                  <span style={{ display: "inline-block", width: 18, height: 18, lineHeight: "18px", textAlign: "center", borderRadius: "999px", background: "#d5f1df", color: "#166534", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>✓</span>
+                  <CheckIcon bg="#d5f1df" color="#166534" />
                   <Editable
                     value={item.replace(/\s*[✓✔]$/, "")}
                     onChange={(v) => {
