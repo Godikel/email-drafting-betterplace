@@ -227,29 +227,27 @@ function renderStrategyBox(m: Record<string, any>): string {
 }
 
 function renderAiCard(m: Record<string, any>): string {
-  const isPurple = m.variant === "purple";
-  const topBg = isPurple ? "linear-gradient(135deg,#3b1a7a,#5a38ae)" : "linear-gradient(135deg,#0c2752,#1a4a8a)";
-  const labelBg = isPurple ? "rgba(255,255,255,0.14)" : "rgba(77,184,200,0.18)";
-  const labelColor = isPurple ? "#ddd6fe" : "#7de8f4";
+  const themeKey = m.variant || "teal";
+  const theme = getCardTheme(themeKey);
+  const labelBg = `${theme.accent}30`;
+  const labelColor = theme.accentLight;
 
   const bullets = (m.bullets || []) as { title: string; text: string; check: string }[];
-  const checkColors: Record<string, { bg: string; color: string }> = {
-    teal: { bg: "#d5f1f4", color: "#0f7c90" },
-    navy: { bg: "#dae6ff", color: "#2457d6" },
-    purple: { bg: "#ece6ff", color: "#6d28d9" },
-  };
+  const pointers = (m.pointers || []) as { text?: string; subItems?: string[] }[];
 
   const bulletsHtml = bullets
     .map((b) => {
-      const c = checkColors[b.check] || checkColors.teal;
-      return `<tr><td valign="top" style="padding:0 12px 14px 0;line-height:1;">${checkCircle(c.bg, c.color)}</td><td valign="top" style="font-size:13px;color:#3d4f60;line-height:1.62;padding:0 0 14px 0;"><strong style="color:#0c2752;font-weight:700;">${b.title}</strong> &mdash; ${b.text}</td></tr>`;
+      const t = getCardTheme(b.check || themeKey);
+      return `<tr><td valign="top" style="padding:0 12px 14px 0;line-height:1;">${checkCircle(t.checkBg, t.checkColor)}</td><td valign="top" style="font-size:13px;color:#3d4f60;line-height:1.62;padding:0 0 14px 0;"><strong style="color:#0c2752;font-weight:700;">${b.title}</strong> &mdash; ${b.text}</td></tr>`;
     })
     .join("");
+
+  const pointersHtml = renderPointers(pointers, theme.checkBg, theme.checkColor, "#3d4f60", "#6b7280", "#94a3b8");
 
   return `
   <div style="padding:0 40px;">
     <div style="border:1px solid #e0eaf2;border-radius:12px;overflow:hidden;margin-top:20px;">
-      <div style="padding:20px 24px 16px;background:${topBg};">
+      <div style="padding:20px 24px 16px;background:${theme.gradient};">
         <table role="presentation" style="width:100%;border-collapse:collapse;">
           <tr>
             <td valign="top" style="width:58px;padding-right:14px;"><div style="width:44px;height:44px;background:rgba(255,255,255,0.12);border-radius:11px;text-align:center;line-height:44px;">${emojiBox(m.labelEmoji, 21)}</div></td>
@@ -263,6 +261,7 @@ function renderAiCard(m: Record<string, any>): string {
       </div>
       <div style="padding:18px 24px 22px;background:#fff;">
         <table role="presentation" style="border-collapse:collapse;">${bulletsHtml}</table>
+        ${pointersHtml}
       </div>
     </div>
   </div>`;
