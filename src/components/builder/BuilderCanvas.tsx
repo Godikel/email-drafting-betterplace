@@ -40,22 +40,94 @@ function RenderBlock({ block, onUpdate, onSelect }: { block: BuilderBlock; onUpd
   };
 
   switch (block.type) {
-    case 'text':
+    case 'text': {
+      const items: TextContentItem[] = p.items || [];
+      const pointerColor = p.pointerColor || '#3b82f6';
+      const bulletColor = p.bulletColor || '#6b7280';
       return (
         <div className="rounded" style={{
           backgroundColor: p.bgColor || 'transparent',
           padding: p.padding || 0,
           borderRadius: p.borderRadius || 0,
         }}>
-          <div
-            contentEditable suppressContentEditableWarning
-            className="outline-none min-h-[1.5em]"
-            style={{ fontSize: p.fontSize, color: p.color, textAlign: p.alignment, lineHeight: 1.6 }}
-            dangerouslySetInnerHTML={{ __html: p.content }}
-            onBlur={(e) => onUpdate({ content: e.currentTarget.innerHTML })}
-          />
+          {/* Plain text content */}
+          {p.content && (
+            <div
+              contentEditable suppressContentEditableWarning
+              className="outline-none min-h-[1em]"
+              style={{ fontSize: p.fontSize, color: p.color, textAlign: p.alignment, lineHeight: 1.6 }}
+              dangerouslySetInnerHTML={{ __html: p.content }}
+              onBlur={(e) => onUpdate({ content: e.currentTarget.innerHTML })}
+            />
+          )}
+          {/* Structured content items */}
+          {items.length > 0 && (
+            <div className="space-y-2" style={{ marginTop: p.content ? 12 : 0 }}>
+              {items.map((item) => {
+                switch (item.type) {
+                  case 'heading': {
+                    const sizes = { 1: 24, 2: 20, 3: 16 };
+                    const sz = sizes[item.level || 2];
+                    return (
+                      <div key={item.id} style={{ fontSize: sz, fontWeight: 700, color: p.color || '#333', lineHeight: 1.3, textAlign: p.alignment }}>
+                        {item.text}
+                      </div>
+                    );
+                  }
+                  case 'emoji-desc':
+                    return (
+                      <div key={item.id} className="flex items-start gap-2" style={{ fontSize: p.fontSize || 16, color: p.color || '#333' }}>
+                        <span className="shrink-0 text-lg">{item.emoji || '💡'}</span>
+                        <span style={{ lineHeight: 1.6 }}>{item.text}</span>
+                      </div>
+                    );
+                  case 'pointer':
+                    return (
+                      <div key={item.id} className="space-y-1">
+                        <div className="flex items-start gap-2" style={{ fontSize: p.fontSize || 16, color: p.color || '#333' }}>
+                          <span className="shrink-0 mt-2 w-2 h-2 rounded-full" style={{ backgroundColor: pointerColor }} />
+                          <span style={{ lineHeight: 1.6, fontWeight: 600 }}>{item.text}</span>
+                        </div>
+                        {(item.subItems || []).length > 0 && (
+                          <div className="pl-6 space-y-0.5">
+                            {(item.subItems || []).map((sub, si) => (
+                              <div key={si} className="flex items-start gap-2" style={{ fontSize: (p.fontSize || 16) - 2, color: p.color || '#555' }}>
+                                <span className="shrink-0 mt-2 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: pointerColor, opacity: 0.6 }} />
+                                <span style={{ lineHeight: 1.5 }}>{sub}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  case 'bullet':
+                    return (
+                      <div key={item.id} className="space-y-1">
+                        <div className="flex items-start gap-2" style={{ fontSize: p.fontSize || 16, color: p.color || '#333' }}>
+                          <span className="shrink-0 mt-2 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: bulletColor }} />
+                          <span style={{ lineHeight: 1.6 }}>{item.text}</span>
+                        </div>
+                        {(item.subItems || []).length > 0 && (
+                          <div className="pl-5 space-y-0.5">
+                            {(item.subItems || []).map((sub, si) => (
+                              <div key={si} className="flex items-start gap-2" style={{ fontSize: (p.fontSize || 16) - 2, color: p.color || '#666' }}>
+                                <span className="shrink-0 mt-2" style={{ color: bulletColor, opacity: 0.5 }}>–</span>
+                                <span style={{ lineHeight: 1.5 }}>{sub}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  default:
+                    return null;
+                }
+              })}
+            </div>
+          )}
         </div>
       );
+    }
 
     case 'hero':
       return (
