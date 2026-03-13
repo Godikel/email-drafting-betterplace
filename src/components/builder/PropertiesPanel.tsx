@@ -322,6 +322,9 @@ function StatusCardProps() {
       <Field label="Title"><Input value={p.title || ''} onChange={(e) => up('title', e.target.value)} className="h-8 text-xs" /></Field>
       <Field label="Description"><Input value={p.description || ''} onChange={(e) => up('description', e.target.value)} className="h-8 text-xs" /></Field>
       <ColorField label="Accent Color" value={p.accentColor || '#10b981'} onChange={(v) => up('accentColor', v)} />
+      <ColorField label="Background" value={p.bgColor || '#f0fdf4'} onChange={(v) => up('bgColor', v)} />
+      <ColorField label="Title Color" value={p.titleColor || '#1a1a2e'} onChange={(v) => up('titleColor', v)} />
+      <ColorField label="Description Color" value={p.descColor || '#555555'} onChange={(v) => up('descColor', v)} />
     </div>
   );
 }
