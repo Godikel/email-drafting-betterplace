@@ -122,13 +122,31 @@ function blockToHtml(block: BuilderBlock): string {
       </td></tr>`;
 
     case 'header': {
-      const align = p.logoAlignment || 'center';
-      const logo = p.logoSrc
-        ? `<img src="${esc(p.logoSrc)}" alt="${esc(p.logoAlt || 'Logo')}" style="max-width:${p.logoMaxWidth || 150}px;display:inline-block;" />`
+      const logo1 = p.logoSrc
+        ? `<img src="${esc(p.logoSrc)}" alt="${esc(p.logoAlt || 'Logo')}" style="max-width:${p.logoMaxWidth || 150}px;height:auto;display:block;border:0;" />`
+        : '';
+      const logoDivider = (p.showLogoDivider !== false)
+        ? `<td valign="middle" style="padding:0 14px;"><div style="width:1px;height:28px;background:#d0d8e0;"></div></td>`
+        : '';
+      const logo2 = p.logo2Src
+        ? `<img src="${esc(p.logo2Src)}" alt="${esc(p.logo2Alt || 'Partner Logo')}" style="max-width:${p.logo2MaxWidth || 120}px;height:auto;display:block;border:0;" />`
+        : '';
+      const label = p.labelText
+        ? `<td valign="middle" style="text-align:right;font-size:11px;font-weight:700;color:${p.labelColor || '#1a6fa8'};letter-spacing:0.2px;white-space:nowrap;">${esc(p.labelText)}</td>`
         : '';
       const divider = p.showDivider ? `<hr style="border:none;border-top:1px solid #e5e7eb;margin:${p.padding || 16}px 0 0;" />` : '';
-      return `<tr><td style="background:${p.bgColor || '#ffffff'};padding:${p.padding || 16}px;text-align:${align};">
-        ${logo}${divider}
+      return `<tr><td style="background:${p.bgColor || '#ffffff'};padding:${p.padding || 16}px;">
+        <table role="presentation" style="width:100%;border-collapse:collapse;"><tr>
+          <td valign="middle">
+            <table role="presentation" style="border-collapse:collapse;"><tr>
+              ${logo1 ? `<td valign="middle" style="padding-right:${(p.showLogoDivider !== false) ? 0 : 14}px;">${logo1}</td>` : ''}
+              ${logoDivider}
+              ${logo2 ? `<td valign="middle">${logo2}</td>` : ''}
+            </tr></table>
+          </td>
+          ${label}
+        </tr></table>
+        ${divider}
       </td></tr>`;
     }
 

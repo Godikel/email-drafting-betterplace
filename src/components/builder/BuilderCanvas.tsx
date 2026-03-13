@@ -202,17 +202,28 @@ function RenderBlock({ block, onUpdate, onSelect }: { block: BuilderBlock; onUpd
       );
 
     case 'header': {
-      const align = p.logoAlignment || 'center';
       return (
         <div className="rounded-lg" style={{ backgroundColor: p.bgColor || '#ffffff', padding: p.padding || 16 }}>
-          <div style={{ textAlign: align as any }}>
-            {p.logoSrc ? (
-              <img src={p.logoSrc} alt={p.logoAlt || 'Logo'} className="inline-block" style={{ maxWidth: p.logoMaxWidth || 150 }} />
-            ) : (
-              <div className="border-2 border-dashed border-border rounded p-4 inline-block text-muted-foreground">
-                <ImageIcon className="h-6 w-6 mx-auto mb-1 opacity-40" />
-                <p className="text-xs">Add logo in properties</p>
-              </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {p.logoSrc ? (
+                <img src={p.logoSrc} alt={p.logoAlt || 'Logo'} className="block" style={{ maxWidth: p.logoMaxWidth || 150, height: 'auto' }} />
+              ) : (
+                <div className="border-2 border-dashed border-border rounded px-3 py-2 text-muted-foreground">
+                  <p className="text-xs">Logo 1</p>
+                </div>
+              )}
+              {(p.showLogoDivider !== false) && <div className="w-px h-7 bg-border" />}
+              {p.logo2Src ? (
+                <img src={p.logo2Src} alt={p.logo2Alt || 'Partner Logo'} className="block" style={{ maxWidth: p.logo2MaxWidth || 120, height: 'auto' }} />
+              ) : (
+                <div className="border-2 border-dashed border-border rounded px-3 py-2 text-muted-foreground">
+                  <p className="text-xs">Logo 2</p>
+                </div>
+              )}
+            </div>
+            {p.labelText && (
+              <span className="text-xs font-bold whitespace-nowrap" style={{ color: p.labelColor || '#1a6fa8' }}>{p.labelText}</span>
             )}
           </div>
           {p.showDivider && <hr className="mt-3 border-border/50" />}

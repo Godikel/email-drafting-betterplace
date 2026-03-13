@@ -82,7 +82,10 @@ export function createBlock(type: BuilderBlockType): BuilderBlock {
       bgColor: '#f8f9fa', gradient: '', borderRadius: 12, padding: 24, borderColor: '', borderWidth: 0,
     },
     'header': {
-      logoSrc: '', logoAlt: 'Logo', logoAlignment: 'center', logoMaxWidth: 150,
+      logoSrc: '', logoAlt: 'Logo', logoMaxWidth: 150,
+      logo2Src: '', logo2Alt: 'Partner Logo', logo2MaxWidth: 120,
+      showLogoDivider: true,
+      labelText: 'AI Capabilities Update', labelColor: '#1a6fa8',
       bgColor: '#ffffff', padding: 16, showDivider: true,
     },
     'footer': {

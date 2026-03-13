@@ -330,13 +330,30 @@ function HeaderProps() {
   const up = (k: string, v: any) => updateProps(selectedBlock.id, { [k]: v });
   return (
     <div className="space-y-4">
-      <ImageUpload value={p.logoSrc || ''} onChange={(url) => up('logoSrc', url)} />
-      <Field label="Logo Alt Text"><Input value={p.logoAlt || ''} onChange={(e) => up('logoAlt', e.target.value)} className="h-8 text-xs" /></Field>
-      <AlignmentPicker value={p.logoAlignment || 'center'} onChange={(v) => up('logoAlignment', v)} />
-      <SliderField label="Logo Max Width" value={p.logoMaxWidth || 150} onChange={(v) => up('logoMaxWidth', v)} min={40} max={400} />
+      <div className="border-b pb-3">
+        <Label className="text-xs font-semibold text-foreground mb-2 block">Primary Logo</Label>
+        <ImageUpload value={p.logoSrc || ''} onChange={(url) => up('logoSrc', url)} />
+        <div className="mt-2"><Field label="Alt Text"><Input value={p.logoAlt || ''} onChange={(e) => up('logoAlt', e.target.value)} className="h-8 text-xs" /></Field></div>
+        <div className="mt-2"><SliderField label="Max Width" value={p.logoMaxWidth || 150} onChange={(v) => up('logoMaxWidth', v)} min={40} max={400} /></div>
+      </div>
+      <div className="border-b pb-3">
+        <Label className="text-xs font-semibold text-foreground mb-2 block">Partner Logo</Label>
+        <ImageUpload value={p.logo2Src || ''} onChange={(url) => up('logo2Src', url)} />
+        <div className="mt-2"><Field label="Alt Text"><Input value={p.logo2Alt || ''} onChange={(e) => up('logo2Alt', e.target.value)} className="h-8 text-xs" /></Field></div>
+        <div className="mt-2"><SliderField label="Max Width" value={p.logo2MaxWidth || 120} onChange={(v) => up('logo2MaxWidth', v)} min={30} max={300} /></div>
+      </div>
+      <Field label="Show Logo Divider">
+        <Button variant={p.showLogoDivider !== false ? 'default' : 'outline'} size="sm" className="h-7 text-xs"
+          onClick={() => up('showLogoDivider', !(p.showLogoDivider !== false))}>{p.showLogoDivider !== false ? 'Yes' : 'No'}</Button>
+      </Field>
+      <div className="border-b pb-3">
+        <Label className="text-xs font-semibold text-foreground mb-2 block">Right Label</Label>
+        <Field label="Text"><Input value={p.labelText || ''} onChange={(e) => up('labelText', e.target.value)} className="h-8 text-xs" /></Field>
+        <div className="mt-2"><ColorField label="Color" value={p.labelColor || '#1a6fa8'} onChange={(v) => up('labelColor', v)} /></div>
+      </div>
       <ColorField label="Background" value={p.bgColor || '#ffffff'} onChange={(v) => up('bgColor', v)} />
       <SliderField label="Padding" value={p.padding || 16} onChange={(v) => up('padding', v)} min={0} max={48} />
-      <Field label="Show Divider">
+      <Field label="Show Bottom Divider">
         <Button variant={p.showDivider ? 'default' : 'outline'} size="sm" className="h-7 text-xs"
           onClick={() => up('showDivider', !p.showDivider)}>{p.showDivider ? 'Yes' : 'No'}</Button>
       </Field>
