@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { X, Upload, Monitor, Smartphone } from 'lucide-react';
+import { X, Upload, Monitor, Smartphone, Plus } from 'lucide-react';
 import { useBuilder } from '@/contexts/BuilderContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { generateBuilderHtml } from '@/lib/generateBuilderHtml';
+import { normalizeBullets } from '@/types/builder';
 import { toast } from 'sonner';
 
 /* ── Helpers ── */
@@ -167,26 +168,58 @@ function FeatureCardProps() {
   if (!selectedBlock) return null;
   const p = selectedBlock.props;
   const up = (k: string, v: any) => updateProps(selectedBlock.id, { [k]: v });
+  const bullets = normalizeBullets(p.bullets || []);
   return (
     <div className="space-y-4">
       <Field label="Icon"><Input value={p.icon || ''} onChange={(e) => up('icon', e.target.value)} className="h-8 text-xs" /></Field>
       <Field label="Title"><Input value={p.title || ''} onChange={(e) => up('title', e.target.value)} className="h-8 text-xs" /></Field>
       <Field label="Description"><Input value={p.description || ''} onChange={(e) => up('description', e.target.value)} className="h-8 text-xs" /></Field>
-      <Field label="Bullet Points">
-        <div className="space-y-1.5">
-          {(p.bullets || []).map((b: string, i: number) => (
-            <div key={i} className="flex gap-1">
-              <Input value={b} className="h-7 text-xs flex-1" onChange={(e) => {
-                const bullets = [...p.bullets]; bullets[i] = e.target.value; up('bullets', bullets);
-              }} />
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive shrink-0" onClick={() => {
-                const bullets = p.bullets.filter((_: any, j: number) => j !== i); up('bullets', bullets);
-              }}><X className="h-3 w-3" /></Button>
+
+      <div className="border-t pt-3">
+        <Label className="text-xs font-semibold text-foreground">Colors</Label>
+        <div className="space-y-3 mt-2">
+          <ColorField label="Card Background" value={p.bgColor || '#ffffff'} onChange={(v) => up('bgColor', v)} />
+          <ColorField label="Border" value={p.borderColor || '#e5e7eb'} onChange={(v) => up('borderColor', v)} />
+          <ColorField label="Accent / Bullet" value={p.accentColor || '#3b82f6'} onChange={(v) => { up('accentColor', v); up('bulletColor', v); }} />
+          <ColorField label="Icon Background" value={p.iconBgColor || '#eff6ff'} onChange={(v) => up('iconBgColor', v)} />
+          <ColorField label="Title Color" value={p.titleColor || '#1a1a2e'} onChange={(v) => up('titleColor', v)} />
+          <ColorField label="Description Color" value={p.descColor || '#555555'} onChange={(v) => up('descColor', v)} />
+        </div>
+      </div>
+
+      <div className="border-t pt-3">
+        <SliderField label="Inner Spacing" value={p.spacing || 20} onChange={(v) => up('spacing', v)} min={0} max={48} />
+      </div>
+
+      <div className="border-t pt-3">
+        <Label className="text-xs font-semibold text-foreground">Bullet Points</Label>
+        <div className="space-y-2 mt-2">
+          {bullets.map((b, i) => (
+            <div key={i} className="border rounded-md p-2 space-y-1">
+              <div className="flex gap-1">
+                <Input value={b.text} className="h-7 text-xs flex-1" placeholder="Bullet text"
+                  onChange={(e) => {
+                    const newBullets = [...bullets];
+                    newBullets[i] = { ...newBullets[i], text: e.target.value };
+                    up('bullets', newBullets);
+                  }} />
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive shrink-0" onClick={() => {
+                  up('bullets', bullets.filter((_, j) => j !== i));
+                }}><X className="h-3 w-3" /></Button>
+              </div>
+              <Input value={b.subtext || ''} className="h-7 text-xs" placeholder="Subtext (optional)"
+                onChange={(e) => {
+                  const newBullets = [...bullets];
+                  newBullets[i] = { ...newBullets[i], subtext: e.target.value };
+                  up('bullets', newBullets);
+                }} />
             </div>
           ))}
-          <Button variant="outline" size="sm" className="w-full h-7 text-xs" onClick={() => up('bullets', [...(p.bullets || []), ''])}>+ Add Bullet</Button>
+          <Button variant="outline" size="sm" className="w-full h-7 text-xs" onClick={() => up('bullets', [...bullets, { text: '', subtext: '' }])}>
+            <Plus className="h-3 w-3 mr-1" />Add Bullet
+          </Button>
         </div>
-      </Field>
+      </div>
     </div>
   );
 }
@@ -290,10 +323,103 @@ function StatusCardProps() {
   );
 }
 
+function HeaderProps() {
+  const { selectedBlock, updateProps } = useBuilder();
+  if (!selectedBlock) return null;
+  const p = selectedBlock.props;
+  const up = (k: string, v: any) => updateProps(selectedBlock.id, { [k]: v });
+  return (
+    <div className="space-y-4">
+      <ImageUpload value={p.logoSrc || ''} onChange={(url) => up('logoSrc', url)} />
+      <Field label="Logo Alt Text"><Input value={p.logoAlt || ''} onChange={(e) => up('logoAlt', e.target.value)} className="h-8 text-xs" /></Field>
+      <AlignmentPicker value={p.logoAlignment || 'center'} onChange={(v) => up('logoAlignment', v)} />
+      <SliderField label="Logo Max Width" value={p.logoMaxWidth || 150} onChange={(v) => up('logoMaxWidth', v)} min={40} max={400} />
+      <ColorField label="Background" value={p.bgColor || '#ffffff'} onChange={(v) => up('bgColor', v)} />
+      <SliderField label="Padding" value={p.padding || 16} onChange={(v) => up('padding', v)} min={0} max={48} />
+      <Field label="Show Divider">
+        <Button variant={p.showDivider ? 'default' : 'outline'} size="sm" className="h-7 text-xs"
+          onClick={() => up('showDivider', !p.showDivider)}>{p.showDivider ? 'Yes' : 'No'}</Button>
+      </Field>
+    </div>
+  );
+}
+
+function FooterProps() {
+  const { selectedBlock, updateProps } = useBuilder();
+  if (!selectedBlock) return null;
+  const p = selectedBlock.props;
+  const up = (k: string, v: any) => updateProps(selectedBlock.id, { [k]: v });
+  const links = p.links || [];
+  return (
+    <div className="space-y-4">
+      <ImageUpload value={p.logoSrc || ''} onChange={(url) => up('logoSrc', url)} />
+      <Field label="Logo Alt Text"><Input value={p.logoAlt || ''} onChange={(e) => up('logoAlt', e.target.value)} className="h-8 text-xs" /></Field>
+      <AlignmentPicker value={p.logoAlignment || 'center'} onChange={(v) => up('logoAlignment', v)} />
+      <SliderField label="Logo Max Width" value={p.logoMaxWidth || 100} onChange={(v) => up('logoMaxWidth', v)} min={30} max={300} />
+      <Field label="Footer Text"><Input value={p.text || ''} onChange={(e) => up('text', e.target.value)} className="h-8 text-xs" /></Field>
+      <ColorField label="Background" value={p.bgColor || '#f8f9fa'} onChange={(v) => up('bgColor', v)} />
+      <ColorField label="Text Color" value={p.textColor || '#888888'} onChange={(v) => up('textColor', v)} />
+      <SliderField label="Padding" value={p.padding || 24} onChange={(v) => up('padding', v)} min={0} max={48} />
+      <Field label="Show Divider">
+        <Button variant={p.showDivider ? 'default' : 'outline'} size="sm" className="h-7 text-xs"
+          onClick={() => up('showDivider', !p.showDivider)}>{p.showDivider ? 'Yes' : 'No'}</Button>
+      </Field>
+      <div className="border-t pt-3">
+        <Label className="text-xs font-semibold text-foreground">Links</Label>
+        <div className="space-y-2 mt-2">
+          {links.map((link: { label: string; url: string }, i: number) => (
+            <div key={i} className="flex gap-1">
+              <Input value={link.label} className="h-7 text-xs flex-1" placeholder="Label"
+                onChange={(e) => { const nl = [...links]; nl[i] = { ...nl[i], label: e.target.value }; up('links', nl); }} />
+              <Input value={link.url} className="h-7 text-xs flex-1" placeholder="URL"
+                onChange={(e) => { const nl = [...links]; nl[i] = { ...nl[i], url: e.target.value }; up('links', nl); }} />
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive shrink-0"
+                onClick={() => up('links', links.filter((_: any, j: number) => j !== i))}><X className="h-3 w-3" /></Button>
+            </div>
+          ))}
+          <Button variant="outline" size="sm" className="w-full h-7 text-xs"
+            onClick={() => up('links', [...links, { label: '', url: '#' }])}>
+            <Plus className="h-3 w-3 mr-1" />Add Link
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SectionBoxProps() {
+  const { selectedBlock, updateProps } = useBuilder();
+  if (!selectedBlock) return null;
+  const p = selectedBlock.props;
+  const up = (k: string, v: any) => updateProps(selectedBlock.id, { [k]: v });
+  return (
+    <div className="space-y-4">
+      <ColorField label="Background Color" value={p.bgColor || '#f8f9fa'} onChange={(v) => up('bgColor', v)} />
+      <Field label="Background Gradient">
+        <div className="grid grid-cols-4 gap-1.5">
+          <button className="h-7 rounded-md border border-border/50 bg-transparent text-[8px] text-muted-foreground"
+            onClick={() => up('gradient', '')}>None</button>
+          {GRADIENTS.map(g => (
+            <button key={g.label} className="h-7 rounded-md border border-border/50 transition-all hover:scale-105"
+              style={{ background: g.value }} title={g.label}
+              onClick={() => up('gradient', g.value)} />
+          ))}
+        </div>
+      </Field>
+      <SliderField label="Padding" value={p.padding || 24} onChange={(v) => up('padding', v)} min={0} max={64} />
+      <SliderField label="Border Radius" value={p.borderRadius || 12} onChange={(v) => up('borderRadius', v)} min={0} max={32} />
+      <SliderField label="Border Width" value={p.borderWidth || 0} onChange={(v) => up('borderWidth', v)} min={0} max={4} />
+      {(p.borderWidth > 0) && <ColorField label="Border Color" value={p.borderColor || '#e5e7eb'} onChange={(v) => up('borderColor', v)} />}
+      <p className="text-[10px] text-muted-foreground">Drag blocks into the section, or click + inside it on the canvas.</p>
+    </div>
+  );
+}
+
 const BLOCK_LABELS: Record<string, string> = {
   text: 'Text Block', hero: 'Hero Block', 'info-box': 'Info Box', 'feature-card': 'Feature Card',
   image: 'Image Block', video: 'Video Block', divider: 'Divider', spacer: 'Spacer',
   button: 'Button', 'status-card': 'Status Card', 'two-column': '2-Column Layout', 'three-column': '3-Column Layout',
+  'section-box': 'Section Box', 'header': 'Header', 'footer': 'Footer',
 };
 
 function BlockPropsEditor() {
@@ -310,8 +436,11 @@ function BlockPropsEditor() {
     case 'spacer': return <SpacerProps />;
     case 'button': return <ButtonProps />;
     case 'status-card': return <StatusCardProps />;
+    case 'header': return <HeaderProps />;
+    case 'footer': return <FooterProps />;
+    case 'section-box': return <SectionBoxProps />;
     case 'two-column': case 'three-column':
-      return <p className="text-xs text-muted-foreground">Drag blocks into the columns, or use the + button inside each column.</p>;
+      return <p className="text-xs text-muted-foreground">Click a block inside a column to edit its properties. Drag blocks into the columns, or use the + button inside each column.</p>;
     default: return null;
   }
 }
@@ -325,7 +454,8 @@ function WrapperSettings() {
     <div className="space-y-4">
       <h3 className="text-sm font-semibold text-foreground">Email Wrapper</h3>
       <SliderField label="Max Width" value={w.maxWidth} onChange={(v) => up('maxWidth', v)} min={400} max={900} />
-      <ColorField label="Background" value={w.bgColor} onChange={(v) => up('bgColor', v)} />
+      <ColorField label="Content Background" value={w.bgColor} onChange={(v) => up('bgColor', v)} />
+      <ColorField label="Email Background" value={w.emailBgColor || '#f0f0f5'} onChange={(v) => up('emailBgColor', v)} />
       <SliderField label="Padding" value={w.padding} onChange={(v) => up('padding', v)} min={0} max={64} />
       <SliderField label="Border Radius" value={w.borderRadius} onChange={(v) => up('borderRadius', v)} min={0} max={24} />
     </div>

@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { GripVertical, Copy, Trash2, ChevronUp, ChevronDown, ImageIcon, PlayCircle, Plus } from 'lucide-react';
 import { useBuilder } from '@/contexts/BuilderContext';
-import type { BuilderBlock, BuilderBlockType } from '@/types/builder';
-import { createBlock } from '@/types/builder';
+import type { BuilderBlock, BuilderBlockType, BulletPoint } from '@/types/builder';
+import { createBlock, normalizeBullets } from '@/types/builder';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -17,19 +17,27 @@ function DropLine({ active }: { active: boolean }) {
   );
 }
 
-/* ── Quick add inside columns ── */
+/* ── Quick add inside columns / section-box ── */
 const SIMPLE_TYPES: { type: BuilderBlockType; label: string }[] = [
   { type: 'text', label: 'Text' },
   { type: 'image', label: 'Image' },
   { type: 'button', label: 'Button' },
   { type: 'divider', label: 'Divider' },
   { type: 'spacer', label: 'Spacer' },
+  { type: 'feature-card', label: 'Feature Card' },
+  { type: 'info-box', label: 'Info Box' },
+  { type: 'status-card', label: 'Status Card' },
 ];
 
 /* ── Block content renderers ── */
-function RenderBlock({ block, onUpdate }: { block: BuilderBlock; onUpdate: (p: Record<string, any>) => void }) {
-  const { addBlockToColumn, removeBlock, updateProps } = useBuilder();
+function RenderBlock({ block, onUpdate, onSelect }: { block: BuilderBlock; onUpdate: (p: Record<string, any>) => void; onSelect?: (id: string) => void }) {
+  const { addBlockToColumn, removeBlock, updateProps, selectBlock } = useBuilder();
   const p = block.props;
+
+  const handleChildClick = (e: React.MouseEvent, childId: string) => {
+    e.stopPropagation();
+    selectBlock(childId);
+  };
 
   switch (block.type) {
     case 'text':
@@ -73,33 +81,54 @@ function RenderBlock({ block, onUpdate }: { block: BuilderBlock; onUpdate: (p: R
         </div>
       );
 
-    case 'feature-card':
+    case 'feature-card': {
+      const bullets = normalizeBullets(p.bullets || []);
       return (
-        <div className="rounded-lg border bg-card p-5">
+        <div className="rounded-lg p-5" style={{
+          backgroundColor: p.bgColor || '#ffffff',
+          border: `1px solid ${p.borderColor || '#e5e7eb'}`,
+        }}>
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-2xl">{p.icon}</span>
+            <span className="text-2xl w-10 h-10 flex items-center justify-center rounded-lg" style={{
+              backgroundColor: p.iconBgColor || '#eff6ff',
+            }}>{p.icon}</span>
             <div contentEditable suppressContentEditableWarning className="font-semibold outline-none"
+              style={{ color: p.titleColor || '#1a1a2e' }}
               onBlur={(e) => onUpdate({ title: e.currentTarget.textContent || '' })}>{p.title}</div>
           </div>
-          <div contentEditable suppressContentEditableWarning className="text-sm text-muted-foreground outline-none mb-3"
+          <div contentEditable suppressContentEditableWarning className="text-sm outline-none mb-3"
+            style={{ color: p.descColor || '#555555' }}
             onBlur={(e) => onUpdate({ description: e.currentTarget.textContent || '' })}>{p.description}</div>
-          {p.bullets?.length > 0 && (
-            <ul className="space-y-1.5">
-              {p.bullets.map((b: string, i: number) => (
-                <li key={i} className="flex items-center gap-2 text-sm">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                  <span contentEditable suppressContentEditableWarning className="outline-none flex-1"
-                    onBlur={(e) => {
-                      const bullets = [...p.bullets];
-                      bullets[i] = e.currentTarget.textContent || '';
-                      onUpdate({ bullets });
-                    }}>{b}</span>
+          {bullets.length > 0 && (
+            <ul style={{ marginTop: p.spacing || 12 }} className="space-y-2">
+              {bullets.map((b: BulletPoint, i: number) => (
+                <li key={i} className="flex items-start gap-2 text-sm">
+                  <span className="h-1.5 w-1.5 rounded-full shrink-0 mt-1.5" style={{ backgroundColor: p.bulletColor || p.accentColor || '#3b82f6' }} />
+                  <div className="flex-1">
+                    <span contentEditable suppressContentEditableWarning className="outline-none"
+                      style={{ color: p.titleColor || '#1a1a2e' }}
+                      onBlur={(e) => {
+                        const newBullets = [...bullets];
+                        newBullets[i] = { ...newBullets[i], text: e.currentTarget.textContent || '' };
+                        onUpdate({ bullets: newBullets });
+                      }}>{b.text}</span>
+                    {(b.subtext !== undefined) && (
+                      <div contentEditable suppressContentEditableWarning className="outline-none text-xs mt-0.5"
+                        style={{ color: p.descColor || '#888888' }}
+                        onBlur={(e) => {
+                          const newBullets = [...bullets];
+                          newBullets[i] = { ...newBullets[i], subtext: e.currentTarget.textContent || '' };
+                          onUpdate({ bullets: newBullets });
+                        }}>{b.subtext || 'Add subtext...'}</div>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
           )}
         </div>
       );
+    }
 
     case 'image':
       return (
@@ -172,6 +201,104 @@ function RenderBlock({ block, onUpdate }: { block: BuilderBlock; onUpdate: (p: R
         </div>
       );
 
+    case 'header': {
+      const align = p.logoAlignment || 'center';
+      return (
+        <div className="rounded-lg" style={{ backgroundColor: p.bgColor || '#ffffff', padding: p.padding || 16 }}>
+          <div style={{ textAlign: align as any }}>
+            {p.logoSrc ? (
+              <img src={p.logoSrc} alt={p.logoAlt || 'Logo'} className="inline-block" style={{ maxWidth: p.logoMaxWidth || 150 }} />
+            ) : (
+              <div className="border-2 border-dashed border-border rounded p-4 inline-block text-muted-foreground">
+                <ImageIcon className="h-6 w-6 mx-auto mb-1 opacity-40" />
+                <p className="text-xs">Add logo in properties</p>
+              </div>
+            )}
+          </div>
+          {p.showDivider && <hr className="mt-3 border-border/50" />}
+        </div>
+      );
+    }
+
+    case 'footer': {
+      const align = p.logoAlignment || 'center';
+      return (
+        <div className="rounded-lg" style={{ backgroundColor: p.bgColor || '#f8f9fa', padding: p.padding || 24 }}>
+          {p.showDivider && <hr className="mb-4 border-border/50" />}
+          {p.logoSrc && (
+            <div style={{ textAlign: align as any }} className="mb-3">
+              <img src={p.logoSrc} alt={p.logoAlt || 'Logo'} className="inline-block" style={{ maxWidth: p.logoMaxWidth || 100 }} />
+            </div>
+          )}
+          <div contentEditable suppressContentEditableWarning className="text-xs outline-none text-center mb-2"
+            style={{ color: p.textColor || '#888888' }}
+            onBlur={(e) => onUpdate({ text: e.currentTarget.textContent || '' })}>{p.text}</div>
+          {(p.links || []).length > 0 && (
+            <div className="text-center space-x-3">
+              {(p.links || []).map((link: { label: string; url: string }, i: number) => (
+                <span key={i} className="text-xs underline cursor-pointer" style={{ color: p.textColor || '#888888' }}>{link.label}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    case 'section-box': {
+      const cols = block.children || [[]];
+      const bg = p.gradient || p.bgColor || '#f8f9fa';
+      return (
+        <div className="rounded-lg" style={{
+          background: bg,
+          borderRadius: p.borderRadius || 12,
+          padding: p.padding || 24,
+          border: p.borderWidth ? `${p.borderWidth}px solid ${p.borderColor || '#e5e7eb'}` : 'none',
+        }}>
+          <div
+            className="min-h-[60px] space-y-2"
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onDrop={(e) => {
+              e.preventDefault(); e.stopPropagation();
+              const bt = e.dataTransfer.getData('builder/new-block') as BuilderBlockType;
+              if (bt && bt !== 'two-column' && bt !== 'three-column' && bt !== 'section-box') {
+                addBlockToColumn(block.id, 0, bt);
+              }
+            }}
+          >
+            {cols[0].length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-[60px] gap-2 text-muted-foreground">
+                <span className="text-xs">Drag blocks here</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full border border-dashed border-border">
+                      <Plus className="h-3.5 w-3.5" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-36 p-1" align="center">
+                    {SIMPLE_TYPES.map(t => (
+                      <button key={t.type} className="w-full text-left px-3 py-1.5 text-sm rounded hover:bg-accent transition-colors"
+                        onClick={() => addBlockToColumn(block.id, 0, t.type)}>{t.label}</button>
+                    ))}
+                  </PopoverContent>
+                </Popover>
+              </div>
+            ) : cols[0].map(child => (
+              <div key={child.id} className="relative group/child"
+                onClick={(e) => handleChildClick(e, child.id)}>
+                <div className="absolute -right-1 -top-1 opacity-0 group-hover/child:opacity-100 z-10">
+                  <Button variant="ghost" size="icon" className="h-5 w-5 bg-destructive/10 hover:bg-destructive/20"
+                    onClick={(e) => { e.stopPropagation(); removeBlock(child.id); }}>
+                    <Trash2 className="h-3 w-3 text-destructive" />
+                  </Button>
+                </div>
+                <RenderBlock block={child} onUpdate={(props) => updateProps(child.id, props)} onSelect={(id) => selectBlock(id)} />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
     case 'two-column':
     case 'three-column': {
       const colCount = block.type === 'two-column' ? 2 : 3;
@@ -209,14 +336,15 @@ function RenderBlock({ block, onUpdate }: { block: BuilderBlock; onUpdate: (p: R
                   </Popover>
                 </div>
               ) : col.map(child => (
-                <div key={child.id} className="relative group/child">
+                <div key={child.id} className="relative group/child"
+                  onClick={(e) => handleChildClick(e, child.id)}>
                   <div className="absolute -right-1 -top-1 opacity-0 group-hover/child:opacity-100 z-10">
                     <Button variant="ghost" size="icon" className="h-5 w-5 bg-destructive/10 hover:bg-destructive/20"
-                      onClick={() => removeBlock(child.id)}>
+                      onClick={(e) => { e.stopPropagation(); removeBlock(child.id); }}>
                       <Trash2 className="h-3 w-3 text-destructive" />
                     </Button>
                   </div>
-                  <RenderBlock block={child} onUpdate={(props) => updateProps(child.id, props)} />
+                  <RenderBlock block={child} onUpdate={(props) => updateProps(child.id, props)} onSelect={(id) => selectBlock(id)} />
                 </div>
               ))}
             </div>
@@ -255,7 +383,7 @@ export function BuilderCanvas() {
   return (
     <div
       className="flex-1 overflow-y-auto p-6 min-h-0"
-      style={{ backgroundColor: 'hsl(220 20% 95%)' }}
+      style={{ backgroundColor: wrapper.emailBgColor || 'hsl(220 20% 95%)' }}
       onClick={() => selectBlock(null)}
       onDragOver={(e) => e.preventDefault()}
     >
@@ -339,7 +467,7 @@ export function BuilderCanvas() {
               </div>
 
               <div className="p-1">
-                <RenderBlock block={block} onUpdate={(props) => updateProps(block.id, props)} />
+                <RenderBlock block={block} onUpdate={(props) => updateProps(block.id, props)} onSelect={(id) => selectBlock(id)} />
               </div>
             </div>
           </div>
