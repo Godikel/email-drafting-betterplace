@@ -20,6 +20,20 @@ export interface BulletPoint {
   subtext?: string;
 }
 
+export type TextContentItemType = 'heading' | 'emoji-desc' | 'pointer' | 'bullet';
+
+export interface TextContentItem {
+  id: string;
+  type: TextContentItemType;
+  text: string;
+  // heading
+  level?: 1 | 2 | 3;
+  // emoji-desc
+  emoji?: string;
+  // pointer / bullet sub-items
+  subItems?: string[];
+}
+
 export interface BuilderBlock {
   id: string;
   type: BuilderBlockType;
@@ -55,7 +69,7 @@ export const DEFAULT_WRAPPER: WrapperSettings = {
 export function createBlock(type: BuilderBlockType): BuilderBlock {
   const id = `blk_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
   const defaults: Record<BuilderBlockType, Record<string, any>> = {
-    text: { content: 'Enter your text here...', fontSize: 16, color: '#333333', alignment: 'left' },
+    text: { content: 'Enter your text here...', fontSize: 16, color: '#333333', alignment: 'left', items: [] as TextContentItem[] },
     hero: {
       title: 'Your Headline Here', subtitle: 'A compelling subtitle goes here',
       gradient: 'linear-gradient(135deg, #667eea, #764ba2)', icon: '🚀',

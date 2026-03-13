@@ -1,8 +1,68 @@
-import type { BuilderBlock, BuilderEmailState, BulletPoint } from '@/types/builder';
+import type { BuilderBlock, BuilderEmailState, BulletPoint, TextContentItem } from '@/types/builder';
 import { normalizeBullets } from '@/types/builder';
 
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function renderContentItems(items: TextContentItem[], p: Record<string, any>): string {
+  const pointerColor = p.pointerColor || '#3b82f6';
+  const bulletColor = p.bulletColor || '#6b7280';
+  const textColor = p.color || '#333333';
+  const fontSize = p.fontSize || 16;
+
+  return items.map(item => {
+    switch (item.type) {
+      case 'heading': {
+        const sizes: Record<number, number> = { 1: 24, 2: 20, 3: 16 };
+        const sz = sizes[item.level || 2];
+        return `<tr><td style="font-size:${sz}px;font-weight:700;color:${textColor};line-height:1.3;padding:4px 0;font-family:Arial,Helvetica,sans-serif;">${esc(item.text)}</td></tr>`;
+      }
+      case 'emoji-desc':
+        return `<tr><td style="padding:4px 0;">
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td style="vertical-align:top;padding-right:8px;font-size:18px;">${item.emoji || '💡'}</td>
+            <td style="font-size:${fontSize}px;color:${textColor};line-height:1.6;font-family:Arial,Helvetica,sans-serif;">${esc(item.text)}</td>
+          </tr></table>
+        </td></tr>`;
+      case 'pointer': {
+        const subHtml = (item.subItems || []).map(sub =>
+          `<tr><td style="padding:2px 0;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="vertical-align:top;padding-right:8px;padding-top:5px;"><div style="width:6px;height:6px;border-radius:3px;background:${pointerColor};opacity:0.6;"></div></td>
+              <td style="font-size:${fontSize - 2}px;color:${textColor};line-height:1.5;font-family:Arial,Helvetica,sans-serif;">${esc(sub)}</td>
+            </tr></table>
+          </td></tr>`
+        ).join('');
+        return `<tr><td style="padding:4px 0;">
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td style="vertical-align:top;padding-right:8px;padding-top:6px;"><div style="width:8px;height:8px;border-radius:4px;background:${pointerColor};"></div></td>
+            <td style="font-size:${fontSize}px;color:${textColor};line-height:1.6;font-weight:600;font-family:Arial,Helvetica,sans-serif;">${esc(item.text)}</td>
+          </tr></table>
+          ${subHtml ? `<table cellpadding="0" cellspacing="0" border="0" style="padding-left:24px;">${subHtml}</table>` : ''}
+        </td></tr>`;
+      }
+      case 'bullet': {
+        const subHtml = (item.subItems || []).map(sub =>
+          `<tr><td style="padding:2px 0;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="vertical-align:top;padding-right:8px;font-size:${fontSize - 2}px;color:${bulletColor};opacity:0.5;">–</td>
+              <td style="font-size:${fontSize - 2}px;color:${textColor};line-height:1.5;font-family:Arial,Helvetica,sans-serif;">${esc(sub)}</td>
+            </tr></table>
+          </td></tr>`
+        ).join('');
+        return `<tr><td style="padding:4px 0;">
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td style="vertical-align:top;padding-right:8px;padding-top:5px;"><div style="width:6px;height:6px;border-radius:3px;background:${bulletColor};"></div></td>
+            <td style="font-size:${fontSize}px;color:${textColor};line-height:1.6;font-family:Arial,Helvetica,sans-serif;">${esc(item.text)}</td>
+          </tr></table>
+          ${subHtml ? `<table cellpadding="0" cellspacing="0" border="0" style="padding-left:20px;">${subHtml}</table>` : ''}
+        </td></tr>`;
+      }
+      default:
+        return '';
+    }
+  }).join('');
 }
 
 function blockToHtml(block: BuilderBlock): string {
@@ -10,10 +70,13 @@ function blockToHtml(block: BuilderBlock): string {
 
   switch (block.type) {
     case 'text': {
+      const items: TextContentItem[] = p.items || [];
       const bgStyle = p.bgColor ? `background:${p.bgColor};` : '';
       const padStyle = p.padding ? `padding:${p.padding}px;` : 'padding:8px 0;';
       const brStyle = p.borderRadius ? `border-radius:${p.borderRadius}px;` : '';
-      return `<tr><td style="${bgStyle}${padStyle}${brStyle}font-size:${p.fontSize || 16}px;color:${p.color || '#333333'};line-height:1.6;text-align:${p.alignment || 'left'};font-family:Arial,Helvetica,sans-serif;">${p.content || ''}</td></tr>`;
+      const contentHtml = p.content ? `<div style="font-size:${p.fontSize || 16}px;color:${p.color || '#333333'};line-height:1.6;text-align:${p.alignment || 'left'};font-family:Arial,Helvetica,sans-serif;">${p.content}</div>` : '';
+      const itemsHtml = items.length > 0 ? `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="${p.content ? 'margin-top:12px;' : ''}">${renderContentItems(items, p)}</table>` : '';
+      return `<tr><td style="${bgStyle}${padStyle}${brStyle}text-align:${p.alignment || 'left'};">${contentHtml}${itemsHtml}</td></tr>`;
     }
 
     case 'hero': {
