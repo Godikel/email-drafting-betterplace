@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { GripVertical, Copy, Trash2, ChevronUp, ChevronDown, ImageIcon, PlayCircle, Plus } from 'lucide-react';
 import { useBuilder } from '@/contexts/BuilderContext';
-import type { BuilderBlock, BuilderBlockType, BulletPoint } from '@/types/builder';
+import type { BuilderBlock, BuilderBlockType, BulletPoint, TextContentItem } from '@/types/builder';
 import { createBlock, normalizeBullets } from '@/types/builder';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
