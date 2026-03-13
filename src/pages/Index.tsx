@@ -220,6 +220,9 @@ const Index = () => {
             <div className="flex items-center gap-3">
               <SidebarTrigger />
               <h1 className="text-base font-semibold text-foreground">Email Builder</h1>
+              <a href="/builder" className="ml-3 px-3 py-1.5 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                ✨ Try New Builder
+              </a>
             </div>
             <EmailActionBar
               onPreview={handlePreview}
