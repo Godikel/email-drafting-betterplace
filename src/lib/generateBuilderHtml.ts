@@ -184,11 +184,13 @@ function blockToHtml(block: BuilderBlock): string {
       const bgFallback = p.bgColor || '#f8f9fa';
       const border = p.borderWidth ? `border:${p.borderWidth}px solid ${p.borderColor || '#e5e7eb'};` : '';
       return `<tr><td style="padding:8px 0;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${bg};background-color:${bgFallback};border-radius:${p.borderRadius || 12}px;${border}">
+        <div style="background:${bg};background-color:${bgFallback};border-radius:${p.borderRadius || 12}px;${border}overflow:hidden;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr><td style="padding:${p.padding || 24}px;">
             <table width="100%" cellpadding="0" cellspacing="0" border="0">${inner || '<tr><td>&nbsp;</td></tr>'}</table>
           </td></tr>
         </table>
+        </div>
       </td></tr>`;
     }
 
