@@ -227,6 +227,16 @@ function FeatureCardProps() {
   );
 }
 
+const ASPECT_RATIOS = [
+  { label: 'Auto', value: 'auto' },
+  { label: 'Landscape 16:9', value: '16/9' },
+  { label: 'Landscape 4:3', value: '4/3' },
+  { label: 'Square 1:1', value: '1/1' },
+  { label: 'Portrait 3:4', value: '3/4' },
+  { label: 'Phone 9:16', value: '9/16' },
+  { label: 'Banner 3:1', value: '3/1' },
+];
+
 function ImageProps() {
   const { selectedBlock, updateProps } = useBuilder();
   if (!selectedBlock) return null;
@@ -237,6 +247,14 @@ function ImageProps() {
       <ImageUpload value={p.src || ''} onChange={(url) => up('src', url)} />
       <Field label="Alt Text"><Input value={p.alt || ''} onChange={(e) => up('alt', e.target.value)} className="h-8 text-xs" /></Field>
       <Field label="Caption"><Input value={p.caption || ''} onChange={(e) => up('caption', e.target.value)} className="h-8 text-xs" /></Field>
+      <Field label="Aspect Ratio">
+        <div className="grid grid-cols-2 gap-1">
+          {ASPECT_RATIOS.map(a => (
+            <Button key={a.value} variant={(p.aspectRatio || 'auto') === a.value ? 'default' : 'outline'} size="sm" className="h-7 text-[10px]"
+              onClick={() => up('aspectRatio', a.value)}>{a.label}</Button>
+          ))}
+        </div>
+      </Field>
       <AlignmentPicker value={p.alignment || 'center'} onChange={(v) => up('alignment', v)} />
       <SliderField label="Max Width" value={p.maxWidth || 100} onChange={(v) => up('maxWidth', v)} min={20} max={100} unit="%" />
       <SliderField label="Border Radius" value={p.borderRadius || 0} onChange={(v) => up('borderRadius', v)} min={0} max={32} />
@@ -253,6 +271,14 @@ function VideoProps() {
     <div className="space-y-4">
       <Field label="Video URL"><Input value={p.videoUrl || ''} onChange={(e) => up('videoUrl', e.target.value)} className="h-8 text-xs" placeholder="https://youtube.com/..." /></Field>
       <ImageUpload value={p.thumbnailSrc || ''} onChange={(url) => up('thumbnailSrc', url)} />
+      <Field label="Aspect Ratio">
+        <div className="grid grid-cols-2 gap-1">
+          {ASPECT_RATIOS.map(a => (
+            <Button key={a.value} variant={(p.aspectRatio || '16/9') === a.value ? 'default' : 'outline'} size="sm" className="h-7 text-[10px]"
+              onClick={() => up('aspectRatio', a.value)}>{a.label}</Button>
+          ))}
+        </div>
+      </Field>
       <Field label="Play Button Style">
         <div className="flex gap-2">
           {['circle', 'rounded'].map(s => (
