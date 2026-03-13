@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Undo2, Redo2, Eye, Save, Send, ChevronDown, ChevronUp, Upload } from 'lucide-react';
+import { ArrowLeft, Undo2, Redo2, Eye, Send, ChevronDown, ChevronUp, Trash2, FileText, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { BuilderProvider, useBuilder } from '@/contexts/BuilderContext';
@@ -9,7 +9,8 @@ import { BuilderCanvas } from '@/components/builder/BuilderCanvas';
 import { PropertiesPanel } from '@/components/builder/PropertiesPanel';
 import { generateBuilderHtml } from '@/lib/generateBuilderHtml';
 import { BUILDER_TEMPLATES } from '@/types/builder';
-import type { BuilderBlockType } from '@/types/builder';
+import type { BuilderBlockType, BuilderEmailState } from '@/types/builder';
+import { useBuilderDrafts } from '@/hooks/useBuilderDrafts';
 import { toast } from 'sonner';
 
 function BuilderInner() {
@@ -18,6 +19,17 @@ function BuilderInner() {
   const [showRecipients, setShowRecipients] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [showTemplates, setShowTemplates] = useState(!email.blocks.length);
+  const { drafts, loading: draftsLoading, deleteDraft, autosave, setActiveDraft, draftId } = useBuilderDrafts();
+  const prevEmailRef = useRef<string>('');
+
+  // Auto-save on email state changes
+  useEffect(() => {
+    const serialized = JSON.stringify(email);
+    if (serialized !== prevEmailRef.current) {
+      prevEmailRef.current = serialized;
+      autosave(email);
+    }
+  }, [email, autosave]);
 
   const up = (fields: Record<string, string>) => dispatch({ type: 'UPDATE_EMAIL', fields });
 
@@ -59,9 +71,36 @@ function BuilderInner() {
     const tpl = BUILDER_TEMPLATES[key];
     if (tpl) {
       dispatch({ type: 'LOAD', state: { ...tpl.state, blocks: tpl.state.blocks.map(b => ({ ...b, props: { ...b.props } })) } });
+      setActiveDraft(null);
       setShowTemplates(false);
       toast.success(`Loaded "${tpl.name}" template`);
     }
+  };
+
+  const loadDraft = (draft: { id: string; template_data: BuilderEmailState }) => {
+    dispatch({ type: 'LOAD', state: draft.template_data });
+    setActiveDraft(draft.id);
+    setShowTemplates(false);
+    toast.success('Draft loaded');
+  };
+
+  const handleDeleteDraft = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    await deleteDraft(id);
+  };
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diff = now.getTime() - d.getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    return d.toLocaleDateString();
   };
 
   return (
@@ -79,6 +118,11 @@ function BuilderInner() {
             placeholder="Email subject..."
             className="h-8 flex-1 max-w-md border-0 bg-transparent text-sm font-medium focus-visible:ring-1 px-2"
           />
+          {draftId && (
+            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+              <Clock className="h-3 w-3" /> Auto-saving
+            </span>
+          )}
           <div className="ml-auto flex items-center gap-1.5">
             <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!canUndo} onClick={() => dispatch({ type: 'UNDO' })} title="Undo (Ctrl+Z)">
               <Undo2 className="h-4 w-4" />
@@ -90,6 +134,9 @@ function BuilderInner() {
             <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5" onClick={() => setShowRecipients(!showRecipients)}>
               Recipients {showRecipients ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
             </Button>
+            <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5" onClick={() => setShowTemplates(true)}>
+              <FileText className="h-3.5 w-3.5" />Templates
+            </Button>
             <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={handlePreview}>
               <Eye className="h-3.5 w-3.5" />Preview
             </Button>
@@ -98,7 +145,6 @@ function BuilderInner() {
             </Button>
           </div>
         </div>
-        {/* Recipients row */}
         {showRecipients && (
           <div className="flex items-center gap-3 px-4 pb-2 pt-1">
             <div className="flex-1 flex gap-3">
@@ -110,12 +156,14 @@ function BuilderInner() {
         )}
       </header>
 
-      {/* ── Template picker overlay ── */}
+      {/* ── Template & Drafts picker overlay ── */}
       {showTemplates && (
         <div className="absolute inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-8" onClick={() => setShowTemplates(false)}>
-          <div className="bg-card rounded-xl shadow-lg border max-w-2xl w-full p-8" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card rounded-xl shadow-lg border max-w-3xl w-full p-8 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-xl font-bold text-foreground mb-1">Choose a Template</h2>
-            <p className="text-sm text-muted-foreground mb-6">Start with a pre-built template or a blank canvas.</p>
+            <p className="text-sm text-muted-foreground mb-6">Start with a template or continue from a saved draft.</p>
+
+            {/* Templates */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {Object.entries(BUILDER_TEMPLATES).map(([key, tpl]) => (
                 <button
@@ -129,21 +177,59 @@ function BuilderInner() {
                 </button>
               ))}
             </div>
+
+            {/* Drafts */}
+            {drafts.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-base font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" /> Saved Drafts
+                </h3>
+                <div className="space-y-2">
+                  {drafts.map((draft) => (
+                    <button
+                      key={draft.id}
+                      onClick={() => loadDraft(draft)}
+                      className={`w-full text-left p-3 rounded-lg border transition-all group flex items-center gap-3 ${
+                        draft.id === draftId
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border hover:border-primary/50 hover:bg-accent'
+                      }`}
+                    >
+                      <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm text-foreground truncate">
+                          {draft.name}
+                          {draft.id === draftId && (
+                            <span className="ml-2 text-[10px] text-primary font-normal">(current)</span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground">
+                          {formatDate(draft.updated_at)}
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive shrink-0"
+                        onClick={(e) => handleDeleteDraft(e, draft.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {/* ── 3-Panel Layout ── */}
       <div className="flex-1 flex min-h-0">
-        {/* Left: Block Library */}
         <div className="w-[200px] shrink-0 border-r bg-card overflow-hidden">
           <BlockLibrary onAddBlock={(type: BuilderBlockType) => addBlock(type)} />
         </div>
-
-        {/* Center: Canvas */}
         <BuilderCanvas />
-
-        {/* Right: Properties */}
         <div className="w-[300px] shrink-0 overflow-hidden">
           <PropertiesPanel />
         </div>
