@@ -82,6 +82,18 @@ function blockToHtml(block: BuilderBlock): string {
     case 'image': {
       if (!p.src) return '';
       const align = p.alignment || 'center';
+      const ar = p.aspectRatio && p.aspectRatio !== 'auto' ? p.aspectRatio : null;
+      if (ar) {
+        const [w, h] = ar.split('/').map(Number);
+        const pct = ((h / w) * 100).toFixed(2);
+        return `<tr><td style="padding:8px 0;text-align:${align};">
+          <div style="display:inline-block;max-width:${p.maxWidth || 100}%;width:${p.maxWidth || 100}%;position:relative;overflow:hidden;border-radius:${p.borderRadius || 0}px;">
+            <div style="padding-bottom:${pct}%;"></div>
+            <img src="${esc(p.src)}" alt="${esc(p.alt || '')}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;" />
+          </div>
+          ${p.caption ? `<p style="font-size:12px;color:#888;margin:8px 0 0;text-align:center;font-family:Arial,Helvetica,sans-serif;">${esc(p.caption)}</p>` : ''}
+        </td></tr>`;
+      }
       return `<tr><td style="padding:8px 0;text-align:${align};">
         <img src="${esc(p.src)}" alt="${esc(p.alt || '')}" style="max-width:${p.maxWidth || 100}%;border-radius:${p.borderRadius || 0}px;display:inline-block;" />
         ${p.caption ? `<p style="font-size:12px;color:#888;margin:8px 0 0;text-align:center;font-family:Arial,Helvetica,sans-serif;">${esc(p.caption)}</p>` : ''}
@@ -91,9 +103,13 @@ function blockToHtml(block: BuilderBlock): string {
     case 'video': {
       const thumb = p.thumbnailSrc || 'https://via.placeholder.com/680x380/333/fff?text=Video';
       const link = p.videoUrl || '#';
+      const ar = p.aspectRatio && p.aspectRatio !== 'auto' ? p.aspectRatio : '16/9';
+      const [w, h] = ar.split('/').map(Number);
+      const pct = ((h / w) * 100).toFixed(2);
       return `<tr><td style="padding:8px 0;text-align:center;">
-        <a href="${esc(link)}" target="_blank" style="display:inline-block;position:relative;">
-          <img src="${esc(thumb)}" alt="Video" style="max-width:100%;border-radius:8px;display:block;" />
+        <a href="${esc(link)}" target="_blank" style="display:inline-block;position:relative;width:100%;overflow:hidden;border-radius:8px;">
+          <div style="padding-bottom:${pct}%;"></div>
+          <img src="${esc(thumb)}" alt="Video" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;" />
         </a>
       </td></tr>`;
     }
