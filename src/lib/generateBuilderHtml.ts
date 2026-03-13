@@ -64,7 +64,8 @@ function blockToHtml(block: BuilderBlock): string {
         </td></tr>`
       ).join('');
       return `<tr><td style="padding:8px 0;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${p.borderColor || '#e5e7eb'};border-radius:8px;background:${p.bgColor || '#ffffff'};">
+        <div style="border:1px solid ${p.borderColor || '#e5e7eb'};border-radius:8px;background:${p.bgColor || '#ffffff'};overflow:hidden;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr><td style="padding:${p.spacing || 20}px;font-family:Arial,Helvetica,sans-serif;">
             <table cellpadding="0" cellspacing="0" border="0"><tr>
               <td style="vertical-align:middle;padding-right:12px;"><div style="width:40px;height:40px;border-radius:8px;background:${iconBg};text-align:center;line-height:40px;font-size:20px;">${p.icon || ''}</div></td>
@@ -74,6 +75,7 @@ function blockToHtml(block: BuilderBlock): string {
             ${bulletsHtml ? `<table cellpadding="0" cellspacing="0" border="0" width="100%">${bulletsHtml}</table>` : ''}
           </td></tr>
         </table>
+        </div>
       </td></tr>`;
     }
 
