@@ -42,13 +42,19 @@ function RenderBlock({ block, onUpdate, onSelect }: { block: BuilderBlock; onUpd
   switch (block.type) {
     case 'text':
       return (
-        <div
-          contentEditable suppressContentEditableWarning
-          className="outline-none min-h-[1.5em]"
-          style={{ fontSize: p.fontSize, color: p.color, textAlign: p.alignment, lineHeight: 1.6 }}
-          dangerouslySetInnerHTML={{ __html: p.content }}
-          onBlur={(e) => onUpdate({ content: e.currentTarget.innerHTML })}
-        />
+        <div className="rounded" style={{
+          backgroundColor: p.bgColor || 'transparent',
+          padding: p.padding || 0,
+          borderRadius: p.borderRadius || 0,
+        }}>
+          <div
+            contentEditable suppressContentEditableWarning
+            className="outline-none min-h-[1.5em]"
+            style={{ fontSize: p.fontSize, color: p.color, textAlign: p.alignment, lineHeight: 1.6 }}
+            dangerouslySetInnerHTML={{ __html: p.content }}
+            onBlur={(e) => onUpdate({ content: e.currentTarget.innerHTML })}
+          />
+        </div>
       );
 
     case 'hero':
