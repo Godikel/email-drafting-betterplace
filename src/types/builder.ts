@@ -20,6 +20,20 @@ export interface BulletPoint {
   subtext?: string;
 }
 
+export type TextContentItemType = 'heading' | 'emoji-desc' | 'pointer' | 'bullet';
+
+export interface TextContentItem {
+  id: string;
+  type: TextContentItemType;
+  text: string;
+  // heading
+  level?: 1 | 2 | 3;
+  // emoji-desc
+  emoji?: string;
+  // pointer / bullet sub-items
+  subItems?: string[];
+}
+
 export interface BuilderBlock {
   id: string;
   type: BuilderBlockType;
