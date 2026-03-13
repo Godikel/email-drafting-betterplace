@@ -116,7 +116,8 @@ function blockToHtml(block: BuilderBlock): string {
 
     case 'status-card':
       return `<tr><td style="padding:8px 0;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e5e7eb;border-left:4px solid ${p.accentColor || '#10b981'};border-radius:8px;background:${p.bgColor || '#f0fdf4'};">
+        <div style="border:1px solid #e5e7eb;border-left:4px solid ${p.accentColor || '#10b981'};border-radius:8px;background:${p.bgColor || '#f0fdf4'};overflow:hidden;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr><td style="padding:16px;">
             <table cellpadding="0" cellspacing="0" border="0"><tr>
               <td style="vertical-align:top;padding-right:12px;font-size:20px;">${p.icon || '✅'}</td>
@@ -127,6 +128,7 @@ function blockToHtml(block: BuilderBlock): string {
             </tr></table>
           </td></tr>
         </table>
+        </div>
       </td></tr>`;
 
     case 'header': {
