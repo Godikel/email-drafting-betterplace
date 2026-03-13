@@ -31,7 +31,8 @@ function blockToHtml(block: BuilderBlock): string {
 
     case 'info-box':
       return `<tr><td style="padding:8px 0;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:4px solid ${p.borderColor || '#3b82f6'};background:${p.bgColor || '#eff6ff'};border-radius:8px;">
+        <div style="border-left:4px solid ${p.borderColor || '#3b82f6'};background:${p.bgColor || '#eff6ff'};border-radius:8px;overflow:hidden;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr><td style="padding:16px;">
             <table cellpadding="0" cellspacing="0" border="0"><tr>
               <td style="vertical-align:top;padding-right:12px;font-size:20px;">${p.icon || '💡'}</td>
@@ -41,7 +42,8 @@ function blockToHtml(block: BuilderBlock): string {
               </td>
             </tr></table>
           </td></tr>
-        </table>
+          </table>
+        </div>
       </td></tr>`;
 
     case 'feature-card': {
@@ -62,7 +64,8 @@ function blockToHtml(block: BuilderBlock): string {
         </td></tr>`
       ).join('');
       return `<tr><td style="padding:8px 0;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${p.borderColor || '#e5e7eb'};border-radius:8px;background:${p.bgColor || '#ffffff'};">
+        <div style="border:1px solid ${p.borderColor || '#e5e7eb'};border-radius:8px;background:${p.bgColor || '#ffffff'};overflow:hidden;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr><td style="padding:${p.spacing || 20}px;font-family:Arial,Helvetica,sans-serif;">
             <table cellpadding="0" cellspacing="0" border="0"><tr>
               <td style="vertical-align:middle;padding-right:12px;"><div style="width:40px;height:40px;border-radius:8px;background:${iconBg};text-align:center;line-height:40px;font-size:20px;">${p.icon || ''}</div></td>
@@ -72,6 +75,7 @@ function blockToHtml(block: BuilderBlock): string {
             ${bulletsHtml ? `<table cellpadding="0" cellspacing="0" border="0" width="100%">${bulletsHtml}</table>` : ''}
           </td></tr>
         </table>
+        </div>
       </td></tr>`;
     }
 
@@ -112,7 +116,8 @@ function blockToHtml(block: BuilderBlock): string {
 
     case 'status-card':
       return `<tr><td style="padding:8px 0;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e5e7eb;border-left:4px solid ${p.accentColor || '#10b981'};border-radius:8px;background:${p.bgColor || '#f0fdf4'};">
+        <div style="border:1px solid #e5e7eb;border-left:4px solid ${p.accentColor || '#10b981'};border-radius:8px;background:${p.bgColor || '#f0fdf4'};overflow:hidden;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr><td style="padding:16px;">
             <table cellpadding="0" cellspacing="0" border="0"><tr>
               <td style="vertical-align:top;padding-right:12px;font-size:20px;">${p.icon || '✅'}</td>
@@ -123,6 +128,7 @@ function blockToHtml(block: BuilderBlock): string {
             </tr></table>
           </td></tr>
         </table>
+        </div>
       </td></tr>`;
 
     case 'header': {
@@ -178,11 +184,13 @@ function blockToHtml(block: BuilderBlock): string {
       const bgFallback = p.bgColor || '#f8f9fa';
       const border = p.borderWidth ? `border:${p.borderWidth}px solid ${p.borderColor || '#e5e7eb'};` : '';
       return `<tr><td style="padding:8px 0;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${bg};background-color:${bgFallback};border-radius:${p.borderRadius || 12}px;${border}">
+        <div style="background:${bg};background-color:${bgFallback};border-radius:${p.borderRadius || 12}px;${border}overflow:hidden;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr><td style="padding:${p.padding || 24}px;">
             <table width="100%" cellpadding="0" cellspacing="0" border="0">${inner || '<tr><td>&nbsp;</td></tr>'}</table>
           </td></tr>
         </table>
+        </div>
       </td></tr>`;
     }
 
@@ -221,7 +229,7 @@ export function generateBuilderHtml(email: BuilderEmailState): string {
   <title>${esc(email.subject || 'Email')}</title>
   <style>
     body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-    table { border-spacing: 0; border-collapse: collapse; }
+    table { border-spacing: 0; }
     img { border: 0; display: block; outline: none; text-decoration: none; }
     @media only screen and (max-width: 620px) {
       .email-wrapper { width: 100% !important; padding: 12px !important; }
