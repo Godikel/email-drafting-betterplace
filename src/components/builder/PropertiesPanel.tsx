@@ -1,14 +1,16 @@
 import { useState, useRef, useCallback } from 'react';
-import { X, Upload, Monitor, Smartphone, Plus } from 'lucide-react';
+import { X, Upload, Monitor, Smartphone, Plus, GripVertical, Heading, SmilePlus, List, ListTree } from 'lucide-react';
 import { useBuilder } from '@/contexts/BuilderContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { generateBuilderHtml } from '@/lib/generateBuilderHtml';
 import { normalizeBullets } from '@/types/builder';
+import type { TextContentItem, TextContentItemType } from '@/types/builder';
 import { toast } from 'sonner';
 
 /* ── Helpers ── */
