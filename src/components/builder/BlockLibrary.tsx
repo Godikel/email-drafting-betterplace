@@ -1,10 +1,19 @@
 import {
   Type, Layout, Info, Star, CheckCircle, ImageIcon, Play,
   MousePointerClick, Minus, MoveVertical, Columns2, Columns3,
+  Box, PanelTop, PanelBottom,
 } from 'lucide-react';
 import type { BuilderBlockType } from '@/types/builder';
 
 const categories = [
+  {
+    name: 'Structure',
+    blocks: [
+      { type: 'header' as BuilderBlockType, label: 'Header', icon: PanelTop },
+      { type: 'footer' as BuilderBlockType, label: 'Footer', icon: PanelBottom },
+      { type: 'section-box' as BuilderBlockType, label: 'Section Box', icon: Box },
+    ],
+  },
   {
     name: 'Content',
     blocks: [

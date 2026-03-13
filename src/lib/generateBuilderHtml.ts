@@ -1,4 +1,5 @@
-import type { BuilderBlock, BuilderEmailState } from '@/types/builder';
+import type { BuilderBlock, BuilderEmailState, BulletPoint } from '@/types/builder';
+import { normalizeBullets } from '@/types/builder';
 
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -15,7 +16,6 @@ function blockToHtml(block: BuilderBlock): string {
       const cta = p.ctaText
         ? `<a href="${esc(p.ctaLink || '#')}" style="display:inline-block;padding:14px 32px;background:${p.ctaBgColor || '#ffffff'};color:${p.ctaTextColor || '#667eea'};border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;font-family:Arial,Helvetica,sans-serif;">${esc(p.ctaText)}</a>`
         : '';
-      // Gradient fallback: use first color as bg, add background for capable clients
       const bgFallback = p.gradient?.match(/#[0-9a-fA-F]{6}/)?.[0] || '#667eea';
       return `<tr><td style="background:${p.gradient || bgFallback};background-color:${bgFallback};padding:48px 32px;text-align:center;border-radius:8px;">
         ${p.icon ? `<div style="font-size:48px;margin-bottom:16px;">${p.icon}</div>` : ''}
@@ -41,18 +41,31 @@ function blockToHtml(block: BuilderBlock): string {
       </td></tr>`;
 
     case 'feature-card': {
-      const bulletsHtml = (p.bullets || []).map((b: string) =>
-        `<tr><td style="padding:3px 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#555;">
-          <span style="color:${p.icon ? '#3b82f6' : '#333'};margin-right:8px;">•</span>${esc(b)}
+      const bullets = normalizeBullets(p.bullets || []);
+      const bulletColor = p.bulletColor || p.accentColor || '#3b82f6';
+      const titleColor = p.titleColor || '#1a1a2e';
+      const descColor = p.descColor || '#555555';
+      const iconBg = p.iconBgColor || '#eff6ff';
+      const bulletsHtml = bullets.map((b: BulletPoint) =>
+        `<tr><td style="padding:${(p.spacing || 20) / 4}px 0;font-family:Arial,Helvetica,sans-serif;">
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td style="vertical-align:top;padding-right:8px;padding-top:4px;"><div style="width:6px;height:6px;border-radius:3px;background:${bulletColor};"></div></td>
+            <td>
+              <div style="font-size:13px;color:${titleColor};">${esc(b.text)}</div>
+              ${b.subtext ? `<div style="font-size:11px;color:${descColor};margin-top:2px;">${esc(b.subtext)}</div>` : ''}
+            </td>
+          </tr></table>
         </td></tr>`
       ).join('');
       return `<tr><td style="padding:8px 0;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e5e7eb;border-radius:8px;">
-          <tr><td style="padding:20px;font-family:Arial,Helvetica,sans-serif;">
-            <div style="font-size:24px;margin-bottom:8px;">${p.icon || ''}</div>
-            <div style="font-weight:600;font-size:16px;color:#1a1a2e;margin-bottom:6px;">${esc(p.title || '')}</div>
-            <div style="font-size:14px;color:#555;margin-bottom:12px;">${esc(p.description || '')}</div>
-            ${bulletsHtml ? `<table cellpadding="0" cellspacing="0" border="0">${bulletsHtml}</table>` : ''}
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${p.borderColor || '#e5e7eb'};border-radius:8px;background:${p.bgColor || '#ffffff'};">
+          <tr><td style="padding:${p.spacing || 20}px;font-family:Arial,Helvetica,sans-serif;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="vertical-align:middle;padding-right:12px;"><div style="width:40px;height:40px;border-radius:8px;background:${iconBg};text-align:center;line-height:40px;font-size:20px;">${p.icon || ''}</div></td>
+              <td style="vertical-align:middle;font-weight:600;font-size:16px;color:${titleColor};">${esc(p.title || '')}</td>
+            </tr></table>
+            <div style="font-size:14px;color:${descColor};margin:12px 0;">${esc(p.description || '')}</div>
+            ${bulletsHtml ? `<table cellpadding="0" cellspacing="0" border="0" width="100%">${bulletsHtml}</table>` : ''}
           </td></tr>
         </table>
       </td></tr>`;
@@ -95,7 +108,7 @@ function blockToHtml(block: BuilderBlock): string {
 
     case 'status-card':
       return `<tr><td style="padding:8px 0;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:4px solid ${p.accentColor || '#10b981'};border:1px solid #e5e7eb;border-left:4px solid ${p.accentColor || '#10b981'};border-radius:8px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e5e7eb;border-left:4px solid ${p.accentColor || '#10b981'};border-radius:8px;">
           <tr><td style="padding:16px;">
             <table cellpadding="0" cellspacing="0" border="0"><tr>
               <td style="vertical-align:top;padding-right:12px;font-size:20px;">${p.icon || '✅'}</td>
@@ -107,6 +120,49 @@ function blockToHtml(block: BuilderBlock): string {
           </td></tr>
         </table>
       </td></tr>`;
+
+    case 'header': {
+      const align = p.logoAlignment || 'center';
+      const logo = p.logoSrc
+        ? `<img src="${esc(p.logoSrc)}" alt="${esc(p.logoAlt || 'Logo')}" style="max-width:${p.logoMaxWidth || 150}px;display:inline-block;" />`
+        : '';
+      const divider = p.showDivider ? `<hr style="border:none;border-top:1px solid #e5e7eb;margin:${p.padding || 16}px 0 0;" />` : '';
+      return `<tr><td style="background:${p.bgColor || '#ffffff'};padding:${p.padding || 16}px;text-align:${align};">
+        ${logo}${divider}
+      </td></tr>`;
+    }
+
+    case 'footer': {
+      const align = p.logoAlignment || 'center';
+      const textColor = p.textColor || '#888888';
+      const logo = p.logoSrc
+        ? `<div style="text-align:${align};margin-bottom:12px;"><img src="${esc(p.logoSrc)}" alt="${esc(p.logoAlt || 'Logo')}" style="max-width:${p.logoMaxWidth || 100}px;display:inline-block;" /></div>`
+        : '';
+      const divider = p.showDivider ? `<hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 16px;" />` : '';
+      const linksHtml = (p.links || []).map((l: { label: string; url: string }) =>
+        `<a href="${esc(l.url || '#')}" style="color:${textColor};text-decoration:underline;font-size:12px;margin:0 8px;">${esc(l.label)}</a>`
+      ).join('');
+      return `<tr><td style="background:${p.bgColor || '#f8f9fa'};padding:${p.padding || 24}px;text-align:center;font-family:Arial,Helvetica,sans-serif;">
+        ${divider}${logo}
+        <div style="font-size:12px;color:${textColor};margin-bottom:8px;">${esc(p.text || '')}</div>
+        ${linksHtml ? `<div>${linksHtml}</div>` : ''}
+      </td></tr>`;
+    }
+
+    case 'section-box': {
+      const cols = block.children || [[]];
+      const inner = cols[0].map(b => blockToHtml(b)).join('');
+      const bg = p.gradient || p.bgColor || '#f8f9fa';
+      const bgFallback = p.bgColor || '#f8f9fa';
+      const border = p.borderWidth ? `border:${p.borderWidth}px solid ${p.borderColor || '#e5e7eb'};` : '';
+      return `<tr><td style="padding:8px 0;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${bg};background-color:${bgFallback};border-radius:${p.borderRadius || 12}px;${border}">
+          <tr><td style="padding:${p.padding || 24}px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">${inner || '<tr><td>&nbsp;</td></tr>'}</table>
+          </td></tr>
+        </table>
+      </td></tr>`;
+    }
 
     case 'two-column':
     case 'three-column': {
@@ -131,6 +187,7 @@ function blockToHtml(block: BuilderBlock): string {
 
 export function generateBuilderHtml(email: BuilderEmailState): string {
   const w = email.wrapper;
+  const emailBg = w.emailBgColor || '#f0f0f5';
   const blocksHtml = email.blocks.map(b => blockToHtml(b)).join('\n');
 
   return `<!DOCTYPE html>
@@ -150,8 +207,8 @@ export function generateBuilderHtml(email: BuilderEmailState): string {
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:#f0f0f5;font-family:Arial,Helvetica,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f0f5;">
+<body style="margin:0;padding:0;background:${emailBg};font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${emailBg};">
     <tr><td align="center" style="padding:24px 16px;">
       <table class="email-wrapper" cellpadding="0" cellspacing="0" border="0" style="max-width:${w.maxWidth}px;width:100%;background:${w.bgColor};border-radius:${w.borderRadius}px;overflow:hidden;">
         <tr><td style="padding:${w.padding}px;">

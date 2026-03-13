@@ -10,7 +10,15 @@ export type BuilderBlockType =
   | 'button'
   | 'status-card'
   | 'two-column'
-  | 'three-column';
+  | 'three-column'
+  | 'section-box'
+  | 'header'
+  | 'footer';
+
+export interface BulletPoint {
+  text: string;
+  subtext?: string;
+}
 
 export interface BuilderBlock {
   id: string;
@@ -24,6 +32,7 @@ export interface WrapperSettings {
   bgColor: string;
   padding: number;
   borderRadius: number;
+  emailBgColor: string;
 }
 
 export interface BuilderEmailState {
@@ -40,6 +49,7 @@ export const DEFAULT_WRAPPER: WrapperSettings = {
   bgColor: '#ffffff',
   padding: 24,
   borderRadius: 8,
+  emailBgColor: '#f0f0f5',
 };
 
 export function createBlock(type: BuilderBlockType): BuilderBlock {
@@ -52,7 +62,14 @@ export function createBlock(type: BuilderBlockType): BuilderBlock {
       ctaText: 'Get Started', ctaLink: '#', ctaBgColor: '#ffffff', ctaTextColor: '#667eea',
     },
     'info-box': { icon: '💡', title: 'Did you know?', description: 'Add important information here.', borderColor: '#3b82f6', bgColor: '#eff6ff' },
-    'feature-card': { icon: '⚡', title: 'Feature Name', description: 'Describe this feature.', bullets: ['Point one', 'Point two'], columns: 1 },
+    'feature-card': {
+      icon: '⚡', title: 'Feature Name', description: 'Describe this feature.',
+      bullets: [{ text: 'Point one', subtext: '' }, { text: 'Point two', subtext: '' }],
+      columns: 1,
+      bgColor: '#ffffff', borderColor: '#e5e7eb', accentColor: '#3b82f6',
+      iconBgColor: '#eff6ff', titleColor: '#1a1a2e', descColor: '#555555',
+      bulletColor: '#3b82f6', spacing: 20,
+    },
     image: { src: '', alt: '', alignment: 'center', maxWidth: 100, borderRadius: 8, caption: '' },
     video: { videoUrl: '', thumbnailSrc: '', playButtonStyle: 'circle' },
     divider: { thickness: 1, color: '#e5e7eb', margin: 16 },
@@ -61,12 +78,31 @@ export function createBlock(type: BuilderBlockType): BuilderBlock {
     'status-card': { icon: '✅', title: 'Status Update', description: 'Everything is running smoothly.', accentColor: '#10b981' },
     'two-column': {},
     'three-column': {},
+    'section-box': {
+      bgColor: '#f8f9fa', gradient: '', borderRadius: 12, padding: 24, borderColor: '', borderWidth: 0,
+    },
+    'header': {
+      logoSrc: '', logoAlt: 'Logo', logoAlignment: 'center', logoMaxWidth: 150,
+      bgColor: '#ffffff', padding: 16, showDivider: true,
+    },
+    'footer': {
+      logoSrc: '', logoAlt: 'Logo', logoAlignment: 'center', logoMaxWidth: 100,
+      text: '© 2026 Your Company. All rights reserved.',
+      links: [{ label: 'Privacy Policy', url: '#' }, { label: 'Unsubscribe', url: '#' }],
+      bgColor: '#f8f9fa', textColor: '#888888', padding: 24, showDivider: true,
+    },
   };
 
   const block: BuilderBlock = { id, type, props: { ...defaults[type] } };
   if (type === 'two-column') block.children = [[], []];
   if (type === 'three-column') block.children = [[], [], []];
+  if (type === 'section-box') block.children = [[]];
   return block;
+}
+
+// Normalize legacy string bullets to BulletPoint objects
+export function normalizeBullets(bullets: any[]): BulletPoint[] {
+  return (bullets || []).map(b => typeof b === 'string' ? { text: b, subtext: '' } : b);
 }
 
 export const BUILDER_TEMPLATES: Record<string, { name: string; description: string; state: BuilderEmailState }> = {
@@ -84,7 +120,7 @@ export const BUILDER_TEMPLATES: Record<string, { name: string; description: stri
       blocks: [
         { id: 't1', type: 'hero', props: { title: 'Product Update', subtitle: "See what's new this month", gradient: 'linear-gradient(135deg, #667eea, #764ba2)', icon: '🚀', ctaText: 'Learn More', ctaLink: '#', ctaBgColor: '#ffffff', ctaTextColor: '#667eea' } },
         { id: 't2', type: 'text', props: { content: "Hi there! We've been working hard to bring you some amazing new features. Here's what's new:", fontSize: 16, color: '#333333', alignment: 'left' } },
-        { id: 't3', type: 'feature-card', props: { icon: '⚡', title: 'Lightning Fast', description: 'Our new engine is 3x faster.', bullets: ['Optimized rendering', 'Smart caching', 'Lazy loading'], columns: 1 } },
+        { id: 't3', type: 'feature-card', props: { icon: '⚡', title: 'Lightning Fast', description: 'Our new engine is 3x faster.', bullets: [{ text: 'Optimized rendering', subtext: '' }, { text: 'Smart caching', subtext: '' }, { text: 'Lazy loading', subtext: '' }], columns: 1, bgColor: '#ffffff', borderColor: '#e5e7eb', accentColor: '#3b82f6', iconBgColor: '#eff6ff', titleColor: '#1a1a2e', descColor: '#555555', bulletColor: '#3b82f6', spacing: 20 } },
         { id: 't4', type: 'divider', props: { thickness: 1, color: '#e5e7eb', margin: 16 } },
         { id: 't5', type: 'button', props: { label: 'Try It Now', link: '#', bgColor: '#667eea', textColor: '#ffffff', borderRadius: 6, alignment: 'center', fullWidth: false } },
       ],
@@ -115,7 +151,7 @@ export const BUILDER_TEMPLATES: Record<string, { name: string; description: stri
         { id: 'p1', type: 'hero', props: { title: 'Partner Update', subtitle: 'Monthly progress report', gradient: 'linear-gradient(135deg, #4facfe, #00f2fe)', icon: '🤝', ctaText: 'View Dashboard', ctaLink: '#', ctaBgColor: '#ffffff', ctaTextColor: '#4facfe' } },
         { id: 'p2', type: 'info-box', props: { icon: '📊', title: 'Key Metrics', description: 'Revenue up 25% MoM. User engagement increased by 40%.', borderColor: '#4facfe', bgColor: '#f0f9ff' } },
         { id: 'p3', type: 'text', props: { content: "Dear Partners, here's our monthly progress update.", fontSize: 16, color: '#333333', alignment: 'left' } },
-        { id: 'p4', type: 'feature-card', props: { icon: '📈', title: 'Growth Highlights', description: 'Key achievements this month.', bullets: ['25% revenue growth', '10K new users', '99.9% uptime'], columns: 1 } },
+        { id: 'p4', type: 'feature-card', props: { icon: '📈', title: 'Growth Highlights', description: 'Key achievements this month.', bullets: [{ text: '25% revenue growth', subtext: '' }, { text: '10K new users', subtext: '' }, { text: '99.9% uptime', subtext: '' }], columns: 1, bgColor: '#ffffff', borderColor: '#e5e7eb', accentColor: '#3b82f6', iconBgColor: '#eff6ff', titleColor: '#1a1a2e', descColor: '#555555', bulletColor: '#3b82f6', spacing: 20 } },
         { id: 'p5', type: 'button', props: { label: 'Full Report', link: '#', bgColor: '#4facfe', textColor: '#ffffff', borderRadius: 6, alignment: 'center', fullWidth: false } },
       ],
     },
