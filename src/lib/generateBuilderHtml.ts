@@ -221,7 +221,7 @@ export function generateBuilderHtml(email: BuilderEmailState): string {
   <title>${esc(email.subject || 'Email')}</title>
   <style>
     body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-    table { border-spacing: 0; border-collapse: collapse; }
+    table { border-spacing: 0; }
     img { border: 0; display: block; outline: none; text-decoration: none; }
     @media only screen and (max-width: 620px) {
       .email-wrapper { width: 100% !important; padding: 12px !important; }
