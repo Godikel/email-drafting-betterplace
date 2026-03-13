@@ -271,6 +271,14 @@ function VideoProps() {
     <div className="space-y-4">
       <Field label="Video URL"><Input value={p.videoUrl || ''} onChange={(e) => up('videoUrl', e.target.value)} className="h-8 text-xs" placeholder="https://youtube.com/..." /></Field>
       <ImageUpload value={p.thumbnailSrc || ''} onChange={(url) => up('thumbnailSrc', url)} />
+      <Field label="Aspect Ratio">
+        <div className="grid grid-cols-2 gap-1">
+          {ASPECT_RATIOS.map(a => (
+            <Button key={a.value} variant={(p.aspectRatio || '16/9') === a.value ? 'default' : 'outline'} size="sm" className="h-7 text-[10px]"
+              onClick={() => up('aspectRatio', a.value)}>{a.label}</Button>
+          ))}
+        </div>
+      </Field>
       <Field label="Play Button Style">
         <div className="flex gap-2">
           {['circle', 'rounded'].map(s => (
