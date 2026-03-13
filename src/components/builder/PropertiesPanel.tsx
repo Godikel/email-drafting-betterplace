@@ -109,18 +109,154 @@ function ImageUpload({ value, onChange }: { value: string; onChange: (url: strin
 }
 
 /* ── Per-block property editors ── */
+function genItemId() {
+  return `ci_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+}
+
+const CONTENT_ITEM_TYPES: { type: TextContentItemType; label: string; icon: React.ReactNode }[] = [
+  { type: 'heading', label: 'Heading', icon: <Heading className="h-3.5 w-3.5" /> },
+  { type: 'emoji-desc', label: 'Emoji Description', icon: <SmilePlus className="h-3.5 w-3.5" /> },
+  { type: 'pointer', label: 'Pointer', icon: <ListTree className="h-3.5 w-3.5" /> },
+  { type: 'bullet', label: 'Bullet', icon: <List className="h-3.5 w-3.5" /> },
+];
+
 function TextProps() {
   const { selectedBlock, updateProps } = useBuilder();
   if (!selectedBlock) return null;
   const p = selectedBlock.props;
+  const items: TextContentItem[] = p.items || [];
+  const up = (k: string, v: any) => updateProps(selectedBlock.id, { [k]: v });
+
+  const addItem = (type: TextContentItemType) => {
+    const newItem: TextContentItem = {
+      id: genItemId(),
+      type,
+      text: type === 'heading' ? 'Heading Text' : type === 'emoji-desc' ? 'Description text' : 'Item text',
+      ...(type === 'heading' ? { level: 2 as const } : {}),
+      ...(type === 'emoji-desc' ? { emoji: '💡' } : {}),
+      ...(type === 'pointer' || type === 'bullet' ? { subItems: [] } : {}),
+    };
+    up('items', [...items, newItem]);
+  };
+
+  const updateItem = (index: number, partial: Partial<TextContentItem>) => {
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], ...partial };
+    up('items', newItems);
+  };
+
+  const removeItem = (index: number) => {
+    up('items', items.filter((_, i) => i !== index));
+  };
+
+  const addSubItem = (index: number) => {
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], subItems: [...(newItems[index].subItems || []), ''] };
+    up('items', newItems);
+  };
+
+  const updateSubItem = (itemIndex: number, subIndex: number, value: string) => {
+    const newItems = [...items];
+    const subs = [...(newItems[itemIndex].subItems || [])];
+    subs[subIndex] = value;
+    newItems[itemIndex] = { ...newItems[itemIndex], subItems: subs };
+    up('items', newItems);
+  };
+
+  const removeSubItem = (itemIndex: number, subIndex: number) => {
+    const newItems = [...items];
+    const subs = (newItems[itemIndex].subItems || []).filter((_, i) => i !== subIndex);
+    newItems[itemIndex] = { ...newItems[itemIndex], subItems: subs };
+    up('items', newItems);
+  };
+
   return (
     <div className="space-y-4">
-      <SliderField label="Font Size" value={p.fontSize || 16} onChange={(v) => updateProps(selectedBlock.id, { fontSize: v })} min={10} max={48} />
-      <ColorField label="Text Color" value={p.color || '#333333'} onChange={(v) => updateProps(selectedBlock.id, { color: v })} />
-      <ColorField label="Background" value={p.bgColor || ''} onChange={(v) => updateProps(selectedBlock.id, { bgColor: v })} />
-      <AlignmentPicker value={p.alignment || 'left'} onChange={(v) => updateProps(selectedBlock.id, { alignment: v })} />
-      <SliderField label="Padding" value={p.padding || 0} onChange={(v) => updateProps(selectedBlock.id, { padding: v })} min={0} max={48} />
-      <SliderField label="Border Radius" value={p.borderRadius || 0} onChange={(v) => updateProps(selectedBlock.id, { borderRadius: v })} min={0} max={32} />
+      <Field label="Plain Text Content">
+        <Textarea
+          value={p.content || ''}
+          onChange={(e) => up('content', e.target.value)}
+          placeholder="Enter text or use structured items below..."
+          className="min-h-[60px] text-xs"
+        />
+      </Field>
+      <SliderField label="Font Size" value={p.fontSize || 16} onChange={(v) => up('fontSize', v)} min={10} max={48} />
+      <ColorField label="Text Color" value={p.color || '#333333'} onChange={(v) => up('color', v)} />
+      <ColorField label="Background" value={p.bgColor || ''} onChange={(v) => up('bgColor', v)} />
+      <AlignmentPicker value={p.alignment || 'left'} onChange={(v) => up('alignment', v)} />
+      <SliderField label="Padding" value={p.padding || 0} onChange={(v) => up('padding', v)} min={0} max={48} />
+      <SliderField label="Border Radius" value={p.borderRadius || 0} onChange={(v) => up('borderRadius', v)} min={0} max={32} />
+      <ColorField label="Pointer Color" value={p.pointerColor || '#3b82f6'} onChange={(v) => up('pointerColor', v)} />
+      <ColorField label="Bullet Color" value={p.bulletColor || '#6b7280'} onChange={(v) => up('bulletColor', v)} />
+
+      {/* Structured Content Items */}
+      <div className="border-t pt-3">
+        <Label className="text-xs font-semibold text-foreground">Content Items</Label>
+        <p className="text-[10px] text-muted-foreground mb-2">Add headings, emoji descriptions, pointers and bullets below the text.</p>
+        <div className="space-y-2 mt-2">
+          {items.map((item, i) => (
+            <div key={item.id} className="border rounded-md p-2 space-y-1.5 bg-muted/30">
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{item.type}</span>
+                <div className="flex-1" />
+                <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive shrink-0" onClick={() => removeItem(i)}>
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+
+              {item.type === 'heading' && (
+                <>
+                  <Input value={item.text} className="h-7 text-xs" placeholder="Heading text"
+                    onChange={(e) => updateItem(i, { text: e.target.value })} />
+                  <div className="flex gap-1">
+                    {([1, 2, 3] as const).map(l => (
+                      <Button key={l} variant={item.level === l ? 'default' : 'outline'} size="sm" className="flex-1 h-6 text-[10px]"
+                        onClick={() => updateItem(i, { level: l })}>H{l}</Button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {item.type === 'emoji-desc' && (
+                <div className="flex gap-1.5">
+                  <Input value={item.emoji || ''} className="h-7 text-xs w-12 text-center" placeholder="😀"
+                    onChange={(e) => updateItem(i, { emoji: e.target.value })} />
+                  <Input value={item.text} className="h-7 text-xs flex-1" placeholder="Description"
+                    onChange={(e) => updateItem(i, { text: e.target.value })} />
+                </div>
+              )}
+
+              {(item.type === 'pointer' || item.type === 'bullet') && (
+                <>
+                  <Input value={item.text} className="h-7 text-xs" placeholder={item.type === 'pointer' ? 'Pointer text' : 'Bullet text'}
+                    onChange={(e) => updateItem(i, { text: e.target.value })} />
+                  {/* Sub-items */}
+                  <div className="pl-4 space-y-1">
+                    {(item.subItems || []).map((sub, si) => (
+                      <div key={si} className="flex gap-1">
+                        <Input value={sub} className="h-6 text-[11px] flex-1" placeholder="Sub-item text"
+                          onChange={(e) => updateSubItem(i, si, e.target.value)} />
+                        <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive shrink-0"
+                          onClick={() => removeSubItem(i, si)}><X className="h-2.5 w-2.5" /></Button>
+                      </div>
+                    ))}
+                    <Button variant="ghost" size="sm" className="h-6 text-[10px] w-full" onClick={() => addSubItem(i)}>
+                      <Plus className="h-2.5 w-2.5 mr-0.5" />Add sub-{item.type === 'pointer' ? 'pointer' : 'bullet'}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-1 mt-2">
+          {CONTENT_ITEM_TYPES.map(t => (
+            <Button key={t.type} variant="outline" size="sm" className="h-7 text-[10px] gap-1" onClick={() => addItem(t.type)}>
+              {t.icon}{t.label}
+            </Button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
