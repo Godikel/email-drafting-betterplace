@@ -31,7 +31,8 @@ function blockToHtml(block: BuilderBlock): string {
 
     case 'info-box':
       return `<tr><td style="padding:8px 0;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:4px solid ${p.borderColor || '#3b82f6'};background:${p.bgColor || '#eff6ff'};border-radius:8px;">
+        <div style="border-left:4px solid ${p.borderColor || '#3b82f6'};background:${p.bgColor || '#eff6ff'};border-radius:8px;overflow:hidden;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr><td style="padding:16px;">
             <table cellpadding="0" cellspacing="0" border="0"><tr>
               <td style="vertical-align:top;padding-right:12px;font-size:20px;">${p.icon || '💡'}</td>
@@ -41,7 +42,8 @@ function blockToHtml(block: BuilderBlock): string {
               </td>
             </tr></table>
           </td></tr>
-        </table>
+          </table>
+        </div>
       </td></tr>`;
 
     case 'feature-card': {
