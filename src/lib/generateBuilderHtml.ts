@@ -9,8 +9,12 @@ function blockToHtml(block: BuilderBlock): string {
   const p = block.props;
 
   switch (block.type) {
-    case 'text':
-      return `<tr><td style="padding:8px 0;font-size:${p.fontSize || 16}px;color:${p.color || '#333333'};line-height:1.6;text-align:${p.alignment || 'left'};font-family:Arial,Helvetica,sans-serif;">${p.content || ''}</td></tr>`;
+    case 'text': {
+      const bgStyle = p.bgColor ? `background:${p.bgColor};` : '';
+      const padStyle = p.padding ? `padding:${p.padding}px;` : 'padding:8px 0;';
+      const brStyle = p.borderRadius ? `border-radius:${p.borderRadius}px;` : '';
+      return `<tr><td style="${bgStyle}${padStyle}${brStyle}font-size:${p.fontSize || 16}px;color:${p.color || '#333333'};line-height:1.6;text-align:${p.alignment || 'left'};font-family:Arial,Helvetica,sans-serif;">${p.content || ''}</td></tr>`;
+    }
 
     case 'hero': {
       const cta = p.ctaText
