@@ -136,13 +136,16 @@ function RenderBlock({ block, onUpdate, onSelect }: { block: BuilderBlock; onUpd
       );
     }
 
-    case 'image':
+    case 'image': {
+      const ar = p.aspectRatio && p.aspectRatio !== 'auto' ? p.aspectRatio : undefined;
       return (
         <div style={{ textAlign: p.alignment as any }}>
           {p.src ? (
-            <img src={p.src} alt={p.alt} className="inline-block" style={{ maxWidth: `${p.maxWidth}%`, borderRadius: p.borderRadius }} />
+            <div className="inline-block overflow-hidden" style={{ maxWidth: `${p.maxWidth}%`, borderRadius: p.borderRadius, aspectRatio: ar, width: ar ? `${p.maxWidth}%` : undefined }}>
+              <img src={p.src} alt={p.alt} className="block w-full h-full" style={{ objectFit: 'cover' }} />
+            </div>
           ) : (
-            <div className="border-2 border-dashed border-border rounded-lg p-8 text-center text-muted-foreground">
+            <div className="border-2 border-dashed border-border rounded-lg p-8 text-center text-muted-foreground" style={{ aspectRatio: ar }}>
               <ImageIcon className="h-8 w-8 mx-auto mb-2 opacity-40" />
               <p className="text-sm">Add an image via the properties panel</p>
             </div>
@@ -150,14 +153,16 @@ function RenderBlock({ block, onUpdate, onSelect }: { block: BuilderBlock; onUpd
           {p.caption && <p className="text-xs text-muted-foreground mt-2 text-center">{p.caption}</p>}
         </div>
       );
+    }
 
-    case 'video':
+    case 'video': {
+      const ar = p.aspectRatio || '16/9';
       return (
-        <div className="relative rounded-lg overflow-hidden bg-muted text-center">
+        <div className="relative rounded-lg overflow-hidden bg-muted text-center" style={{ aspectRatio: ar !== 'auto' ? ar : '16/9' }}>
           {p.thumbnailSrc ? (
-            <img src={p.thumbnailSrc} alt="Video thumbnail" className="w-full" />
+            <img src={p.thumbnailSrc} alt="Video thumbnail" className="w-full h-full object-cover block" />
           ) : (
-            <div className="py-12 text-muted-foreground">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
               <div className="text-4xl mb-2">🎬</div>
               <p className="text-sm">Add video details via properties panel</p>
             </div>
@@ -167,6 +172,7 @@ function RenderBlock({ block, onUpdate, onSelect }: { block: BuilderBlock; onUpd
           </div>
         </div>
       );
+    }
 
     case 'divider':
       return <hr style={{ border: 'none', borderTop: `${p.thickness}px solid ${p.color}`, margin: `${p.margin}px 0` }} />;
