@@ -115,7 +115,10 @@ function TextProps() {
     <div className="space-y-4">
       <SliderField label="Font Size" value={p.fontSize || 16} onChange={(v) => updateProps(selectedBlock.id, { fontSize: v })} min={10} max={48} />
       <ColorField label="Text Color" value={p.color || '#333333'} onChange={(v) => updateProps(selectedBlock.id, { color: v })} />
+      <ColorField label="Background" value={p.bgColor || ''} onChange={(v) => updateProps(selectedBlock.id, { bgColor: v })} />
       <AlignmentPicker value={p.alignment || 'left'} onChange={(v) => updateProps(selectedBlock.id, { alignment: v })} />
+      <SliderField label="Padding" value={p.padding || 0} onChange={(v) => updateProps(selectedBlock.id, { padding: v })} min={0} max={48} />
+      <SliderField label="Border Radius" value={p.borderRadius || 0} onChange={(v) => updateProps(selectedBlock.id, { borderRadius: v })} min={0} max={32} />
     </div>
   );
 }
@@ -319,6 +322,9 @@ function StatusCardProps() {
       <Field label="Title"><Input value={p.title || ''} onChange={(e) => up('title', e.target.value)} className="h-8 text-xs" /></Field>
       <Field label="Description"><Input value={p.description || ''} onChange={(e) => up('description', e.target.value)} className="h-8 text-xs" /></Field>
       <ColorField label="Accent Color" value={p.accentColor || '#10b981'} onChange={(v) => up('accentColor', v)} />
+      <ColorField label="Background" value={p.bgColor || '#f0fdf4'} onChange={(v) => up('bgColor', v)} />
+      <ColorField label="Title Color" value={p.titleColor || '#1a1a2e'} onChange={(v) => up('titleColor', v)} />
+      <ColorField label="Description Color" value={p.descColor || '#555555'} onChange={(v) => up('descColor', v)} />
     </div>
   );
 }

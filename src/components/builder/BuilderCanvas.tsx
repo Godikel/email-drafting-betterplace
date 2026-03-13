@@ -42,13 +42,19 @@ function RenderBlock({ block, onUpdate, onSelect }: { block: BuilderBlock; onUpd
   switch (block.type) {
     case 'text':
       return (
-        <div
-          contentEditable suppressContentEditableWarning
-          className="outline-none min-h-[1.5em]"
-          style={{ fontSize: p.fontSize, color: p.color, textAlign: p.alignment, lineHeight: 1.6 }}
-          dangerouslySetInnerHTML={{ __html: p.content }}
-          onBlur={(e) => onUpdate({ content: e.currentTarget.innerHTML })}
-        />
+        <div className="rounded" style={{
+          backgroundColor: p.bgColor || 'transparent',
+          padding: p.padding || 0,
+          borderRadius: p.borderRadius || 0,
+        }}>
+          <div
+            contentEditable suppressContentEditableWarning
+            className="outline-none min-h-[1.5em]"
+            style={{ fontSize: p.fontSize, color: p.color, textAlign: p.alignment, lineHeight: 1.6 }}
+            dangerouslySetInnerHTML={{ __html: p.content }}
+            onBlur={(e) => onUpdate({ content: e.currentTarget.innerHTML })}
+          />
+        </div>
       );
 
     case 'hero':
@@ -188,13 +194,18 @@ function RenderBlock({ block, onUpdate, onSelect }: { block: BuilderBlock; onUpd
 
     case 'status-card':
       return (
-        <div className="rounded-lg border p-4" style={{ borderLeftWidth: 4, borderLeftColor: p.accentColor }}>
+        <div className="rounded-lg border p-4" style={{
+          borderLeftWidth: 4, borderLeftColor: p.accentColor,
+          backgroundColor: p.bgColor || '#f0fdf4',
+        }}>
           <div className="flex items-center gap-3">
             <span className="text-xl">{p.icon}</span>
             <div>
               <div contentEditable suppressContentEditableWarning className="font-semibold outline-none"
+                style={{ color: p.titleColor || '#1a1a2e' }}
                 onBlur={(e) => onUpdate({ title: e.currentTarget.textContent || '' })}>{p.title}</div>
-              <div contentEditable suppressContentEditableWarning className="text-sm text-muted-foreground outline-none"
+              <div contentEditable suppressContentEditableWarning className="text-sm outline-none"
+                style={{ color: p.descColor || '#555555' }}
                 onBlur={(e) => onUpdate({ description: e.currentTarget.textContent || '' })}>{p.description}</div>
             </div>
           </div>
