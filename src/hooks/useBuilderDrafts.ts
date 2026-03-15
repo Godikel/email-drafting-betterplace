@@ -50,7 +50,7 @@ export function useBuilderDrafts() {
     } else {
       const { data } = await supabase
         .from("email_templates")
-        .insert({ name: draftName, template_data: email as any })
+        .insert({ name: draftName, template_data: email as any, user_id: user?.id })
         .select("id")
         .single();
       if (data?.id) setDraftId(data.id);
