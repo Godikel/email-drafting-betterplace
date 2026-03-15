@@ -48,7 +48,7 @@ export function useEmailTemplates() {
     } else {
       const { data, error } = await supabase
         .from("email_templates")
-        .insert({ name, template_data: email as any })
+        .insert({ name, template_data: email as any, user_id: user?.id })
         .select("id")
         .single();
       if (error) {
