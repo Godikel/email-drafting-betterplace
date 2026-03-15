@@ -251,6 +251,11 @@ const Index = () => {
                 Logout
               </Button>
             </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".html,.htm"
+              className="hidden"
               onChange={handleHtmlUpload}
             />
           </header>
