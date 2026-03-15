@@ -246,11 +246,11 @@ const Index = () => {
               hasRawHtml={!!email.rawHtml}
               onClearRawHtml={handleClearRawHtml}
             />
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".html,.htm"
-              className="hidden"
+              <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5 text-muted-foreground hover:text-foreground">
+                <LogOut className="h-4 w-4" />
+                Logout
+              </Button>
+            </div>
               onChange={handleHtmlUpload}
             />
           </header>
