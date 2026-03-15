@@ -5,8 +5,13 @@ import { EmailEditor } from "@/components/email-builder/EmailEditor";
 import { EmailPreview, generateEmailHtml } from "@/components/email-builder/EmailPreview";
 import { VisualEmailEditor } from "@/components/email-builder/VisualEmailEditor";
 import { EmailActionBar } from "@/components/email-builder/EmailActionBar";
+import { ScriptSettingsDialog } from "@/components/ScriptSettingsDialog";
 import { useEmailTemplates } from "@/hooks/useEmailTemplates";
+import { useScriptSettings } from "@/hooks/useScriptSettings";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 import type { EmailState, ContentBlockType } from "@/types/email";
 
 const initialState: EmailState = {
