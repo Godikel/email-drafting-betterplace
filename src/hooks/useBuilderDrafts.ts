@@ -13,6 +13,7 @@ export interface BuilderDraft {
 }
 
 export function useBuilderDrafts() {
+  const { user } = useAuth();
   const [drafts, setDrafts] = useState<BuilderDraft[]>([]);
   const [loading, setLoading] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
