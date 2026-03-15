@@ -117,6 +117,7 @@ function BuilderInner() {
           <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </Link>
+          <img src="/images/skillbetter-logo.png" alt="skillBetter" className="h-6" />
           <div className="h-5 w-px bg-border" />
           <Input
             value={email.subject}
