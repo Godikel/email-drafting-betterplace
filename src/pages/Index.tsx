@@ -230,6 +230,7 @@ const Index = () => {
           <header className="h-14 flex items-center justify-between border-b bg-card px-4 shadow-card">
             <div className="flex items-center gap-3">
               <SidebarTrigger />
+              <img src="/images/skillbetter-logo.png" alt="skillBetter" className="h-7" />
               <h1 className="text-base font-semibold text-foreground">Email Builder</h1>
               <a href="/builder" className="ml-3 px-3 py-1.5 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
                 ✨ Try New Builder
