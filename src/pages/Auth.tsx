@@ -64,7 +64,17 @@ const Auth = () => {
     }
   };
 
-  return (
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    const { error } = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    setLoading(false);
+    if (error) {
+      toast.error(error.message || "Google sign-in failed");
+    }
+  };
+
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md shadow-lg border-border">
         <CardHeader className="text-center space-y-2">
