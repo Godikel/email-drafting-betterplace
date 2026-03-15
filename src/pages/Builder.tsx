@@ -45,13 +45,14 @@ function BuilderInner() {
   };
 
   const handleSend = async () => {
+    if (!scriptUrl.trim()) { toast.error('Please configure your Script URL in Script Settings first.'); return; }
     if (!email.subject.trim()) { toast.error('Please enter a subject.'); return; }
     if (!email.recipients.trim()) { toast.error('Please enter recipients.'); return; }
     setIsSending(true);
     try {
       const html = generateBuilderHtml(email);
       await fetch(
-        'https://script.google.com/macros/s/AKfycbzrlKhp_vdMTE8vkupLjB5TWZ5B67qKdTg86N7f6LdN0scAzT0CcknB72EPF7kOosEy/exec',
+        scriptUrl,
         {
           method: 'POST', mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain; charset=UTF-8' },
