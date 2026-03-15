@@ -19,10 +19,12 @@ import { toast } from 'sonner';
 function BuilderInner() {
   const { state, dispatch, addBlock, canUndo, canRedo } = useBuilder();
   const email = state.present;
+  const { signOut } = useAuth();
   const [showRecipients, setShowRecipients] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [showTemplates, setShowTemplates] = useState(!email.blocks.length);
   const { drafts, loading: draftsLoading, deleteDraft, autosave, setActiveDraft, draftId } = useBuilderDrafts();
+  const { scriptUrl } = useScriptSettings();
   const prevEmailRef = useRef<string>('');
 
   // Auto-save on email state changes
