@@ -27,6 +27,7 @@ const EMAIL_LOGO_URL = "https://radiant-reply-room.lovable.app/images/skillbette
 let blockIdCounter = 0;
 
 const Index = () => {
+  const { signOut } = useAuth();
   const [activeNav, setActiveNav] = useState("new");
   const [email, setEmail] = useState<EmailState>(initialState);
   const [isSending, setIsSending] = useState(false);
@@ -34,6 +35,7 @@ const Index = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentTemplateId, setCurrentTemplateId] = useState<string | undefined>();
   const { savedTemplates, fetchTemplates, saveTemplate, deleteTemplate, autosaveDraft, setActiveDraft, draftId } = useEmailTemplates();
+  const { scriptUrl } = useScriptSettings();
 
   useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
 
