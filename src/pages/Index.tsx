@@ -5,8 +5,13 @@ import { EmailEditor } from "@/components/email-builder/EmailEditor";
 import { EmailPreview, generateEmailHtml } from "@/components/email-builder/EmailPreview";
 import { VisualEmailEditor } from "@/components/email-builder/VisualEmailEditor";
 import { EmailActionBar } from "@/components/email-builder/EmailActionBar";
+import { ScriptSettingsDialog } from "@/components/ScriptSettingsDialog";
 import { useEmailTemplates } from "@/hooks/useEmailTemplates";
+import { useScriptSettings } from "@/hooks/useScriptSettings";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 import type { EmailState, ContentBlockType } from "@/types/email";
 
 const initialState: EmailState = {
@@ -22,6 +27,7 @@ const EMAIL_LOGO_URL = "https://radiant-reply-room.lovable.app/images/skillbette
 let blockIdCounter = 0;
 
 const Index = () => {
+  const { signOut } = useAuth();
   const [activeNav, setActiveNav] = useState("new");
   const [email, setEmail] = useState<EmailState>(initialState);
   const [isSending, setIsSending] = useState(false);
@@ -29,6 +35,7 @@ const Index = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentTemplateId, setCurrentTemplateId] = useState<string | undefined>();
   const { savedTemplates, fetchTemplates, saveTemplate, deleteTemplate, autosaveDraft, setActiveDraft, draftId } = useEmailTemplates();
+  const { scriptUrl } = useScriptSettings();
 
   useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
 
@@ -171,6 +178,10 @@ const Index = () => {
   }, [setActiveDraft]);
 
   const handleSend = async () => {
+    if (!scriptUrl.trim()) {
+      toast.error("Please configure your Script URL in Script Settings first.");
+      return;
+    }
     if (!email.subject.trim()) {
       toast.error("Please enter a subject.");
       return;
@@ -188,7 +199,7 @@ const Index = () => {
         toast.warning(`HTML is large (${(payloadSize / 1024).toFixed(0)} KB). Gmail may truncate or reject emails over ~100 KB.`);
       }
       await fetch(
-        "https://script.google.com/macros/s/AKfycbzrlKhp_vdMTE8vkupLjB5TWZ5B67qKdTg86N7f6LdN0scAzT0CcknB72EPF7kOosEy/exec",
+        scriptUrl,
         {
           method: "POST",
           mode: "no-cors",
@@ -224,7 +235,9 @@ const Index = () => {
                 ✨ Try New Builder
               </a>
             </div>
-            <EmailActionBar
+            <div className="flex items-center gap-2">
+              <ScriptSettingsDialog />
+              <EmailActionBar
               onPreview={handlePreview}
               onSave={handleSave}
               onSend={handleSend}
@@ -233,6 +246,11 @@ const Index = () => {
               hasRawHtml={!!email.rawHtml}
               onClearRawHtml={handleClearRawHtml}
             />
+              <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5 text-muted-foreground hover:text-foreground">
+                <LogOut className="h-4 w-4" />
+                Logout
+              </Button>
+            </div>
             <input
               ref={fileInputRef}
               type="file"

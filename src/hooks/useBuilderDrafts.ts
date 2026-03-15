@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import type { BuilderEmailState } from "@/types/builder";
 
@@ -12,6 +13,7 @@ export interface BuilderDraft {
 }
 
 export function useBuilderDrafts() {
+  const { user } = useAuth();
   const [drafts, setDrafts] = useState<BuilderDraft[]>([]);
   const [loading, setLoading] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
@@ -48,7 +50,7 @@ export function useBuilderDrafts() {
     } else {
       const { data } = await supabase
         .from("email_templates")
-        .insert({ name: draftName, template_data: email as any })
+        .insert({ name: draftName, template_data: email as any, user_id: user?.id })
         .select("id")
         .single();
       if (data?.id) setDraftId(data.id);

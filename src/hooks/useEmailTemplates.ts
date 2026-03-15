@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import type { EmailState } from "@/types/email";
 
@@ -12,6 +13,7 @@ export interface SavedTemplate {
 }
 
 export function useEmailTemplates() {
+  const { user } = useAuth();
   const [savedTemplates, setSavedTemplates] = useState<SavedTemplate[]>([]);
   const [loading, setLoading] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
@@ -46,7 +48,7 @@ export function useEmailTemplates() {
     } else {
       const { data, error } = await supabase
         .from("email_templates")
-        .insert({ name, template_data: email as any })
+        .insert({ name, template_data: email as any, user_id: user?.id })
         .select("id")
         .single();
       if (error) {
@@ -78,7 +80,7 @@ export function useEmailTemplates() {
     } else {
       const { data } = await supabase
         .from("email_templates")
-        .insert({ name: draftName, template_data: email as any })
+        .insert({ name: draftName, template_data: email as any, user_id: user?.id })
         .select("id")
         .single();
       if (data?.id) setDraftId(data.id);

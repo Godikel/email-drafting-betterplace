@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Undo2, Redo2, Eye, Send, ChevronDown, ChevronUp, Trash2, FileText, Clock } from 'lucide-react';
+import { ArrowLeft, Undo2, Redo2, Eye, Send, ChevronDown, ChevronUp, Trash2, FileText, Clock, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { BuilderProvider, useBuilder } from '@/contexts/BuilderContext';
@@ -11,15 +11,20 @@ import { generateBuilderHtml } from '@/lib/generateBuilderHtml';
 import { BUILDER_TEMPLATES } from '@/types/builder';
 import type { BuilderBlockType, BuilderEmailState } from '@/types/builder';
 import { useBuilderDrafts } from '@/hooks/useBuilderDrafts';
+import { useScriptSettings } from '@/hooks/useScriptSettings';
+import { useAuth } from '@/contexts/AuthContext';
+import { ScriptSettingsDialog } from '@/components/ScriptSettingsDialog';
 import { toast } from 'sonner';
 
 function BuilderInner() {
   const { state, dispatch, addBlock, canUndo, canRedo } = useBuilder();
   const email = state.present;
+  const { signOut } = useAuth();
   const [showRecipients, setShowRecipients] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [showTemplates, setShowTemplates] = useState(!email.blocks.length);
   const { drafts, loading: draftsLoading, deleteDraft, autosave, setActiveDraft, draftId } = useBuilderDrafts();
+  const { scriptUrl } = useScriptSettings();
   const prevEmailRef = useRef<string>('');
 
   // Auto-save on email state changes
@@ -40,13 +45,14 @@ function BuilderInner() {
   };
 
   const handleSend = async () => {
+    if (!scriptUrl.trim()) { toast.error('Please configure your Script URL in Script Settings first.'); return; }
     if (!email.subject.trim()) { toast.error('Please enter a subject.'); return; }
     if (!email.recipients.trim()) { toast.error('Please enter recipients.'); return; }
     setIsSending(true);
     try {
       const html = generateBuilderHtml(email);
       await fetch(
-        'https://script.google.com/macros/s/AKfycbzrlKhp_vdMTE8vkupLjB5TWZ5B67qKdTg86N7f6LdN0scAzT0CcknB72EPF7kOosEy/exec',
+        scriptUrl,
         {
           method: 'POST', mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain; charset=UTF-8' },
@@ -142,6 +148,11 @@ function BuilderInner() {
             </Button>
             <Button variant="default" size="sm" className="h-8 text-xs gap-1.5" onClick={handleSend} disabled={isSending}>
               <Send className="h-3.5 w-3.5" />{isSending ? 'Sending...' : 'Send'}
+            </Button>
+            <div className="h-5 w-px bg-border mx-1" />
+            <ScriptSettingsDialog />
+            <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5 text-muted-foreground hover:text-foreground" onClick={signOut}>
+              <LogOut className="h-3.5 w-3.5" />Logout
             </Button>
           </div>
         </div>
