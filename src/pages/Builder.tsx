@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Undo2, Redo2, Eye, Send, ChevronDown, ChevronUp, Trash2, FileText, Clock } from 'lucide-react';
+import { ArrowLeft, Undo2, Redo2, Eye, Send, ChevronDown, ChevronUp, Trash2, FileText, Clock, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { BuilderProvider, useBuilder } from '@/contexts/BuilderContext';
@@ -11,6 +11,9 @@ import { generateBuilderHtml } from '@/lib/generateBuilderHtml';
 import { BUILDER_TEMPLATES } from '@/types/builder';
 import type { BuilderBlockType, BuilderEmailState } from '@/types/builder';
 import { useBuilderDrafts } from '@/hooks/useBuilderDrafts';
+import { useScriptSettings } from '@/hooks/useScriptSettings';
+import { useAuth } from '@/contexts/AuthContext';
+import { ScriptSettingsDialog } from '@/components/ScriptSettingsDialog';
 import { toast } from 'sonner';
 
 function BuilderInner() {
