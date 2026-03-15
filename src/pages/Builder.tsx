@@ -149,6 +149,11 @@ function BuilderInner() {
             <Button variant="default" size="sm" className="h-8 text-xs gap-1.5" onClick={handleSend} disabled={isSending}>
               <Send className="h-3.5 w-3.5" />{isSending ? 'Sending...' : 'Send'}
             </Button>
+            <div className="h-5 w-px bg-border mx-1" />
+            <ScriptSettingsDialog />
+            <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5 text-muted-foreground hover:text-foreground" onClick={signOut}>
+              <LogOut className="h-3.5 w-3.5" />Logout
+            </Button>
           </div>
         </div>
         {showRecipients && (
