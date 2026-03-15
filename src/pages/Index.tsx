@@ -235,7 +235,9 @@ const Index = () => {
                 ✨ Try New Builder
               </a>
             </div>
-            <EmailActionBar
+            <div className="flex items-center gap-2">
+              <ScriptSettingsDialog />
+              <EmailActionBar
               onPreview={handlePreview}
               onSave={handleSave}
               onSend={handleSend}
