@@ -13,6 +13,7 @@ export interface SavedTemplate {
 }
 
 export function useEmailTemplates() {
+  const { user } = useAuth();
   const [savedTemplates, setSavedTemplates] = useState<SavedTemplate[]>([]);
   const [loading, setLoading] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
