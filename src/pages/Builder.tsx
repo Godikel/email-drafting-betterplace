@@ -15,6 +15,7 @@ import { useScriptSettings } from '@/hooks/useScriptSettings';
 import { useAuth } from '@/contexts/AuthContext';
 import { ScriptSettingsDialog } from '@/components/ScriptSettingsDialog';
 import { toast } from 'sonner';
+import skillBetterLogo from '@/assets/skillbetter-logo.png';
 
 function BuilderInner() {
   const { state, dispatch, addBlock, canUndo, canRedo } = useBuilder();
