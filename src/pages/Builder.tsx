@@ -15,6 +15,7 @@ import { useScriptSettings } from '@/hooks/useScriptSettings';
 import { useAuth } from '@/contexts/AuthContext';
 import { ScriptSettingsDialog } from '@/components/ScriptSettingsDialog';
 import { toast } from 'sonner';
+import skillBetterLogo from '@/assets/skillbetter-logo.png';
 
 function BuilderInner() {
   const { state, dispatch, addBlock, canUndo, canRedo } = useBuilder();
@@ -117,7 +118,7 @@ function BuilderInner() {
           <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          <img src="/images/skillbetter-logo.png" alt="skillBetter" className="h-6" />
+          <img src={skillBetterLogo} alt="skillBetter" className="h-6" />
           <div className="h-5 w-px bg-border" />
           <Input
             value={email.subject}
