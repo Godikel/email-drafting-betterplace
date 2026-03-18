@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import type { EmailState, ContentBlockType } from "@/types/email";
+import skillBetterLogo from "@/assets/skillbetter-logo.png";
 
 const initialState: EmailState = {
   subject: "",
