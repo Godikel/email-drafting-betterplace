@@ -678,7 +678,7 @@ function VisualFooter({ meta, onMetaChange }: { meta: Record<string, any>; onMet
   return (
     <div style={{ background: "#f6f9fc", borderTop: "2px solid #e0eaf2", padding: "30px 40px", textAlign: "center" }}>
       <div style={{ marginBottom: 18 }}>
-        <img src="https://radiant-reply-room.lovable.app/images/skillbetter-logo.png" alt="Logo" style={{ height: 32, margin: "0 auto", display: "block" }} />
+        <img src="https://email-drafting-betterplace.lovable.app/images/skillbetter-logo.png" alt="Logo" style={{ height: 32, margin: "0 auto", display: "block" }} />
       </div>
       <Editable value={meta.tagline || ""} onChange={(v) => onMetaChange({ ...meta, tagline: v })} as="p" multiline style={{ fontSize: 13, color: "#4a5e72", lineHeight: 1.7, marginBottom: 16 }} />
       <Editable value={meta.note || ""} onChange={(v) => onMetaChange({ ...meta, note: v })} as="p" style={{ fontSize: 10, color: "#a0adb8", marginTop: 14 }} />
