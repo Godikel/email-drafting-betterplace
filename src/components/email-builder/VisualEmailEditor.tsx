@@ -318,7 +318,7 @@ function VisualTopbar({ meta, onMetaChange }: { meta: Record<string, any>; onMet
     <div style={{ background: "#ffffff", padding: "16px 32px", borderBottom: "1px solid #e8ecf0" }}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <img src="https://radiant-reply-room.lovable.app/images/skillbetter-logo.png" alt="Logo" style={{ height: 34 }} />
+          <img src="https://email-drafting-betterplace.lovable.app/images/skillbetter-logo.png" alt="Logo" style={{ height: 34 }} />
           <div style={{ width: 1, height: 28, background: "#d0d8e0" }} />
           <div style={{ background: "#f0f4f8", border: "1px solid #dde3ea", borderRadius: 10, padding: "8px 14px" }}>
             <div className="flex items-center gap-1.5">
