@@ -2,6 +2,8 @@ import { Mail, FileText, PlusCircle, Sparkles, Pencil, Save, Trash2 } from "luci
 import { iffcoTokioTemplate } from "@/templates/iffcoTokioTemplate";
 import { iffcoTokioEditableTemplate } from "@/templates/iffcoTokioEditableTemplate";
 import { iffcoTokioV2Template } from "@/templates/iffcoTokioV2Template";
+import { navbackTemplate } from "@/templates/navbackTemplate";
+import { purplleTemplate } from "@/templates/purplleTemplate";
 import type { EmailState } from "@/types/email";
 import type { SavedTemplate } from "@/hooks/useEmailTemplates";
 import {
@@ -27,6 +29,8 @@ export const templates: Record<string, EmailState> = {
   aiRoadmap: iffcoTokioTemplate,
   aiRoadmapEditable: iffcoTokioEditableTemplate,
   aiRoadmapV2: iffcoTokioV2Template,
+  navback: navbackTemplate,
+  purplle: purplleTemplate,
 };
 
 const navItems = [
