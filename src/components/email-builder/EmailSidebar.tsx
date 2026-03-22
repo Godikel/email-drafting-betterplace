@@ -2,6 +2,8 @@ import { Mail, FileText, PlusCircle, Sparkles, Pencil, Save, Trash2 } from "luci
 import { iffcoTokioTemplate } from "@/templates/iffcoTokioTemplate";
 import { iffcoTokioEditableTemplate } from "@/templates/iffcoTokioEditableTemplate";
 import { iffcoTokioV2Template } from "@/templates/iffcoTokioV2Template";
+import { navbackTemplate } from "@/templates/navbackTemplate";
+import { purplleTemplate } from "@/templates/purplleTemplate";
 import type { EmailState } from "@/types/email";
 import type { SavedTemplate } from "@/hooks/useEmailTemplates";
 import {
@@ -27,6 +29,8 @@ export const templates: Record<string, EmailState> = {
   aiRoadmap: iffcoTokioTemplate,
   aiRoadmapEditable: iffcoTokioEditableTemplate,
   aiRoadmapV2: iffcoTokioV2Template,
+  navback: navbackTemplate,
+  purplle: purplleTemplate,
 };
 
 const navItems = [
@@ -104,6 +108,24 @@ export function EmailSidebar({ active, onNavigate, onTemplateLoad, savedTemplate
                 >
                   <Pencil className="mr-2 h-4 w-4" />
                   <span>AI Roadmap V2</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => onTemplateLoad?.("navback")}
+                  className="text-sidebar-foreground hover:bg-muted"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  <span>Navback</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => onTemplateLoad?.("purplle")}
+                  className="text-sidebar-foreground hover:bg-muted"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  <span>Purplle</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
