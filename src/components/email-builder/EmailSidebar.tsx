@@ -110,6 +110,24 @@ export function EmailSidebar({ active, onNavigate, onTemplateLoad, savedTemplate
                   <span>AI Roadmap V2</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => onTemplateLoad?.("navback")}
+                  className="text-sidebar-foreground hover:bg-muted"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  <span>Navback</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => onTemplateLoad?.("purplle")}
+                  className="text-sidebar-foreground hover:bg-muted"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  <span>Purplle</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
