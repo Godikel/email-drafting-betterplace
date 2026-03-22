@@ -23,7 +23,7 @@ const initialState: EmailState = {
   rawHtml: undefined,
 };
 
-const EMAIL_LOGO_URL = "https://radiant-reply-room.lovable.app/images/skillbetter-logo.png";
+const EMAIL_LOGO_URL = "https://email-drafting-betterplace.lovable.app/images/skillbetter-logo.png";
 
 let blockIdCounter = 0;
 
