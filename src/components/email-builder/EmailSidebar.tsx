@@ -4,6 +4,7 @@ import { iffcoTokioEditableTemplate } from "@/templates/iffcoTokioEditableTempla
 import { iffcoTokioV2Template } from "@/templates/iffcoTokioV2Template";
 import { navbackTemplate } from "@/templates/navbackTemplate";
 import { purplleTemplate } from "@/templates/purplleTemplate";
+import { biiGenderInclusivityTemplate } from "@/templates/biiGenderInclusivityTemplate";
 import type { EmailState } from "@/types/email";
 import type { SavedTemplate } from "@/hooks/useEmailTemplates";
 import {
