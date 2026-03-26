@@ -32,6 +32,7 @@ export const templates: Record<string, EmailState> = {
   aiRoadmapV2: iffcoTokioV2Template,
   navback: navbackTemplate,
   purplle: purplleTemplate,
+  biiGenderInclusivity: biiGenderInclusivityTemplate,
 };
 
 const navItems = [
