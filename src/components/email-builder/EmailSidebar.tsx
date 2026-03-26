@@ -4,6 +4,7 @@ import { iffcoTokioEditableTemplate } from "@/templates/iffcoTokioEditableTempla
 import { iffcoTokioV2Template } from "@/templates/iffcoTokioV2Template";
 import { navbackTemplate } from "@/templates/navbackTemplate";
 import { purplleTemplate } from "@/templates/purplleTemplate";
+import { biiGenderInclusivityTemplate } from "@/templates/biiGenderInclusivityTemplate";
 import type { EmailState } from "@/types/email";
 import type { SavedTemplate } from "@/hooks/useEmailTemplates";
 import {
@@ -31,6 +32,7 @@ export const templates: Record<string, EmailState> = {
   aiRoadmapV2: iffcoTokioV2Template,
   navback: navbackTemplate,
   purplle: purplleTemplate,
+  biiGenderInclusivity: biiGenderInclusivityTemplate,
 };
 
 const navItems = [
@@ -126,6 +128,15 @@ export function EmailSidebar({ active, onNavigate, onTemplateLoad, savedTemplate
                 >
                   <Sparkles className="mr-2 h-4 w-4" />
                   <span>Purplle</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => onTemplateLoad?.("biiGenderInclusivity")}
+                  className="text-sidebar-foreground hover:bg-muted"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  <span>BII Gender Inclusivity</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
