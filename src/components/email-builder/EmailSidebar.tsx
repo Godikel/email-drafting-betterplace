@@ -130,6 +130,15 @@ export function EmailSidebar({ active, onNavigate, onTemplateLoad, savedTemplate
                   <span>Purplle</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => onTemplateLoad?.("biiGenderInclusivity")}
+                  className="text-sidebar-foreground hover:bg-muted"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  <span>BII Gender Inclusivity</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
